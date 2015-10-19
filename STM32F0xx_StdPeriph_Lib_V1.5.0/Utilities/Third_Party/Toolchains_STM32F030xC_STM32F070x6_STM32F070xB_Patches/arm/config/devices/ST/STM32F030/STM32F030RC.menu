@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<optionMenuItem>
+  <tag>STM32F030RC</tag>
+  <display>ST STM32F030RC</display>
+  <data>$CUR_DIR$\STM32F030RC.i79</data>
+</optionMenuItem>
+
