@@ -6,7 +6,7 @@ void init_HSI (void)
 	if ((RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) 
 	{
 		/* (2) Select HSI as system clock */
-		RCC->CFGR &= (uint32_t) (~RCC_CFGR_SW); 
+		RCC->CFGR &= ~RCC_CFGR_SW; 
 		
 		/* (3) Wait for HSI switched */
 		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI) ;
@@ -17,7 +17,7 @@ void init_HSI (void)
 void init_PLL (void)
 {
 	/* (4) Disable the PLL */
-	RCC->CR &= (uint32_t)(~RCC_CR_PLLON);
+	RCC->CR &= ~RCC_CR_PLLON;
 	
 	/* (5) Wait until PLLRDY is cleared */
 	while((RCC->CR & RCC_CR_PLLRDY) != 0)	;
