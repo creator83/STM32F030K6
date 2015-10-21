@@ -13,5 +13,7 @@ int main ()
 	{
 		transmit_string ("Hello");
 		delay_ms (1000);
+		transmit_byte (0xFF);
+		delay_ms (1000);
 	}
 }
