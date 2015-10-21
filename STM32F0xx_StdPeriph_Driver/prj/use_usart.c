@@ -11,7 +11,7 @@ int main ()
 
 	while (1)
 	{
-		transmit_string ("Hello");
+		transmit_string ("Hello, my Prend");
 		delay_ms (1000);
 		transmit_byte (0xFF);
 		delay_ms (1000);
