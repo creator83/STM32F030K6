@@ -15,10 +15,11 @@
 
 void max6675_init (void);
 
-uint8_t readCelsius(void);
+double readCelsius(void);
 
-uint8_t spiread(void);
+uint16_t spiread(void);
 
+void buffer (double val);
 
 
 #endif

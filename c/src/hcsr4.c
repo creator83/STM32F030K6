@@ -60,7 +60,7 @@ double HC_SRC4_Convert_CM (uint16_t N_t)
 
 void HC_SRC4_to_buff (double Nmb)
 {
-	char hundr, dec, ones, decimal;
+	char dec, ones, decimal;
 	/*
   
    hundr = (char)Nmb/100;

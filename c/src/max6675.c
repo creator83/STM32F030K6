@@ -1,7 +1,8 @@
 #include "max6675.h"
 #include "spi.h"
 
-
+char number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+char buff [4];
 
 #ifdef SOFTSPI
 
@@ -12,12 +13,12 @@ void max6675_init (void)
   GPIOA->MODER |= GPIO_MODER_MODER5_0|GPIO_MODER_MODER4_0;
 }
 
-uint8_t spiread(void)
+uint16_t spiread(void)
 {
   int8_t i;
-  uint8_t d = 0;
+  uint16_t d = 0;
 
-  for (i=7; i>=0; i--)
+  for (i=15; i>=0; i--)
   {
     GPIOA->ODR &=~(1 << sclk);
     delay_ms(1);
@@ -33,7 +34,7 @@ uint8_t spiread(void)
   return d;
 }
 
-uint8_t readCelsius(void)
+double readCelsius(void)
 {
   uint16_t v;
 
@@ -41,9 +42,7 @@ uint8_t readCelsius(void)
   delay_ms(1);
 
   v = spiread();
-  v <<= 8;
-  v |= spiread();
-
+  
   GPIOA->ODR |=(1 << cs);
 
   if (v & 0x4) {
@@ -54,7 +53,7 @@ uint8_t readCelsius(void)
 
   v >>= 3;
 
-  return (uint8_t)v*0.25-7;
+  return v*0.25;
 }
 #else
 
@@ -63,21 +62,16 @@ void max6675_init (void)
 	init_spi ();
 }
 
-uint8_t spiread(void)
-{
-	return transfer (0);
-}
-
-uint8_t readCelsius(void)
+double readCelsius(void)
 {
   uint16_t v;
 
   clear_cs ();
   delay_ms(1);
 
-  v = spiread();
+  v = transfer(0);
   v <<= 8;
-  v |= spiread();
+  v |= transfer(0);
 
   set_cs ();
 
@@ -89,11 +83,20 @@ uint8_t readCelsius(void)
 
   v >>= 3;
 
-  return (uint8_t)v*0.25-9;
+  return v*0.25;
 }
 #endif
 
-
+void buffer (double val)
+{
+	char dec, ones, decimal;
+	dec = val/10;
+	buff[0] = number [dec];
+	ones = (int)val%10;
+	buff[1] = number [ones];
+	decimal = (int)(val*10)%10;
+	buff[3] = number [decimal];
+}
 
 
 
