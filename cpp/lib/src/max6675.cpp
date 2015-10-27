@@ -1,6 +1,6 @@
 #include "max6675.h"
 
-
+char max6675::number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
 #ifdef SOFTSPI
 max6675::max6675(PORT p, int8_t SCLK, int8_t CS, int8_t MISO)
@@ -11,39 +11,50 @@ max6675::max6675(PORT p, int8_t SCLK, int8_t CS, int8_t MISO)
   miso = MISO;
   pin.setOutPin(sclk);
   pin.setOutPin(cs);
-  pin.setPin (sclk);
+  //pin.setPin (sclk);
   pin.setPin (cs);
 }
 
-uint8_t max6675::spiread()
+uint16_t max6675::spiread()
 {
   uint8_t data = 0;
 
-  for (int8_t i=7; i>=0; i--)
+  for (int8_t i=15; i>=0; i--)
   {
-    pin.setPin(sclk);
-    delay_ms(1);
+    
     if (GPIOA->IDR & (1 << miso)) 
       {
+				pin.setPin(sclk);
+				delay_ms(1);
       //set the bit to 0 no matter what
       data |= (1 << i);
       }
+		pin.clearPin(sclk);
+		delay_ms (1);
   }
   return data;
 }
 
-uint16_t max6675::getCode()
+void max6675::readTemp()
 {
   pin.clearPin(cs);
   delay_ms (1);
-  byteCode.code8[1] = spiread();
-  byteCode.code8[0] = spiread();
+  byteCode.code16 = spiread();
   pin.setPin (cs);
   byteCode.code16 >>= 3;
-  return byteCode.code16;
+  t = static_cast <double> (byteCode.code16*0.25);
 }
 
-
+void max6675::buffer (double val)
+{
+	char dec, ones, decimal;
+	dec = val/10;
+	buff[0] = number [dec];
+	ones = (int)val%10;
+	buff[1] = number [ones];
+	decimal = (int)(val*10)%10;
+	buff[3] = number [decimal];
+}
 #else 
 
 
@@ -66,9 +77,3 @@ uint16_t max6675::getCode()
 
 #endif
 
-
-uint8_t max6675::getTemp()
-{
-  double c = getCode()*0.25;
-  return static_cast <uint8_t>(c);
-}
