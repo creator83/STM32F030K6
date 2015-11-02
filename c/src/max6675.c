@@ -1,6 +1,8 @@
 #include "max6675.h"
 #include "spi.h"
 
+char number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+char buff [4];
 
 
 #ifdef SOFTSPI
@@ -60,24 +62,17 @@ uint8_t readCelsius(void)
 
 void max6675_init (void)
 {
-	init_spi ();
+	init_spi_16 ();
 }
 
-uint8_t spiread(void)
-{
-	return transfer (0);
-}
-
-uint8_t readCelsius(void)
+double readCelsius(void)
 {
   uint16_t v;
 
   clear_cs ();
   delay_ms(1);
 
-  v = spiread();
-  v <<= 8;
-  v |= spiread();
+  v = spi1_rx();
 
   set_cs ();
 
@@ -89,12 +84,22 @@ uint8_t readCelsius(void)
 
   v >>= 3;
 
-  return (uint8_t)v*0.25-9;
+  return v*0.25;
 }
 #endif
 
 
-
+void buffer (double val)
+{
+	char dec, ones, decimal;
+	dec = val/10;
+	buff[0] = number [dec];
+	ones = (int)val%10;
+	buff[1] = number [ones];
+	buff [2] = '.';
+	decimal = (int)(val*10)%10;
+	buff[3] = number [decimal];
+}
 
 
 
