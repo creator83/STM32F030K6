@@ -10,13 +10,19 @@ int main()
 {
   tact frq;
   uart uart1 (uart::baud9600);
-  max6675 sensor (max6675::A , 0 , 1 , 2);
+  max6675 sensor (max6675::A , 5 , 4 , 6);
   //max6675 sensor;
   
   
   while (1)
   {
-    uart1.transmit (sensor.getTemp());
-    delay_ms (1000);
+		sensor.readTemp();
+		sensor.buffer (sensor.getTemp());
+		uart1.transmit ("==");
+		for (uint8_t i=0;i<4;++i)
+		{
+			uart1.transmit (sensor.buff[i]);
+		}
+    delay_ms (500);
   }
 }

@@ -30,22 +30,26 @@ private:
     uint8_t code8 [2];
   } byteCode;
   uint8_t sclk, miso, cs;
+	double t;
+	static char number [10];
 //functions
 public:
+	char buff[4];
   
 #ifdef SOFTSPI
   max6675(PORT, int8_t SCLK, int8_t CS, int8_t MISO);
-  uint8_t spiread();
+  uint16_t spiread();
 #else
   max6675();    
 #endif
         
-  uint16_t getCode();
   void getChar();
-  uint8_t getTemp();
+  double getTemp(){return t;};
+	void readTemp();
+	void buffer (double val);
 protected:
 private:
-
+	
 
 }; 
 

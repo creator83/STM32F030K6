@@ -24,5 +24,4 @@ void delay_us(uint16_t delay)
    while (TIM16->CR1&TIM_CR1_CEN);   
  }
 
-
- 
+//endl; 
