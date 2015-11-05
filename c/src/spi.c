@@ -38,10 +38,10 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 
 	
 	//CPOL
-	SPI1->CR1 |= SPI_CR1_CPOL;
+	//SPI1->CR1 |= SPI_CR1_CPOL;
 	
 	//CPHA
-	SPI1->CR1 |= SPI_CR1_CPHA;
+	//SPI1->CR1 |= SPI_CR1_CPHA;
 	
 	//Division
 	SPI1->CR1 |= SPI_CR1_BR
@@ -125,11 +125,10 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 	 SPI1->CR1 |= SPI_CR1_SPE;	
 }
 
-uint8_t transfer (uint8_t data)
+void spi1_tx (uint8_t data)
 {
 	while (SPI1->SR&SPI_SR_BSY);
 	*(uint8_t *)&(SPI1->DR) = data;
-	return (uint8_t)SPI1->DR;
 }
 
 void set_cs (void)
@@ -142,9 +141,16 @@ void clear_cs (void)
 	GPIOA->ODR &= ~(1 << CS);
 }
 
-uint16_t spi1_rx (void)
+uint16_t spi1_rx_16 (void)
+{
+	SPI1->DR = 0x0000;
+	while (!(SPI1->SR&SPI_SR_RXNE));
+	return SPI1->DR;
+}
+
+uint8_t spi1_rx_8 (void)
 {
 	*(uint8_t *)&(SPI1->DR) = 0x00;
 	while (!(SPI1->SR&SPI_SR_RXNE));
-	return SPI1->DR;
+	return (uint8_t )SPI1->DR;
 }

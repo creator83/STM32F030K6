@@ -16,15 +16,16 @@ public:
   enum Cpol {neg, pos};
   enum Cpha {falling, rising};
   enum pin_def {CS = 4 , SCK , MISO , MOSI};
+	enum Size {bit4 = 3, bit5, bit6,  bit7,  bit8,  bit9,  bit10, bit11, bit12, bit13, bit14, bit15, bit16};
 private:
   Gpio pin;
   
 //function
 public:
-  spi(Division div, Cpol cpl = neg, Cpha cph = falling, Role r = master);
+  spi(Division div, Cpol cpl = neg, Cpha cph = falling, Role r = master, Size s=bit8);
   void Set_CS ();
   void Clear_CS ();
-  uint8_t transfer (uint8_t data);
+  uint8_t transmit (uint8_t data);
 private:
 };
 

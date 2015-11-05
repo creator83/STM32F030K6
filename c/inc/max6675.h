@@ -3,6 +3,7 @@
 
 //Soft Spi
 //#define SOFTSPI
+//#define Decimal
 
 //Pins for Soft Spi
 #define sclk 5
@@ -15,11 +16,24 @@
 
 void max6675_init (void);
 
+#ifdef Decimal
 double readCelsius(void);
 
 void buffer (double val);
 
+#else
+uint16_t readCelsius(void);
 
+void buffer (uint16_t val);
 
+uint16_t division (uint16_t n);
+/*
+struct divmod10_t
+{
+    uint32_t quot;
+    uint8_t rem;
+};*/
+
+#endif
 
 #endif

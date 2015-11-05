@@ -1,12 +1,12 @@
 #include "spi.h"
 
-spi::spi(Division div, Cpol cpl, Cpha cph, Role r)
+spi::spi(Division div, Cpol cpl, Cpha cph, Role r, Size s)
 :pin (Gpio::A)
 {
-  //Включение тактирования SPI
+  //tact SPI1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
   
-  //===настройка выходов/входов===//
+  //===Settings pins===//
 
   //CS
   pin.setOutPin (CS);
@@ -24,12 +24,10 @@ spi::spi(Division div, Cpol cpl, Cpha cph, Role r)
   Set_CS ();
   
   
-  //===Настройка модуля SPI===//
+  //===Settings SPI===//
   
-  //очистка
-  SPI1->CR1 = 0;
 
-  //режим Master/Slave
+  //Mode Master/Slave
   SPI1->CR1 |= r << 2;
     
   // CPOL
@@ -38,14 +36,18 @@ spi::spi(Division div, Cpol cpl, Cpha cph, Role r)
   //CPHA
   SPI1->CR1 |= cph << 0;
   
-  // настройка скорости
+  // Division
   SPI1->CR1 |= div << 3;
+	
+	//Data size
+	SPI1->CR2 &= ~SPI_CR2_DS;
+	SPI1->CR2 |= s << 8;
   
   //Soft mode  
    SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
 
-   //Включение
+   //Turn on spi1
    SPI1->CR1 |= SPI_CR1_SPE;
 
 
