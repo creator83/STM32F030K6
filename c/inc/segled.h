@@ -12,7 +12,7 @@
 
 void segled_init (void);
 
-void Show_digit (uint8_t);
+void Show_digit (uint8_t dig);
 
 void buffer (uint16_t val);
 

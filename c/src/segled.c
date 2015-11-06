@@ -5,19 +5,19 @@ char number [11] = {0x7B , 0x0A , 0xB3 , 0x9F , 0xCA , 0xD9 , 0xF9 , 0x0B , 0xFB
 
 char buff [4];
 
-char pins[4] = {};
+char pins[4] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 	
-	uint16_t k = 4532;
+	//uint16_t k = 4532;
 //
 uint8_t n;
 
 void TIM17_IRQHandler(void)
 {
 	static uint8_t i;
-	buffer (k);
+	//buffer (k);
 	for (i=0;i<n;++i)
 	{
-		
+		Show_digit (i);
 	}
 }
 
@@ -41,9 +41,12 @@ void segled_init (void)
 	NVIC_EnableIRQ (TIM17_IRQn);
 }
 
-void Show_digit (uint8_t number)
+void Show_digit (uint8_t dig)
 {
-	
+	PORT->ODR &= ~(1<<DIGIT1|1<<DIGIT2|1<<DIGIT3|1<<DIGIT4);
+	GPIOB->ODR &= ~0xFF;
+	PORT->ODR |= 1 << pins[n];
+	GPIOB->ODR = number [buff [n]];
 }
 
 void buffer (uint16_t val)
