@@ -2,10 +2,10 @@
 #include "delay.h"
 
 #define PORT GPIOA
-#define DIGIT1 1 
-#define DIGIT2 2
-#define DIGIT3 3
-#define DIGIT4 4
+#define DIGIT1 0 
+#define DIGIT2 1
+#define DIGIT3 2
+#define DIGIT4 3
 
 #ifndef SEGLED_H
 #define SEGLED_H
