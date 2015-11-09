@@ -2,7 +2,7 @@
 #include "spi.h"
 
 char number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-char buff [4] = {0, 0, '.', '0'};
+char max6675_buff [4] = {0, 0, '.', '0'};
 
 
 #ifdef SOFTSPI
@@ -87,16 +87,16 @@ double readCelsius(void)
   return v*0.25;
 }
 
-void buffer (double val)
+void max6675_buffer (double val)
 {
 	char dec, ones, decimal;
 	dec = val/10;
-	buff[0] = number [dec];
+	max6675_buff[0] = number [dec];
 	ones = (int)val%10;
-	buff[1] = number [ones];
-	buff [2] = '.';
+	max6675_buff[1] = number [ones];
+	max6675_buff [2] = '.';
 	decimal = (int)(val*10)%10;
-	buff[3] = number [decimal];
+	max6675_buff[3] = number [decimal];
 }
 #else
 
@@ -122,13 +122,13 @@ uint16_t readCelsius(void)
   return v;
 }
 
-void buffer (uint16_t val)
+void max6675_buffer (uint16_t val)
 {
 	char dec, ones;
 	dec = division (val);
-	buff[0] = number [dec];
+	max6675_buff[0] = number [dec];
 	ones = val%10;
-	buff[1] = number [ones];
+	max6675_buff[1] = number [ones];
 }
 
 uint16_t division (uint16_t n)
