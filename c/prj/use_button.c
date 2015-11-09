@@ -4,25 +4,36 @@
 #include "segled.h"
 #include "encoder.h"
 
-uint8_t button, flag1, flag_seg;
+uint8_t button, flag1, flag_seg, flag_tim;
 
 void TIM14_IRQHandler(void)
 {
 	
 	static uint16_t i=0,j=0,k=0;
 	TIM14->SR &= ~TIM_SR_UIF;	
-	if (k>1000)
+	if (k>500)
 	{
-		
-		TIM17->CR1 ^= TIM_CR1_CEN;
+		flag_tim ^=1;
+		if(flag_tim)
+		{
+			TIM17->CR1 &= ~TIM_CR1_CEN;
+			GPIOA->ODR &= ~0x0F;
+			k=0;
+		}
+		else
+		{
+			TIM17->CR1 |= TIM_CR1_CEN;
+			k=0;
+		}
+			
 	}
 	if (flag_seg)++k;
-	else k=0;
+	else TIM17->CR1 |= TIM_CR1_CEN;
 
 	
 	//===Button===//
 	//Quick press
-	if (i>15&&GPIOA->IDR&(1 << 11))
+	if (i>25&&i<300&&GPIOA->IDR&(1 << 11))
 	{
 			flag1=1;
 			i=0;
@@ -87,7 +98,7 @@ int main ()
 	button_init ();
 	tim14_init ();
 	buffer (5632);
-	//	flag_seg = 1;	
+	
 	while (1)
 	{
 		
@@ -99,14 +110,7 @@ int main ()
 		if (flag1==2)
 		{
 			NVIC_DisableIRQ(TIM14_IRQn);
-			GPIOA->ODR |= 1 << 15;
-			delay_ms (1000);
-			GPIOA->ODR &= ~(1 << 15);
-			delay_ms (1000);
-			GPIOA->ODR |= 1 << 15;
-			delay_ms (1000);
-			GPIOA->ODR &= ~(1 << 15);
-			delay_ms (1000);			
+			flag_seg ^= 1;	
 			flag1=0;
 			NVIC_EnableIRQ (TIM14_IRQn);
 		}
