@@ -63,11 +63,17 @@ void spi::Clear_CS ()
   pin.clearPin (CS);
 }
 
-uint8_t spi::transfer (uint8_t data)
+void spi::transmit_8 (uint8_t data)
 {
-  SPI1->DR = data << 8;
-  while (SPI1->SR&SPI_SR_BSY);
-  return static_cast <uint8_t> (SPI1->DR);
+	while (SPI1->SR&SPI_SR_BSY);
+	*(uint8_t *)&(SPI1->DR) = data;
 }
+
+uint8_t spi::receive_8 ()
+{
+	while (!(SPI1->SR&SPI_SR_RXNE));
+	return static_cast <uint8_t>(SPI1->DR);	
+}
+
 
 

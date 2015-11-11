@@ -1,7 +1,7 @@
 #include "max6675.h"
 #include "spi.h"
 
-char number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+char max6675_number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 char max6675_buff [4] = {0, 0, '.', '0'};
 
 
@@ -91,12 +91,12 @@ void max6675_buffer (double val)
 {
 	char dec, ones, decimal;
 	dec = val/10;
-	max6675_buff[0] = number [dec];
+	max6675_buff[0] = max6675_number [dec];
 	ones = (int)val%10;
-	max6675_buff[1] = number [ones];
+	max6675_buff[1] = max6675_number [ones];
 	max6675_buff [2] = '.';
 	decimal = (int)(val*10)%10;
-	max6675_buff[3] = number [decimal];
+	max6675_buff[3] = max6675_number [decimal];
 }
 #else
 
@@ -126,9 +126,9 @@ void max6675_buffer (uint16_t val)
 {
 	char dec, ones;
 	dec = division (val);
-	max6675_buff[0] = number [dec];
+	max6675_buff[0] = max6675_number [dec];
 	ones = val%10;
-	max6675_buff[1] = number [ones];
+	max6675_buff[1] = max6675_number [ones];
 }
 
 uint16_t division (uint16_t n)

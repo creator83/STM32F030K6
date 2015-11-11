@@ -20,12 +20,15 @@ public:
 private:
   Gpio pin;
   
-//function
+//functions
 public:
   spi(Division div, Cpol cpl = neg, Cpha cph = falling, Role r = master, Size s=bit8);
   void Set_CS ();
   void Clear_CS ();
-  uint8_t transmit (uint8_t data);
+  void transmit_8 (uint8_t data);
+	uint8_t receive_8 ();
+  void transmit_16 (uint16_t data);
+	uint16_t receive_16 ();
 private:
 };
 
