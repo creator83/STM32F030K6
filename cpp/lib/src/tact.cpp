@@ -52,10 +52,21 @@ void tact::init_hse ()
 
 void tact::init_hsi ()
 {
+	/*
   RCC->CR |= RCC_CR_HSION;
   while (!((RCC->CR)&RCC_CR_HSIRDY));
   RCC->CFGR &= ~RCC_CFGR_SW;
-  RCC->CFGR |= RCC_CFGR_SW_HSI;
+  RCC->CFGR |= RCC_CFGR_SW_HSI;*/
+			/* (1) Test if PLL is used as System clock */
+	if ((RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) 
+	{
+		/* (2) Select HSI as system clock */
+		RCC->CFGR &= ~RCC_CFGR_SW; 
+		
+		/* (3) Wait for HSI switched */
+		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI) ;
+	
+	}
 }
 void tact::Set_frq (uint8_t frq)
 {
@@ -65,7 +76,7 @@ void tact::Set_frq (uint8_t frq)
   
 }
 
-//настройка на 48МГц
+//Init PLL
 void tact::init_pll ()
 {
   RCC->CFGR &= ~(RCC_CFGR_PLLSRC|RCC_CFGR_PLLXTPRE|RCC_CFGR_PLLMUL);  
