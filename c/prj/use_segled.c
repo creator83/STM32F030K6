@@ -4,7 +4,7 @@
 #include "segled.h"
 #include "encoder.h"
 
-extern char number [11];
+//extern char number [11];
 
 int main ()
 {
@@ -13,12 +13,13 @@ int main ()
 	
 	init_HSI ();
 	init_PLL ();
-	encoder_init ();
+	//encoder_init ();
 	segled_init ();
-	TIM1->CNT = 1044;
+	//TIM1->CNT = 1044;
+	buffer (8562);
 	while(1)
 	{
-		buffer (TIM1->CNT>>2);
+		
 		/*i = TIM1->CNT>>2;
 		GPIOB->ODR = number [i];
 		

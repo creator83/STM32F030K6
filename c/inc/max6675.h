@@ -24,9 +24,9 @@ void max6675_buffer (double val);
 #else
 uint16_t readCelsius(void);
 
-void max6675_buffer (uint16_t val);
+//void max6675_buffer (uint16_t val);
 
-uint16_t division (uint16_t n);
+//uint16_t division (uint16_t n);
 /*
 struct divmod10_t
 {

@@ -121,7 +121,7 @@ uint16_t readCelsius(void)
 	
   return v;
 }
-
+/*
 void max6675_buffer (uint16_t val)
 {
 	char dec, ones;
@@ -154,7 +154,7 @@ uint16_t division (uint16_t n)
     }
     return quot;
 
-}
+}*/
 
 #endif
 

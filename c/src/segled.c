@@ -1,14 +1,19 @@
 #include "segled.h"
 
 //led digit
-char number [11] = {0x7B , 0x0A , 0xB3 , 0x9F , 0xCA , 0xD9 , 0xF9 , 0x0B , 0xFB , 0xDB , 0x00};
+char number [13] = {0x7B , 0x0A , 0xB3 , 0x9F , 0xCA , 0xD9 , 0xF9 , 0x0B , 0xFB , 0xDB , 0x00, 0x60, 0x6A};
+//heater mode
+//char mode [3] = {0, 0x60, 0x6A};
 
 char buff [4];
 
 char pins[4] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 char flag = 0;
 
+extern uint8_t button_enc;
+
 uint8_t n;
+
 
 void TIM17_IRQHandler(void)
 {
@@ -55,14 +60,57 @@ void Show_digit (uint8_t dig)
 	GPIOB->ODR = number [buff [dig]];
 }
 
+#ifdef PPR_SOLDER
+void buffer (uint16_t val)
+{
+	char hundr, dec, ones;
+	uint16_t temp = val;
+	for (hundr=0;temp>=100;++hundr)temp -=100;
+	
+	for (dec=0;temp>=10;++dec)temp -=10;
+
+	for (ones=0;temp>=1;++ones)temp--;
+	n=4;
+		if (hundr)
+	{	
+		buff[3] = button_enc+OFF;
+		buff[2] = hundr;
+		buff[1] = dec;
+		buff[0] = ones;
+	}
+		else if (!(dec || hundr))
+	{
+		buff[3] = button_enc+OFF;
+		buff[2] = OFF;
+		buff[1] = OFF;
+		buff[0] = ones;
+	}
+	else
+	{
+		buff[3] = button_enc+OFF;
+		buff[2] = OFF;
+		buff[1] = dec;
+		buff[0] = ones;
+	}
+}
+#else
 
 void buffer (uint16_t val)
 {
 	char tous, hundr, dec, ones;
-	tous = val/1000;
-	hundr = (val - tous*1000)/100;
-	dec = (val - (tous*1000 + hundr*100))/10;
-	ones = val%10;
+	uint16_t temp = val;
+	//tous = val/1000;
+	for (tous=0;temp>=1000;++tous)temp -=1000;
+
+	for (hundr=0;temp>=100;++hundr)temp -=100;
+	
+	for (dec=0;temp>=10;++dec)temp -=10;
+
+	for (ones=0;temp>=1;++ones)temp--;
+	
+	//hundr = (val - tous*1000)/100;
+	//dec = (val - (tous*1000 + hundr*100))/10;
+	//ones = val%10;
 	if (tous)
 	{	
 		buff[3] = tous;
@@ -70,6 +118,12 @@ void buffer (uint16_t val)
 		buff[1] = dec;
 		buff[0] = ones;
 		n=4;
+	}
+	else if (!(tous || hundr))
+	{
+		buff[1] = dec;
+		buff[0] = ones;
+		n=2;
 	}
 	else
 	{
@@ -79,6 +133,7 @@ void buffer (uint16_t val)
 		n=3;
 	}
 }
+#endif
 
 /*
 void buffer (uint16_t val)

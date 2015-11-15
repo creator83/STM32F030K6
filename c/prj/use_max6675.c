@@ -3,9 +3,7 @@
 #include "max6675.h"
 #include "tact.h"
 #include "delay.h"
-
-extern char max6675_buff [4];
-
+#include "segled.h"
 
 int main ()
 {
@@ -13,13 +11,15 @@ int main ()
 	init_PLL ();
 	//uart_init ();
 	max6675_init ();
+	segled_init ();
 	
-	
+	//buffer (6523);
 	while (1)
 	{
-		max6675_buffer(readCelsius());
-		
-		/*
+		buffer (readCelsius());
+		delay_ms (500);
+
+		/*//===Send to Uart===//
 		buffer (readCelsius());
 		transmit_string ("==");
 		transmit_string (buff);
