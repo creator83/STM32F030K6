@@ -143,6 +143,7 @@ void clear_cs (void)
 
 uint16_t spi1_rx_16 (void)
 {
+	SPI1->DR = 0x0000;
 	while (!(SPI1->SR&SPI_SR_RXNE));
 	return SPI1->DR;
 }
