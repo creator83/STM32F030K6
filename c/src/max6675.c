@@ -56,49 +56,14 @@ uint8_t readCelsius(void)
 
   v >>= 3;
 
-  return (uint8_t)v*0.25-7;
+  return (uint8_t)v*0.25;
 }
 #else
-
+#ifdef SPI_16
 void max6675_init (void)
 {
 	init_spi_16 ();
 }
-#ifdef Decimal
-double readCelsius(void)
-{
-  uint16_t v;
-
-  clear_cs ();
-  delay_ms(1);
-
-  v = spi1_rx_16();
-
-  set_cs ();
-
-  if (v & 0x4) {
-    // uh oh, no thermocouple attached!
-    return 0; 
-    //return -100;
-  }
-
-  v >>= 3;
-	//v >>= 2;
-  return v*0.25;
-}
-
-void max6675_buffer (double val)
-{
-	char dec, ones, decimal;
-	dec = val/10;
-	max6675_buff[0] = max6675_number [dec];
-	ones = (int)val%10;
-	max6675_buff[1] = max6675_number [ones];
-	max6675_buff [2] = '.';
-	decimal = (int)(val*10)%10;
-	max6675_buff[3] = max6675_number [decimal];
-}
-#else
 
 uint16_t readCelsius(void)
 {
@@ -121,6 +86,62 @@ uint16_t readCelsius(void)
 	
   return v;
 }
+#else
+void max6675_init (void)
+{
+	init_spi_8 ();
+}
+
+uint16_t readCelsius(void)
+{
+  uint16_t v;
+
+  clear_cs ();
+  delay_ms(1);
+  v = spi1_rx_8();
+	v <<= 8;
+	v |= spi1_rx_8();
+  set_cs ();
+
+  if (v & 0x4) {
+    // uh oh, no thermocouple attached!
+    return 0; 
+    //return -100;
+  }
+
+  v >>= 5;
+	
+  return v;
+}
+
+#endif
+#endif
+/*
+double readCelsius(void)
+{
+  uint16_t v;
+
+  clear_cs ();
+  delay_ms(1);
+
+  v = spi1_rx_16();
+
+  set_cs ();
+
+  if (v & 0x4) {
+    // uh oh, no thermocouple attached!
+    return 0; 
+    //return -100;
+  }
+
+  v >>= 3;
+	//v >>= 2;
+  return v*0.25;
+}*/
+
+
+
+
 /*
 void max6675_buffer (uint16_t val)
 {
@@ -156,9 +177,8 @@ uint16_t division (uint16_t n)
 
 }*/
 
-#endif
 
-#endif
+
 
 
 

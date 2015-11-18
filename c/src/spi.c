@@ -41,7 +41,7 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 	//SPI1->CR1 |= SPI_CR1_CPOL;
 	
 	//CPHA
-	//SPI1->CR1 |= SPI_CR1_CPHA;
+	SPI1->CR1 |= SPI_CR1_CPHA;
 	
 	//Division
 	SPI1->CR1 |= SPI_CR1_BR
@@ -143,7 +143,6 @@ void clear_cs (void)
 
 uint16_t spi1_rx_16 (void)
 {
-	SPI1->DR = 0x0000;
 	while (!(SPI1->SR&SPI_SR_RXNE));
 	return SPI1->DR;
 }
