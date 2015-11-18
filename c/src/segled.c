@@ -2,19 +2,20 @@
 
 //led digit
 char number [13] = {0x7B , 0x0A , 0xB3 , 0x9F , 0xCA , 0xD9 , 0xF9 , 0x0B , 0xFB , 0xDB , 0x00, 0x60, 0x6A};
-//heater mode
-//char mode [3] = {0, 0x60, 0x6A};
 
+/*//heater mode
+//char mode [3] = {0, 0x60, 0x6A};
+*/
 char buff [4];
 
 char pins[4] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
-char flag = 0;
 
 extern uint8_t button_enc;
 
 uint8_t n;
 
 
+/*
 void TIM17_IRQHandler(void)
 {
 	static uint8_t i=0;
@@ -28,7 +29,7 @@ void TIM17_IRQHandler(void)
 	}
 	if (i>=n)i=0;
 }
-
+*/
 void segled_init (void)
 {
 	//===Settings pins===//
@@ -42,14 +43,14 @@ void segled_init (void)
 	GPIOB->MODER |= (GPIO_MODER_MODER0_0|GPIO_MODER_MODER1_0|GPIO_MODER_MODER3_0|GPIO_MODER_MODER4_0|GPIO_MODER_MODER5_0|GPIO_MODER_MODER6_0|GPIO_MODER_MODER7_0);
 	GPIOB->OTYPER &= ~(GPIO_OTYPER_OT_0|GPIO_OTYPER_OT_1|GPIO_OTYPER_OT_3|GPIO_OTYPER_OT_4|GPIO_OTYPER_OT_5|GPIO_OTYPER_OT_6|GPIO_OTYPER_OT_7);
 	GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEEDR0|GPIO_OSPEEDR_OSPEEDR1|GPIO_OSPEEDR_OSPEEDR3|GPIO_OSPEEDR_OSPEEDR4|GPIO_OSPEEDR_OSPEEDR5|GPIO_OSPEEDR_OSPEEDR6|GPIO_OSPEEDR_OSPEEDR7;
-	
+	/*
 	//===Settings timer===//
 	RCC->APB2ENR |= RCC_APB2ENR_TIM17EN;
 	TIM17->PSC = 48 - 1;
 	TIM17->ARR = 2000;
 	TIM17->DIER |= TIM_DIER_UIE;
 	TIM17->CR1 |= TIM_CR1_CEN;
-	NVIC_EnableIRQ (TIM17_IRQn);
+	NVIC_EnableIRQ (TIM17_IRQn);*/
 }
 
 void Show_digit (uint8_t dig)
@@ -60,8 +61,20 @@ void Show_digit (uint8_t dig)
 	GPIOB->ODR = number [buff [dig]];
 }
 
+void led_number ()
+{
+	static uint8_t i;
+	Show_digit (i);
+	++i;
+	if (i>=n)i=0;
+}
+
+void led_char (uint8_t ch, uint8_t n)
+{
+}
+
 #ifdef PPR_SOLDER
-void buffer (uint16_t val)
+void segled_buffer (uint16_t val)
 {
 	char hundr, dec, ones;
 	uint16_t temp = val;
@@ -95,11 +108,11 @@ void buffer (uint16_t val)
 }
 #else
 
-void buffer (uint16_t val)
+void segled_buffer (uint16_t val)
 {
 	char tous, hundr, dec, ones;
 	uint16_t temp = val;
-	//tous = val/1000;
+
 	for (tous=0;temp>=1000;++tous)temp -=1000;
 
 	for (hundr=0;temp>=100;++hundr)temp -=100;
@@ -107,10 +120,7 @@ void buffer (uint16_t val)
 	for (dec=0;temp>=10;++dec)temp -=10;
 
 	for (ones=0;temp>=1;++ones)temp--;
-	
-	//hundr = (val - tous*1000)/100;
-	//dec = (val - (tous*1000 + hundr*100))/10;
-	//ones = val%10;
+
 	if (tous)
 	{	
 		buff[3] = tous;
@@ -134,77 +144,3 @@ void buffer (uint16_t val)
 	}
 }
 #endif
-
-/*
-void buffer (uint16_t val)
-{
-	char tous, hundr, dec, ones, temp;
-	tous = division (val);
-	temp = division (tous);
-	tous = division (temp);
-	temp = division (val - (tous*1000));
-	hundr = division (temp);
-	temp =   division (val - ((tous*1000)+(hundr*100)));
-	dec = division (temp);
-	//ones = (uint8_t)val%10;
-	
-	{
-		n = 4;
-		buff[3] = ones;
-		buff[2] = dec;
-		buff[1] = hundr;
-		buff[0] =tous;
-	}
-	else
-	{
-		
-		if (hundr)
-		{
-			n=3;
-			buff[2] = dec;
-			buff[1] = hundr;
-			buff[0] =tous;
-		}
-		else
-		{
-			if (dec)
-			{
-				n=2;
-				buff[1] = hundr;
-				buff[0] =tous;
-			}
-			else
-			{
-				n=1;
-				buff[0] =tous;
-			}
-		}
-	}
-
-}*/
-
-
-uint16_t division (uint16_t n)
-{
-	uint32_t quot, qq;
-	uint8_t rem;
-// Multiplay 0.8	
-	quot = n >> 1;
-  quot += quot >> 1;
-  quot += quot >> 4;
-  quot += quot >> 8;
-  quot += quot >> 16;
-  qq = quot;
-// devision 8
-  quot >>= 3;
-//calculate rem
-  rem = (uint8_t)(n - ((quot << 1) + (qq & ~7ul)));
-// correct
-    if(rem > 9)
-    {
-        rem -= 10;
-        quot++;
-    }
-    return quot;
-
-}

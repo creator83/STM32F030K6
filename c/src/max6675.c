@@ -1,64 +1,6 @@
 #include "max6675.h"
 #include "spi.h"
 
-char max6675_number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-char max6675_buff [4] = {0, 0, '.', '0'};
-
-
-#ifdef SOFTSPI
-
-void max6675_init (void)
-{
-  RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-  GPIOA->MODER &= ~(GPIO_MODER_MODER4|GPIO_MODER_MODER5|GPIO_MODER_MODER6);
-  GPIOA->MODER |= GPIO_MODER_MODER5_0|GPIO_MODER_MODER4_0;
-}
-
-uint8_t spiread(void)
-{
-  int8_t i;
-  uint8_t d = 0;
-
-  for (i=7; i>=0; i--)
-  {
-    GPIOA->ODR &=~(1 << sclk);
-    delay_ms(1);
-    if ((GPIOA->IDR & (1 << miso)))
-    {
-      //set the bit to 0 no matter what
-      d |= (1 << i);
-    }
-
-    GPIOA->ODR |=(1 << sclk);
-    delay_ms(1);
-  }
-  return d;
-}
-
-uint8_t readCelsius(void)
-{
-  uint16_t v;
-
-  GPIOA->ODR &=~(1 << cs);
-  delay_ms(1);
-
-  v = spiread();
-  v <<= 8;
-  v |= spiread();
-
-  GPIOA->ODR |=(1 << cs);
-
-  if (v & 0x4) {
-    // uh oh, no thermocouple attached!
-    return 0; 
-    //return -100;
-  }
-
-  v >>= 3;
-
-  return (uint8_t)v*0.25;
-}
-#else
 #ifdef SPI_16
 void max6675_init (void)
 {
@@ -115,7 +57,7 @@ uint16_t readCelsius(void)
 }
 
 #endif
-#endif
+
 /*
 double readCelsius(void)
 {

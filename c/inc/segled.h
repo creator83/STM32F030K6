@@ -4,7 +4,7 @@
 
 
 //Modify buffer function
-#define PPR_SOLDER
+//#define PPR_SOLDER
 
 //Off digit
 #define OFF 10
@@ -22,11 +22,8 @@ void segled_init (void);
 
 void Show_digit (uint8_t dig);
 
-void buffer (uint16_t val);
+void segled_buffer (uint16_t val);
 
-uint16_t division (uint16_t n);
-
-void ppr_mode (uint8_t m);
-
+void led_number (void);
 
 #endif
