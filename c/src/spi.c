@@ -38,10 +38,10 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 
 	
 	//CPOL
-	//SPI1->CR1 |= SPI_CR1_CPOL;
+	SPI1->CR1 |= SPI_CR1_CPOL;
 	
 	//CPHA
-	SPI1->CR1 |= SPI_CR1_CPHA;
+	//SPI1->CR1 |= SPI_CR1_CPHA;
 	
 	//Division
 	SPI1->CR1 |= SPI_CR1_BR
@@ -51,9 +51,8 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 	//Soft mode CS
 	 SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
-   SPI1->CR2 |= SPI_CR2_SSOE; 
-//	 |  SPI_CR2_RXNEIE |  SPI_CR2_FRXTH|  SPI_CR2_DS_2 |  SPI_CR2_DS_1 |  SPI_CR2_DS_0;
-		
+   SPI1->CR2 |= SPI_CR2_SSOE |  SPI_CR2_FRXTH;
+	 
 		//Master or Slave
 	 SPI1->CR1 |= SPI_CR1_MSTR;
 	
@@ -150,7 +149,7 @@ uint16_t spi1_rx_16 (void)
 
 uint8_t spi1_rx_8 (void)
 {
-	*(uint8_t *)&(SPI1->DR) = 0x0000;
+	*(uint8_t*)&SPI1->DR = 0x00;
 	while (!(SPI1->SR&SPI_SR_RXNE));
 	return (uint8_t)SPI1->DR;
 }

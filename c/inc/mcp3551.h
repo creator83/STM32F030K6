@@ -14,8 +14,7 @@ uint8_t mcp3551_Ready (void);
 
 uint32_t getCode(void);
 
-double mcp3551_getTemp (uint32_t code);
+uint16_t mcp3551_getTemp (uint32_t code);
 
-void mcp3551_buffer (double val);
 
 #endif

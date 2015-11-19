@@ -1,7 +1,5 @@
 #include "mcp3551.h"
 
-char number [10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-char buff [4] = {0, 0, '.', '0'};
 
 void mcp3551_init (void)
 {
@@ -43,22 +41,21 @@ uint32_t getCode(void)
 	byteCode.code8[2] &= ~(1<<6|1<<7);
 	return byteCode.code32;
 }
-
+/*
 double mcp3551_getTemp (uint32_t code)
 {
 	double RTD = (R_VAL*(double)code)/( 2097152.0 - (double)code);
   RTD = (RTD/PT) - 1;
-    return (RTD * (255.8723 + RTD * (9.6 + RTD * 0.878)));
-}
+  return (RTD * (255.8723 + RTD * (9.6 + RTD * 0.878)));
+}*/
 
-void mcp3551_buffer (double val)
+uint16_t mcp3551_getTemp (uint32_t code)
 {
-	char dec, ones, decimal;
-	dec = val/10;
-	buff[0] = number [dec];
-	ones = (int)val%10;
-	buff[1] = number [ones];
-	buff [2] = '.';
-	decimal = (int)(val*10)%10;
-	buff[3] = number [decimal];
+	uint16_t temp;
+	double t;
+	double RTD = (R_VAL*(double)code)/( 2097152.0 - (double)code);
+  RTD = (RTD/PT) - 1;
+  t = (RTD * (255.8723 + RTD * (9.6 + RTD * 0.878)));
+	temp = (uint16_t)t;
+	return temp;
 }

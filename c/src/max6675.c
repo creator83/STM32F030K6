@@ -11,12 +11,12 @@ uint16_t readCelsius(void)
 {
   uint16_t v;
 
-  clear_cs ();
+  CS_CLEAR;
   delay_ms(1);
 
   v = spi1_rx_16();
 
-  set_cs ();
+  CS_SET;
 
   if (v & 0x4) {
     // uh oh, no thermocouple attached!
