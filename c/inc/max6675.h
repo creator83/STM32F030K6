@@ -3,7 +3,7 @@
 
 
 //#define Decimal
-#define SPI_16
+//#define SPI_16
 
 //Pins for Soft Spi
 #define sclk 5

@@ -125,7 +125,7 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 	 SPI1->CR1 |= SPI_CR1_SPE;	
 }
 
-void spi1_tx (uint8_t data)
+void spi1_tx_8 (uint8_t data)
 {
 	while (SPI1->SR&SPI_SR_BSY);
 	*(uint8_t *)&(SPI1->DR) = data;
@@ -150,7 +150,7 @@ uint16_t spi1_rx_16 (void)
 
 uint8_t spi1_rx_8 (void)
 {
-	*(uint8_t *)&(SPI1->DR) = 0x00;
+	*(uint8_t *)&(SPI1->DR) = 0x0000;
 	while (!(SPI1->SR&SPI_SR_RXNE));
-	return (uint8_t )SPI1->DR;
+	return (uint8_t)SPI1->DR;
 }

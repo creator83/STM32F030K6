@@ -12,7 +12,7 @@ void init_spi_8 (void);
 
 void init_spi_16 (void);
 
-void spi1_tx (uint8_t data);
+void spi1_tx_8 (uint8_t data);
 
 uint16_t spi1_rx_16 (void);
 
