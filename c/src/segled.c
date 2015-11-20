@@ -63,10 +63,20 @@ void Show_digit (uint8_t dig)
 
 void led_number ()
 {
-	static uint8_t i;
+	static uint8_t i=0;
 	Show_digit (i);
 	++i;
 	if (i>=n)i=0;
+}
+
+void led_on (void)
+{
+	
+}
+
+void led_off (void)
+{
+	
 }
 
 void led_char (uint8_t ch, uint8_t n)
@@ -135,6 +145,11 @@ void segled_buffer (uint16_t val)
 		buff[0] = ones;
 		n=2;
 	}
+	else if (!(tous || hundr||dec))
+	{
+		buff[0] = ones;
+		n=1;
+	}	
 	else
 	{
 		buff[2] = hundr;

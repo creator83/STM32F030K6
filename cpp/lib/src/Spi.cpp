@@ -46,11 +46,10 @@ spi::spi(Division div, Cpol cpl, Cpha cph, Role r, Size s)
   //Soft mode  
    SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
-
-   //Turn on spi1
+	 SPI1->CR2 |= SPI_CR2_SSOE;
+   
+	 //Turn on spi1
    SPI1->CR1 |= SPI_CR1_SPE;
-
-
 }
 
 void spi::Set_CS ()
@@ -75,5 +74,10 @@ uint8_t spi::receive_8 ()
 	return static_cast <uint8_t>(SPI1->DR);	
 }
 
-
+uint16_t spi::receive_16 ()
+{
+	SPI1->DR = 0x0000;
+	while (!(SPI1->SR&SPI_SR_RXNE));
+	return SPI1->DR;	
+}
 
