@@ -18,6 +18,8 @@ uint16_t spi1_rx_16 (void);
 
 uint8_t spi1_rx_8 (void);
 
+uint8_t spi1_exchange_8 (uint8_t data);
+
 void set_cs (void);
  
 void clear_cs (void);

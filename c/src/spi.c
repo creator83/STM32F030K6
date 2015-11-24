@@ -153,3 +153,11 @@ uint8_t spi1_rx_8 (void)
 	while (!(SPI1->SR&SPI_SR_RXNE));
 	return (uint8_t)SPI1->DR;
 }
+
+uint8_t spi1_exchange_8 (uint8_t data)
+{
+	while (SPI1->SR&SPI_SR_BSY);
+	*(uint8_t*)&SPI1->DR = data;
+	while (!(SPI1->SR&SPI_SR_RXNE));
+	return (uint8_t)SPI1->DR;
+}
