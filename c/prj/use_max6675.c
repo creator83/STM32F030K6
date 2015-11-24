@@ -64,14 +64,14 @@ void init_buttons(void)
 
 int main ()
 {
-	uint8_t i;
+	//uint8_t i;
 	//uart_init ();
 	max6675_init ();
 	segled_init ();
 	SysTick_Config (systick_val);
-/**/	
+/*
 	nrf24l01_init (0x03);
-	nrf24l01_RX_TX_mode(PRX);
+	nrf24l01_RX_TX_mode(PRX);*/	
 	
 	
 	
@@ -80,9 +80,9 @@ int main ()
 	//buffer (6523);
 	while (1)
 	{
-		nrf24l01_FLUSH_TX;
+		/*nrf24l01_FLUSH_TX;
 		nrf24l01_Sent_data_Ret(i);
-		i+=1;
+		i+=1;*/
 		
 		
 		segled_buffer (readCelsius());
