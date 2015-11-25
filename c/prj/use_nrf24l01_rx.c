@@ -4,7 +4,7 @@
 #include "tact.h"
 #include "delay.h"
 #include "segled.h"
-
+#include "nrf24l01.h"
 
 
 #define F_CPU 48000000
@@ -13,7 +13,23 @@
 #define systick_val (F_CPU/tick)*systick_ms
 #define button_ 1
 
+uint8_t stat;
 
+
+void EXTI2_3_IRQHandler(void)
+{
+	EXTI->PR |= 1 << IRQ;
+		 stat=nrf24l01_getstatus;
+	 if(stat&(1 << 6))
+	 {
+         //?????????? ???????? ?????? ????? UART
+         segled_buffer (nrf24l01_read_data());
+         //?????????? ?????????? ?? ?????? ??????
+         nrf24l01_sc_bit(STATUS,RX_DR,1);	
+	 }	 
+	 delay_us(10);
+	
+}
 
 
 struct flags
@@ -64,10 +80,14 @@ void init_buttons(void)
 
 int main ()
 {
+	uint8_t i;
 	//uart_init ();
 	max6675_init ();
 	segled_init ();
 	SysTick_Config (systick_val);
+
+	nrf24l01_init (0x03);
+	nrf24l01_RX_TX_mode(PRX);
 	
 	
 	
@@ -76,7 +96,10 @@ int main ()
 	//buffer (6523);
 	while (1)
 	{
-	
+		nrf24l01_FLUSH_TX;
+		nrf24l01_Sent_data_Ret(i);
+		i+=1;
+		
 		
 		segled_buffer (readCelsius());
 		delay_ms (500);

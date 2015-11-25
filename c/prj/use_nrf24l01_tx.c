@@ -1,10 +1,9 @@
 #include "stm32f0xx.h"                  // Device header
 //#include "uart.h"
-#include "max6675.h"
 #include "tact.h"
 #include "delay.h"
 #include "segled.h"
-
+#include "nrf24l01.h"
 
 
 #define F_CPU 48000000
@@ -64,10 +63,13 @@ void init_buttons(void)
 
 int main ()
 {
+	uint8_t i;
 	//uart_init ();
-	max6675_init ();
 	segled_init ();
 	SysTick_Config (systick_val);
+
+	nrf24l01_init (0x03);
+	nrf24l01_RX_TX_mode(PRX);
 	
 	
 	
@@ -76,21 +78,10 @@ int main ()
 	//buffer (6523);
 	while (1)
 	{
-	
-		
-		segled_buffer (readCelsius());
-		delay_ms (500);
-		if (button.short_press)
-		{
-			// foo();
-			button.short_press = 0;
-		}
-		/*//===Send to Uart===//
-		buffer (readCelsius());
-		transmit_string ("==");
-		transmit_string (buff);
-		transmit_byte ('C');
-		delay_ms (500);*/
+		nrf24l01_FLUSH_TX;
+		nrf24l01_Sent_data_Ret(i);
+		i+=1;
+
 	}
 	
 }

@@ -12,7 +12,7 @@ uint16_t readCelsius(void)
   uint16_t v;
 
   CS_CLEAR;
-  delay_ms(1);
+  //delay_ms(1);
 
   v = spi1_rx_16();
 
@@ -39,7 +39,7 @@ uint16_t readCelsius(void)
   uint16_t v;
 
   clear_cs ();
-  delay_ms(1);
+  //delay_ms(1);
   v = spi1_rx_8();
 	v <<= 8;
 	v |= spi1_rx_8();

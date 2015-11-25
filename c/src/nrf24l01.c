@@ -18,6 +18,7 @@ void nrf24l01_init (unsigned char m)
 	EXTI->IMR |= 1 << IRQ;
 	EXTI->FTSR |= 1 << IRQ;
 	
+	
 	//===Setup 
 	
   //SETBIT(nrf24l01_IRQ_PORT,nrf24l01_IRQ_PIN);
