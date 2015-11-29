@@ -1,6 +1,4 @@
 #include "stm32f0xx.h"                  // Device header
-//#include "uart.h"
-#include "max6675.h"
 #include "tact.h"
 #include "delay.h"
 #include "segled.h"
@@ -16,7 +14,7 @@
 uint8_t stat;
 
 
-void EXTI2_3_IRQHandler(void)
+void EXTI4_15_IRQHandler(void)
 {
 	EXTI->PR |= 1 << IRQ;
 		 stat=nrf24l01_getstatus;
@@ -80,9 +78,6 @@ void init_buttons(void)
 
 int main ()
 {
-	uint8_t i;
-	//uart_init ();
-	max6675_init ();
 	segled_init ();
 	SysTick_Config (systick_val);
 
@@ -94,27 +89,8 @@ int main ()
 	
 	
 	//buffer (6523);
-	while (1)
-	{
-		nrf24l01_FLUSH_TX;
-		nrf24l01_Sent_data_Ret(i);
-		i+=1;
-		
-		
-		segled_buffer (readCelsius());
-		delay_ms (500);
-		if (button.short_press)
-		{
-			// foo();
-			button.short_press = 0;
-		}
-		/*//===Send to Uart===//
-		buffer (readCelsius());
-		transmit_string ("==");
-		transmit_string (buff);
-		transmit_byte ('C');
-		delay_ms (500);*/
-	}
+	while (1);
+	
 	
 }
 

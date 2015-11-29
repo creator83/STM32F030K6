@@ -38,7 +38,7 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 
 	
 	//CPOL
-	SPI1->CR1 |= SPI_CR1_CPOL;
+	//SPI1->CR1 |= SPI_CR1_CPOL;
 	
 	//CPHA
 	//SPI1->CR1 |= SPI_CR1_CPHA;

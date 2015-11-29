@@ -5,8 +5,8 @@
 
 #define PORT GPIOA
 
-#define IRQ 3
-#define CE 2
+#define IRQ 10
+#define CE 9
 
 #define CE_CLEAR PORT->ODR &= ~(1 << CE)
 #define CE_SET PORT->ODR |= (1 << CE)
