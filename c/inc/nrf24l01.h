@@ -34,13 +34,16 @@
 #ifndef NRF24L01_H
 #define NRF24L01_H
 
-void nrf24l01_init (unsigned char m);
-uint8_t nrf24l01_wr_register (uint8_t r_n_reg,uint8_t mask1, uint8_t mask2 );
+void nrf24l01_init (void);
+uint8_t nrf24l01_write_register (uint8_t reg,uint8_t data);
+uint8_t nrf24l01_read_register (uint8_t reg);
 unsigned char nrf24l01_command (unsigned char M_ask);
-void nrf24l01_sc_bit (unsigned char reg_ister,unsigned char register_bit,char W);
-void nrf24l01_RX_TX_mode (char z);
+uint8_t nrf24l01_sc_bit (unsigned char reg,unsigned char register_bit,char W);
+void nrf24l01_RX_mode (void);
+void nrf24l01_TX_mode (void);
+
 void nrf24l01_write_data (unsigned char data);
-void nrf24l01_Sent_data_Ret (unsigned char data);
+void nrf24l01_Send_byte (uint8_t data);
 unsigned char nrf24l01_read_data (void) ;
 
 
