@@ -23,8 +23,74 @@ void ili9325_init (void)
 	GPIOA->ODR |= (1 << RESET);
 	delay_ms (100);
 	
-	
+	/*
+ ili9325_wr_reg(0x0001,0x0100); 
+ ili9325_wr_reg(0x0002,0x0700); 
+ ili9325_wr_reg(0x0003,0x1030); 
+ ili9325_wr_reg(0x0004,0x0000); 
+ ili9325_wr_reg(0x0008,0x0207);  
+ ili9325_wr_reg(0x0009,0x0000);
+ ili9325_wr_reg(0x000A,0x0000); 
+ ili9325_wr_reg(0x000C,0x0000); 
+ ili9325_wr_reg(0x000D,0x0000);
+ ili9325_wr_reg(0x000F,0x0000);
+//power on sequence VGHVGL
+ ili9325_wr_reg(0x0010,0x0000);   
+ ili9325_wr_reg(0x0011,0x0007);  
+ ili9325_wr_reg(0x0012,0x0000);  
+ ili9325_wr_reg(0x0013,0x0000); 
+//vgh 
+ ili9325_wr_reg(0x0010,0x1290);   
+ ili9325_wr_reg(0x0011,0x0227);
+ delay_ms(100);
+ //vregiout 
+ ili9325_wr_reg(0x0012,0x001d); //0x001b
+ delay_ms(100); 
+ //vom amplitude
+ ili9325_wr_reg(0x0013,0x1500);
+ //delayms(100); 
+ //vom H
+ ili9325_wr_reg(0x0029,0x0018); 
+ ili9325_wr_reg(0x002B,0x000D); 
+
+//gamma
+ ili9325_wr_reg(0x0030,0x0004);
+ ili9325_wr_reg(0x0031,0x0307);
+ ili9325_wr_reg(0x0032,0x0002);// 0006
+ ili9325_wr_reg(0x0035,0x0206);
+ ili9325_wr_reg(0x0036,0x0408);
+ ili9325_wr_reg(0x0037,0x0507); 
+ ili9325_wr_reg(0x0038,0x0204);//0200
+ ili9325_wr_reg(0x0039,0x0707); 
+ ili9325_wr_reg(0x003C,0x0405);// 0504
+ ili9325_wr_reg(0x003D,0x0F02); 
+ //ram
+ ili9325_wr_reg(0x0050,0x0000); 
+ ili9325_wr_reg(0x0051,0x00EF);
+ ili9325_wr_reg(0x0052,0x0000); 
+ ili9325_wr_reg(0x0053,0x013F);  
+ ili9325_wr_reg(0x0060,0xA700); 
+ ili9325_wr_reg(0x0061,0x0001); 
+ ili9325_wr_reg(0x006A,0x0000); 
+ //
+ ili9325_wr_reg(0x0080,0x0000); 
+ ili9325_wr_reg(0x0081,0x0000); 
+ ili9325_wr_reg(0x0082,0x0000); 
+ ili9325_wr_reg(0x0083,0x0000); 
+ ili9325_wr_reg(0x0084,0x0000); 
+ ili9325_wr_reg(0x0085,0x0000); 
+ //
+ ili9325_wr_reg(0x0090,0x0010); 
+ ili9325_wr_reg(0x0092,0x0600); 
+ ili9325_wr_reg(0x0093,0x0003); 
+ ili9325_wr_reg(0x0095,0x0110); 
+ ili9325_wr_reg(0x0097,0x0000); 
+ ili9325_wr_reg(0x0098,0x0000);
+ ili9325_wr_reg(0x0007,0x0133);
+	*/
 	//===Sequence turn on===//
+	
+
 	ili9325_wr_reg(0xE3, 0x3008); // Set internal timing
 	ili9325_wr_reg(0xE7, 0x0012); // Set internal timing
 	ili9325_wr_reg(0xEF, 0x1231); // Set internal timing
@@ -104,60 +170,65 @@ void ili9325_init (void)
 
 void ili9325_index (uint8_t indx)
 {
-	GPIOA->ODR &= ~(1 << RS);
-	//GPIOA->ODR &= ~(1 << CS);
+	GPIOA->ODR &= ~(1 << RS);	
+	GPIOA->ODR &= ~(1 << CS);
+	GPIOA->ODR &= ~(1 << WR);	
+	delay_us(1);
 	GPIOA->ODR &= ~(0xFF);
-	GPIOA->ODR &= ~(1 << WR);
 	GPIOA->ODR |= (1 << WR);
-	GPIOA->ODR &= ~(0xFF);
-	GPIOA->ODR |= indx;
+	delay_us(1);
 	GPIOA->ODR &= ~(1 << WR);
+	delay_us(1);
+	GPIOA->ODR |= indx;
 	GPIOA->ODR |= (1 << WR);	
-	//GPIOA->ODR |= (1 << CS);
+	delay_us(1);
+	GPIOA->ODR |= (1 << CS);
 }
 
 void ili9325_data (uint16_t data)
 {
-	GPIOA->ODR |= (1 << RS);
-	//GPIOA->ODR &= ~(1 << CS);
+	GPIOA->ODR |= (1 << RS);	
+	GPIOA->ODR &= ~(1 << CS);
+	GPIOA->ODR &= ~(1 << WR);
+	delay_us(1);
 	GPIOA->ODR &= ~(0xFF);
 	GPIOA->ODR |= (data >> 8);
-	GPIOA->ODR &= ~(1 << WR);
 	GPIOA->ODR |= (1 << WR);
+	delay_us(1);
+	GPIOA->ODR &= ~(1 << WR);
+	delay_us(1);
 	GPIOA->ODR &= ~(0xFF);
 	GPIOA->ODR |= (uint8_t) data;
-	GPIOA->ODR &= ~(1 << WR);
-	GPIOA->ODR |= (1 << WR);	
-	//GPIOA->ODR |= (1 << CS);
+	GPIOA->ODR |= (1 << WR);
+	delay_us(1);	
+	GPIOA->ODR |= (1 << CS);
 }
 
 void ili9325_wr_reg (uint8_t indx, uint16_t data)
 {
-	GPIOA->ODR &= ~(1 << CS);
 	ili9325_index (indx);
 	ili9325_data (data);
-	GPIOA->ODR |= (1 << CS);
+	
 }
 
 void ili9325_set_cursor (uint16_t x , uint16_t y)
 {
 	ili9325_wr_reg (0x20, x);
 	ili9325_wr_reg (0x21, y);
-	//ili9325_index (0x22);
+	ili9325_index (0x22);
 }
 
 void ili9325_point (uint16_t x , uint16_t y, uint16_t color)
 {
 	ili9325_set_cursor (x, y);
-	ili9325_wr_reg (0x22, color);
-	//ili9325_data (color);
+	ili9325_data (color);
 }
 
 void ili9325_fill_screen (uint16_t color)
 {
 	long i;
 	ili9325_set_cursor(0,0);
-		for (i=0; i < (X_rezolution*Y_rezolution);++i)
+		for (i=0; i < 76800;++i)
 	{
 		ili9325_data (color);
 	}

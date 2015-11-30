@@ -53,6 +53,7 @@ uint8_t nrf24l01_read_register (uint8_t reg)
 	//command for write registor
   spi1_tx_8(W_REGISTER+reg);
 	value = spi1_exchange_8 (NOP);
+	set_cs();
 	return value;
 }
 

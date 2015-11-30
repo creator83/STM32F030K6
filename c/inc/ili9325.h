@@ -3,9 +3,11 @@
 
 #define CS 8
 #define RS 9
-#define RESET 10
+#define WR 10
 #define RD 11
-#define WR 12
+#define RESET 12
+
+
 
 #define X_rezolution 240
 #define Y_rezolution 320

@@ -76,12 +76,18 @@ int main ()
 	segled_init ();
 	SysTick_Config (systick_val);
 	nrf24l01_init();
-	nrf24l01_RX_mode ();
-
+	
+	segled_buffer (nrf24l01_read_register(CONFIG));
+	//uint8_t nrf24l01_sc_bit (unsigned char reg,unsigned char register_bit,char W);
 	
 		
 	//buffer (6523);
-	while (1);
+	while (1)
+	{
+		delay_ms (2000);
+		nrf24l01_RX_mode ();
+		segled_buffer (nrf24l01_read_register(CONFIG));
+	}
 	
 	
 }

@@ -100,7 +100,7 @@ void init_buttons(void)
 int main ()
 {
 	int16_t referenceValue, measurementValue, inputValue;
-	referenceValue = 40;
+	referenceValue = 30;
 	pid_Init(K_P * SCALING_FACTOR, K_I * SCALING_FACTOR , K_D * SCALING_FACTOR , &pidData);
 	segled_init ();
 	SysTick_Config (systick_val);
@@ -114,6 +114,7 @@ int main ()
 			measurementValue = readCelsius();
 			inputValue = pid_Controller(referenceValue, measurementValue, &pidData);
 			segled_buffer (inputValue);
+			
 			pid.flag = 0;
 		}
 	}
