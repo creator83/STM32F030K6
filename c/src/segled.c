@@ -1,8 +1,11 @@
 #include "segled.h"
 
 //led digit
+#ifdef PORTA
+char number [13] = {0x3F ,0x06 , 0x5B , 0x4F , 0x66 , 0x6D , 0x7D, 0x07 , 0x7F , 0x6F ,  0x00, 0x60, 0x6A};
+#else
 char number [13] = {0x7B , 0x0A , 0xB3 , 0x9F , 0xCA , 0xD9 , 0xF9 , 0x0B , 0xFB , 0xDB , 0x00, 0x60, 0x6A};
-
+#endif
 /*//heater mode
 //char mode [3] = {0, 0x60, 0x6A};
 */
@@ -15,21 +18,7 @@ extern uint8_t button_enc;
 uint8_t n;
 
 
-/*
-void TIM17_IRQHandler(void)
-{
-	static uint8_t i=0;
-	TIM17->SR &= ~TIM_SR_UIF;
-	if (flag) flag=0;
-	else
-	{
-		Show_digit (i);
-		flag = 1;
-		++i;
-	}
-	if (i>=n)i=0;
-}
-*/
+
 void segled_init (void)
 {
 	//===Settings pins===//
@@ -37,12 +26,24 @@ void segled_init (void)
 	PORT->MODER |= ((1<< (DIGIT1<<1))|(1<< (DIGIT2<<1))|(1<< (DIGIT3<<2))|(1<< (DIGIT4<<1)));
 	PORT->OTYPER &= ~(1<<DIGIT1|1<<DIGIT2|1<<DIGIT3|1<<DIGIT4);
 	PORT->OSPEEDR |= ((3<< (DIGIT1<<2))|(3<< (DIGIT2<<2))|(3<< (DIGIT3<<2))|(3<< (DIGIT4<<2)));*/
+#ifdef PORTA
+	//Settings Digit//
+	GPIOA->MODER &= ~(GPIO_MODER_MODER10|GPIO_MODER_MODER11|GPIO_MODER_MODER12|GPIO_MODER_MODER15);
+	GPIOA->MODER |= GPIO_MODER_MODER10_0|GPIO_MODER_MODER11_0|GPIO_MODER_MODER12_0|GPIO_MODER_MODER15_0;
+	//Settings segment//
+	GPIOA->MODER &=~0x3FFF;
+	GPIOA->MODER |= 0x1555;
+	GPIOB->MODER |= (GPIO_MODER_MODER0_0|GPIO_MODER_MODER1_0|GPIO_MODER_MODER3_0|GPIO_MODER_MODER4_0|GPIO_MODER_MODER5_0|GPIO_MODER_MODER6_0|GPIO_MODER_MODER7_0);
+	GPIOB->OTYPER &= ~0x7F;
+	GPIOB->OSPEEDR |= 0x3FFF;;
+#else
 	GPIOA->MODER &= ~(GPIO_MODER_MODER0|GPIO_MODER_MODER1|GPIO_MODER_MODER2|GPIO_MODER_MODER3);
 	GPIOA->MODER |= GPIO_MODER_MODER0_0|GPIO_MODER_MODER1_0|GPIO_MODER_MODER2_0|GPIO_MODER_MODER3_0;
 	GPIOB->MODER &=~(GPIO_MODER_MODER0|GPIO_MODER_MODER1|GPIO_MODER_MODER3|GPIO_MODER_MODER4|GPIO_MODER_MODER5|GPIO_MODER_MODER6|GPIO_MODER_MODER7);
 	GPIOB->MODER |= (GPIO_MODER_MODER0_0|GPIO_MODER_MODER1_0|GPIO_MODER_MODER3_0|GPIO_MODER_MODER4_0|GPIO_MODER_MODER5_0|GPIO_MODER_MODER6_0|GPIO_MODER_MODER7_0);
 	GPIOB->OTYPER &= ~(GPIO_OTYPER_OT_0|GPIO_OTYPER_OT_1|GPIO_OTYPER_OT_3|GPIO_OTYPER_OT_4|GPIO_OTYPER_OT_5|GPIO_OTYPER_OT_6|GPIO_OTYPER_OT_7);
 	GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEEDR0|GPIO_OSPEEDR_OSPEEDR1|GPIO_OSPEEDR_OSPEEDR3|GPIO_OSPEEDR_OSPEEDR4|GPIO_OSPEEDR_OSPEEDR5|GPIO_OSPEEDR_OSPEEDR6|GPIO_OSPEEDR_OSPEEDR7;
+#endif
 	/*
 	//===Settings timer===//
 	RCC->APB2ENR |= RCC_APB2ENR_TIM17EN;
@@ -55,10 +56,17 @@ void segled_init (void)
 
 void Show_digit (uint8_t dig)
 {
+#ifdef PORTA
+	PORT->ODR &= ~(1<<DIGIT1|1<<DIGIT2|1<<DIGIT3|1<<DIGIT4);
+	GPIOA->ODR &= ~0x7F;
+	PORT->ODR |= 1 << pins[dig];
+	GPIOA->ODR |= number [buff [dig]];	
+#else
 	PORT->ODR &= ~(1<<DIGIT1|1<<DIGIT2|1<<DIGIT3|1<<DIGIT4);
 	GPIOB->ODR = 0;
 	PORT->ODR |= 1 << pins[dig];
 	GPIOB->ODR = number [buff [dig]];
+#endif
 }
 
 void led_number ()

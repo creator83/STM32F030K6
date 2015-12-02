@@ -7,19 +7,17 @@
 
 int main ()
 {
-	init_HSI ();
-	init_PLL ();
-	init_spi ();
+	init_spi_8 ();
 
 	while(1)
 	{
-		clear_cs ();
-		transfer (0xF0);
-		set_cs ();
+		CS_CLEAR;
+		spi1_tx_8 (0xF0);
+		CS_SET;
 		delay_ms (500);
-		clear_cs ();
-		transfer (0x0F);
-		set_cs ();
+		CS_CLEAR;
+		spi1_tx_8 (0x0F);
+		CS_SET;
 		delay_ms (500);
 	}
 

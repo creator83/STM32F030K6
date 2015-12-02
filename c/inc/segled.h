@@ -2,18 +2,26 @@
 #include "delay.h"
 #include "menu.h"
 
-
+#define PORTA
 //Modify buffer function
 //#define PPR_SOLDER
 
 //Off digit
 #define OFF 10
+#ifdef PORTA
+#define PORT GPIOA
+#define DIGIT1 10 
+#define DIGIT2 11
+#define DIGIT3 12
+#define DIGIT4 15
 
+#else
 #define PORT GPIOA
 #define DIGIT1 0 
 #define DIGIT2 1
 #define DIGIT3 2
 #define DIGIT4 3
+#endif
 
 #ifndef SEGLED_H
 #define SEGLED_H

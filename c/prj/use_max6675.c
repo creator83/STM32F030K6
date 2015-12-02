@@ -69,7 +69,7 @@ int main ()
 	segled_init ();
 	SysTick_Config (systick_val);
 	
-	
+	//segled_buffer (6253);
 	
 	
 	

@@ -4,6 +4,30 @@
 void init_spi_8 ()
 {
 	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+
+#ifdef PORTB
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	
+	//===Settings pins===//
+	GPIOB->MODER &= ~(GPIO_MODER_MODER3|GPIO_MODER_MODER4|GPIO_MODER_MODER5|GPIO_MODER_MODER6);
+
+	//CS
+	GPIOB->MODER |= GPIO_MODER_MODER6_0;
+	//GPIOA->MODER |= GPIO_MODER_MODER4_1;
+	
+	//SCK
+	GPIOB->MODER |= GPIO_MODER_MODER3_1;
+	GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEEDR5;
+	
+	//MISO
+	GPIOB->MODER |= GPIO_MODER_MODER4_1;
+	
+	//MOSI
+	GPIOB->MODER |= GPIO_MODER_MODER5_1;
+	
+	//High CS
+	CS_SET;
+#else
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	
 	//===Settings pins===//
@@ -24,13 +48,8 @@ void init_spi_8 ()
 	GPIOA->MODER |= GPIO_MODER_MODER7_1;
 	
 	//High CS
-	GPIOA->ODR |= 1 << CS;
-	
-	/*
-	SPI1->CR1 = SPI_CR1_MSTR |  SPI_CR1_BR; 
-SPI1->CR2 = SPI_CR2_SSOE |  SPI_CR2_RXNEIE |  SPI_CR2_FRXTH
- |  SPI_CR2_DS_2 |  SPI_CR2_DS_1 |  SPI_CR2_DS_0; 
-SPI1->CR1 |= SPI_CR1_SPE;*/
+	CS_SET;
+#endif
 	
 	//===Settings SPI===//
 	//SPI1->CR1 = 0;
@@ -41,7 +60,7 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 	//SPI1->CR1 |= SPI_CR1_CPOL;
 	
 	//CPHA
-	//SPI1->CR1 |= SPI_CR1_CPHA;
+	SPI1->CR1 |= SPI_CR1_CPHA;
 	
 	//Division
 	SPI1->CR1 |= SPI_CR1_BR
@@ -51,7 +70,9 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 	//Soft mode CS
 	 SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
-   SPI1->CR2 |= SPI_CR2_SSOE |  SPI_CR2_FRXTH;
+   SPI1->CR2 |= 
+  // SPI_CR2_SSOE | 
+	 SPI_CR2_FRXTH;
 	 
 		//Master or Slave
 	 SPI1->CR1 |= SPI_CR1_MSTR;
@@ -64,6 +85,30 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 void init_spi_16 (void)
 {
 	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+	
+#ifdef PORTB
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	
+	//===Settings pins===//
+	GPIOB->MODER &= ~(GPIO_MODER_MODER3|GPIO_MODER_MODER4|GPIO_MODER_MODER5|GPIO_MODER_MODER6);
+
+	//CS
+	GPIOB->MODER |= GPIO_MODER_MODER6_0;
+	//GPIOA->MODER |= GPIO_MODER_MODER4_1;
+	
+	//SCK
+	GPIOB->MODER |= GPIO_MODER_MODER3_1;
+	GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEEDR5;
+	
+	//MISO
+	GPIOB->MODER |= GPIO_MODER_MODER4_1;
+	
+	//MOSI
+	GPIOB->MODER |= GPIO_MODER_MODER5_1;
+	
+	//High CS
+	CS_SET;
+#else
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	
 	//===Settings pins===//
@@ -84,7 +129,8 @@ void init_spi_16 (void)
 	GPIOA->MODER |= GPIO_MODER_MODER7_1;
 	
 	//High CS
-	GPIOA->ODR |= 1 << CS;
+	CS_SET;
+#endif
 	
 	/*
 	SPI1->CR1 = SPI_CR1_MSTR |  SPI_CR1_BR; 
@@ -111,7 +157,7 @@ SPI1->CR1 |= SPI_CR1_SPE;*/
 	//Soft mode CS
 	 SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
-   SPI1->CR2 |= SPI_CR2_SSOE; 
+  // SPI1->CR2 |= SPI_CR2_SSOE; 
 //	 |  SPI_CR2_RXNEIE |  SPI_CR2_FRXTH|  SPI_CR2_DS_2 |  SPI_CR2_DS_1 |  SPI_CR2_DS_0;
 		
 		//16-bit frame

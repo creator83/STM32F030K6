@@ -1,8 +1,18 @@
 #include "stm32f0xx.h"                  // Device header
 
+#define PORTB
+
+#ifdef PORTB
+#define CS 6
+#define CS_CLEAR GPIOB->ODR &= ~(1 << CS)
+#define CS_SET GPIOB->ODR |= (1 << CS)
+#else
 #define CS 4
 #define CS_CLEAR GPIOA->ODR &= ~(1 << CS)
 #define CS_SET GPIOA->ODR |= (1 << CS)
+#endif
+
+
 
 
 #ifndef SPI_H
