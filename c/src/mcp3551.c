@@ -6,19 +6,19 @@
 
 void mcp3551_init (void)
 {
-	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-	PORT->MODER &= ~(GPIO_MODER_MODER4|GPIO_MODER_MODER5|GPIO_MODER_MODER6);
-	PORT->MODER |=GPIO_MODER_MODER4_0|GPIO_MODER_MODER5_0;
-	PORT->ODR |= 1 << sck;
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	PORT->MODER &= ~(GPIO_MODER_MODER3|GPIO_MODER_MODER5|GPIO_MODER_MODER4);
+	PORT->MODER |=GPIO_MODER_MODER3_0|GPIO_MODER_MODER5_0;
+	PORT->ODR &= ~(1 << sck);
 	CS_1;
 	delay_ms (1);
 }	
 
 uint32_t spiread (void)
 {
-	uint8_t i;
+	int8_t i;
 	uint32_t d=0;
-	for (i=23;i>0;i--)
+	for (i=23;i>=0;i--)
 	{
 		PORT->ODR |= 1 << sck;
 		delay_ms (1);

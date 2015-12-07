@@ -5,10 +5,10 @@
 #define R_VAL 13407
 #define PT 100
 #define SOFTSPI
-#define PORT GPIOA
-#define cs 4
-#define sck 5
-#define miso 6
+#define PORT GPIOB
+#define cs 5
+#define sck 3
+#define miso 4
 #define CS_0 PORT->ODR &= ~ (1 << cs)
 #define CS_1 PORT->ODR |=1<<cs
 #define OVH 22

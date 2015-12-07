@@ -5,25 +5,21 @@
 #include "max6675.h"
 #include "uart.h"
 
+tact frq;
 
 int main()
 {
-  tact frq;
-  uart uart1 (uart::baud9600);/*
-  max6675 sensor (max6675::A , 5 , 4 , 6);*/
-  //max6675 sensor;
+
+  uart uart1 (uart::baud9600);
+  max6675 sensor;
   
   
   while (1)
   {
-		/*
-		sensor.readTemp();
-		sensor.buffer (sensor.getTemp());
+		sensor.buffer (sensor.readCelsius());
 		uart1.transmit ("==");
-		for (uint8_t i=0;i<4;++i)
-		{
-			uart1.transmit (sensor.buff[i]);
-		}
-    delay_ms (500);*/
+		uart1.transmit (sensor.buffer_value[0]);
+		uart1.transmit (sensor.buffer_value[1]);
+		delay_ms (500);
   }
 }

@@ -1,7 +1,58 @@
 #include "max6675.h"
 #include "spi.h"
 
-#ifdef SPI_16
+#ifdef SOFTSPI
+
+void max6675_init (void)
+{
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	PORT_->MODER &= ~(GPIO_MODER_MODER4|GPIO_MODER_MODER6|GPIO_MODER_MODER3);
+	PORT_->MODER |=GPIO_MODER_MODER3_0|GPIO_MODER_MODER6_0;
+	PORT_->ODR &= ~(1 << sck);
+	PORT_->ODR |= (1 << cs);
+}
+
+
+uint16_t spiread (void)
+{
+	int8_t i;
+	uint16_t d=0;
+	for (i=15;i>=0;--i)
+	{
+		PORT_->ODR |= 1 << sck;
+		delay_ms (1);
+		PORT_->ODR &=~ (1 << sck);
+		if ((PORT_->IDR & (1 << miso))) d|= (1 << i);
+		
+		delay_ms (1);
+	}
+	return d;
+}
+
+uint16_t readCelsius(void)
+{
+  uint16_t v;
+
+  PORT_->ODR &= ~(1 << cs);
+  //delay_ms(1);
+
+  v = spiread();
+
+  PORT_->ODR |= (1 << cs);
+
+  if (v & 0x4) {
+    // uh oh, no thermocouple attached!
+    return 0; 
+    //return -100;
+  }
+
+  v >>= 5;
+	
+  return v;
+}
+
+#else
+
 void max6675_init (void)
 {
 	init_spi_16 ();
@@ -28,7 +79,10 @@ uint16_t readCelsius(void)
 	
   return v;
 }
-#else
+#endif
+
+//===Spi8 code===//
+/*
 void max6675_init (void)
 {
 	init_spi_8 ();
@@ -56,7 +110,7 @@ uint16_t readCelsius(void)
   return v;
 }
 
-#endif
+*/
 
 /*
 double readCelsius(void)
@@ -83,41 +137,6 @@ double readCelsius(void)
 
 
 
-
-/*
-void max6675_buffer (uint16_t val)
-{
-	char dec, ones;
-	dec = division (val);
-	max6675_buff[0] = max6675_number [dec];
-	ones = val%10;
-	max6675_buff[1] = max6675_number [ones];
-}
-
-uint16_t division (uint16_t n)
-{
-	uint32_t quot, qq;
-	uint8_t rem;
-// Multiplay 0.8	
-	quot = n >> 1;
-  quot += quot >> 1;
-  quot += quot >> 4;
-  quot += quot >> 8;
-  quot += quot >> 16;
-  qq = quot;
-// devision 8
-  quot >>= 3;
-//calculate rem
-  rem = (uint8_t)(n - ((quot << 1) + (qq & ~7ul)));
-// correct
-    if(rem > 9)
-    {
-        rem -= 10;
-        quot++;
-    }
-    return quot;
-
-}*/
 
 
 

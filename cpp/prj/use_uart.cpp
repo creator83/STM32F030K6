@@ -8,7 +8,7 @@
 int main()
 {
   tact frq;
-  uart uart1 (uart::baud57600);
+  uart uart1 (uart::baud9600);
   
   while (1)
   {
@@ -28,8 +28,8 @@ int main()
     delay_ms (1000);
     uart1.transmit ("Its STM32F030 BABY :-)))");
     delay_ms (1000);
-    //uart1.transmit ("  ğÓÑÑÈØ ");
-    //delay_ms (1000);    
+    uart1.transmit ("Ğóñèøø");
+    delay_ms (1000);    
     
   }
 }

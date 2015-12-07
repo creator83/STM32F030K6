@@ -2,6 +2,7 @@
 #include "delay.h"
 
 #define delay 1000
+#define led 7
 
 void SysTick_Handler (void)
 {
@@ -9,7 +10,7 @@ void SysTick_Handler (void)
 	++del;
 	if (del > delay)
 	{
-		GPIOA->ODR ^= GPIO_ODR_15;
+		GPIOB->ODR ^= 1 << led;
 		del = 0;
 	}
 }
@@ -29,7 +30,7 @@ int main ()
 
 void init_gpio (void)
 {
-	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-	GPIOA->MODER &= ~GPIO_MODER_MODER15;
-	GPIOA->MODER |= GPIO_MODER_MODER15_0;
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	GPIOB->MODER &= ~GPIO_MODER_MODER7;
+	GPIOB->MODER |= GPIO_MODER_MODER7_0;
 }

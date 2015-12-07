@@ -2,28 +2,20 @@
 #include "Gpio.h"
 #include "delay.h"
 #include "tact.h"
+#include "systimer.h"
 
 
-  tact frq;
-	Gpio B (Gpio::B);
+tact frq;
+Gpio B (Gpio::B);
 
-//const uint8_t pin = 0;
-const uint8_t out = 7;
-//Gpio A (Gpio::A);
-/*
+const char pin = 0;
+
 extern "C"
 {
-  void EXTI0_1_IRQHandler();
+  void SysTick_Handler ();
 }
 
-
-
-void EXTI0_1_IRQHandler()
-{
-  EXTI->PR |= 1 << pin;
-  A.ChangePinState (out);			
-}
-
+/*
 void init_int ()
 {
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
@@ -36,16 +28,27 @@ void init_int ()
 }
 */
 
+void SysTick_Handler ()
+{
+	static uint16_t i=0;
+	if (i>=1000)
+	{
+		B.ChangePinState (pin);
+		i=0;
+	}
+	else ++i;
+}
+
+
 int main()
 {
-	//init_int ();
-	B.setOutPin (out);
+	systimer (systimer::ms, 1);
+	B.setOutPin (pin);
 
 
 
   while (1)
   {
-   B.ChangePinState (out);
-		delay_ms (1000);
+
   }
 }

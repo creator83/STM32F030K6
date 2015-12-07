@@ -1,6 +1,7 @@
 #include "stm32f0xx.h"                  // Device header
 #include "delay.h"
 
+
 #define BAUD 9600
 #define BRR_VAL F_CPU/BAUD
 

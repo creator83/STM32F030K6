@@ -57,11 +57,19 @@ void init_spi_8 ()
 
 	
 	//CPOL
-	//SPI1->CR1 |= SPI_CR1_CPOL;
-	
+#ifdef 	CPOL
+	SPI1->CR1 |= SPI_CR1_CPOL;
+#else
+	SPI1->CR1 &= ~SPI_CR1_CPOL;
+#endif
+
 	//CPHA
+#ifdef 	CPHA
 	SPI1->CR1 |= SPI_CR1_CPHA;
-	
+#else
+	SPI1->CR1 &= ~SPI_CR1_CPHA;
+#endif	
+
 	//Division
 	SPI1->CR1 |= SPI_CR1_BR
 	//SPI_CR1_BR_0|

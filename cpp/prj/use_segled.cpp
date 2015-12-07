@@ -5,52 +5,52 @@
 #include "segled.h"
 #include "systimer.h"
 
+tact frq;
+segled indicator (segled::A, segled::A);
+Gpio B (Gpio::B);
 
-struct buttons
-{
-	unsigned counter :16;
-	unsigned current_state :1;
-	unsigned last_state :1;
-	unsigned min_press :6; 
-	unsigned max_press :16;
-	unsigned long_press :1;
-	unsigned short_press :1; 
-}button, encoder;
+const char pin = 0;
 
 struct flags
 {
 	unsigned led_indicator_delay : 1;
 }flag;
 
-const uint8_t button_ = 1;
+
 
 extern "C"
 {
-void SysTick_Handler (void);
+	void SysTick_Handler ();
 }
-tact frq;
-segled indicator (segled::B, segled::A);
 
-void SysTick_Handler (void)
+
+void SysTick_Handler ()
 {
-	//increment button's and encoder's counters 
-	if (!(button.long_press||button.short_press))button.counter++;
+	static uint16_t i,k=0;
+	static uint8_t j=0;
 	
-	encoder.counter++;
-	
+	if(j>3)j=0;
+	if (k>=1000)
+	{
+		B.ChangePinState (pin);
+		k=0;
+	}		
+	else	++k;
+	if (i>=1000)
+	{
+		indicator.frame(j);
+		i=0;
+	}
+	else ++i;
+	++j;
+	/*
 	if (flag.led_indicator_delay)flag.led_indicator_delay = 0;
 	else
 	{
 		indicator.digit();
 		flag.led_indicator_delay = 1;
-	}
-	//Cheking press button
-	button.current_state = !(GPIOA->IDR&1 << button_);
-	
-	if (!(button.last_state&&button.current_state))button.counter = 0;;
-	button.last_state = button.current_state;
-	
-	if (button.counter>button.min_press) button.short_press = 1;
+	}*/
+
 }
 
 
@@ -58,16 +58,16 @@ void SysTick_Handler (void)
 int main()
 {
   systimer (systimer::ms, 1);
-	
-	
+	B.setOutPin (pin);
+	indicator.get_buffer (5632);
   while (1)
   {
-		indicator.get_buffer (5632);
+		/*
 		delay_ms (500);
-		if (button.short_press)
+		if (button.short_press)*/
 		{
 			// foo();
-			button.short_press = 0;
+			//button.short_press = 0;
 		}
   }
 }

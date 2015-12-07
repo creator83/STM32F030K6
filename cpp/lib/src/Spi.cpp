@@ -50,7 +50,7 @@ spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
   //Soft mode  
    SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
-	// SPI1->CR2 |= SPI_CR2_SSOE;
+	 SPI1->CR2 |= SPI_CR2_SSOE;
    
 	 //Turn on spi1
    SPI1->CR1 |= SPI_CR1_SPE;

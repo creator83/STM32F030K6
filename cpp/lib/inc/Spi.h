@@ -14,7 +14,7 @@ public:
   enum Division {div2 , div4 , div8 , div16 , div32 , div64 , div128 , div256};
   enum Role {slave , master};
   enum Cpol {neg, pos};
-  enum Cpha {falling, rising};
+  enum Cpha {first, second};
 
 	enum Size {bit4 = 3, bit5, bit6,  bit7,  bit8,  bit9,  bit10, bit11, bit12, bit13, bit14, bit15, bit16};
 	enum PORT {A,B};
@@ -25,7 +25,7 @@ private:
 	uint8_t port_;
 //functions
 public:
-  spi(PORT p, Division div, Cpol cpl = neg, Cpha cph = falling, Role r = master, Size s=bit8);
+  spi(PORT p, Division div, Cpol cpl = neg, Cpha cph = first, Role r = master, Size s=bit8);
   void Set_CS ();
   void Clear_CS ();
   void transmit_8 (uint8_t data);

@@ -1,6 +1,6 @@
 #include "stm32f0xx.h"                  // Device header
 
-#define PORTB
+//#define PORTB
 
 #ifdef PORTB
 #define CS 6
@@ -12,6 +12,8 @@
 #define CS_SET GPIOA->ODR |= (1 << CS)
 #endif
 
+//#define CPOL
+//#define CPHA
 
 
 

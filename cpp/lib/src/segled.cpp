@@ -1,6 +1,6 @@
 #include "segled.h"
 
-char segled::number [11] = {0x7B , 0x0A , 0xB3 , 0x9F , 0xCA , 0xD9 , 0xF9 , 0x0B , 0xFB , 0xDB , 0x00};
+char segled::number [13] = {0x3F ,0x06 , 0x5B , 0x4F , 0x66 , 0x6D , 0x7D, 0x07 , 0x7F , 0x6F ,  0x00, 0x60, 0x6A};
 char pins[4] = {segled::first, segled::second, segled::third, segled::fourth};
 
 segled::segled (Port seg, Port dig)
@@ -14,7 +14,7 @@ segled::segled (Port seg, Port dig)
 	pin_segment.setOutPin (e);
 	pin_segment.setOutPin (f);	
 	pin_segment.setOutPin (g);
-	pin_segment.setOutPin (dp);		
+	//pin_segment.setOutPin (dp);		
 	
 	//===Settings digit pins===//
 	pin_digit.setOutPin (first);
@@ -39,7 +39,13 @@ void segled::frame (uint8_t dig)
 	pin_digit.clearPin (second);
 	pin_digit.clearPin (third);
 	pin_digit.clearPin (fourth);
-	pin_segment.setValPort (0);
+	pin_segment.clearPin (a);
+	pin_segment.clearPin (b);
+	pin_segment.clearPin (c);
+	pin_segment.clearPin (d);
+	pin_segment.clearPin (e);
+	pin_segment.clearPin (f);	
+	pin_segment.clearPin (g);
 	pin_digit.setPin (1 << pins[dig]);
 	pin_segment.setValPort (number[buffer[dig]]);
 }
