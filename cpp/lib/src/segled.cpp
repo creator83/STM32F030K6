@@ -51,21 +51,7 @@ void segled::digit ()
 	++i;
 	if (i>=n)i=0;
 }
-/*
-void segled::digit ()
-{
-	static uint8_t i=0;
-	TIM14->SR &= ~TIM_SR_UIF;
-	if (flag) flag = false;
-		else
-	{
-		frame (i);
-		flag = 1;
-		++i;
-	}
-	if (i>=n)i=0;
-}
-*/
+
 void segled::get_buffer (uint16_t val)
 {
 	char tous, hundr, dec, ones;

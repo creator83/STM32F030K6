@@ -9,8 +9,9 @@ class segled
 //variables
 public:	
 	enum Port {A , B , C , F=5};
-	enum Segment {a=0, b=1, c=3, d, e, f, g, dp};
-	enum Digit {first, second, third, fourth};
+	//enum Segment {a=0, b=1, c=3, d, e, f, g, dp};
+	enum Segment {a=0, b, c, d, e, f, g, dp};
+	enum Digit {first=10, second, third, fourth = 15};
 	char buffer [4];
 private:
 	Gpio pin_segment;

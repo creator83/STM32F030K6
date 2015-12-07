@@ -1,25 +1,29 @@
 #include "spi.h"
 
-spi::spi(Division div, Cpol cpl, Cpha cph, Role r, Size s)
-:pin (Gpio::A)
+uint8_t spi::pins_d[2][4]={{4,5,6,7},{6,3,4,5}};
+
+
+spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
+:pin (p)
 {
+	port_ = p;
   //tact SPI1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
   
   //===Settings pins===//
 
   //CS
-  pin.setOutPin (CS);
+  pin.setOutPin (pins_d[p][CS]);
 
 
   //SCK
-  pin.setOutPin (SCK , Gpio::AltFunc , Gpio::High);
+  pin.setOutPin (pins_d[p][SCK] , Gpio::AltFunc , Gpio::High);
     
   //MOSI
-  pin.setOutPin(MOSI , Gpio::AltFunc , Gpio::High);
+  pin.setOutPin(pins_d[p][MOSI]  , Gpio::AltFunc , Gpio::High);
   
   //MISO
-  pin.setOutPin (MISO , Gpio::AltFunc);
+  pin.setOutPin (pins_d[p][MISO]  , Gpio::AltFunc);
   
   Set_CS ();
   
@@ -46,7 +50,7 @@ spi::spi(Division div, Cpol cpl, Cpha cph, Role r, Size s)
   //Soft mode  
    SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
-	 SPI1->CR2 |= SPI_CR2_SSOE;
+	// SPI1->CR2 |= SPI_CR2_SSOE;
    
 	 //Turn on spi1
    SPI1->CR1 |= SPI_CR1_SPE;
@@ -54,12 +58,12 @@ spi::spi(Division div, Cpol cpl, Cpha cph, Role r, Size s)
 
 void spi::Set_CS ()
 {
-  pin.setPin (CS);
+  pin.setPin (pins_d[port_][CS]);
 }
 
 void spi::Clear_CS ()
 {
-  pin.clearPin (CS);
+  pin.clearPin (pins_d[port_][CS]);
 }
 
 void spi::transmit_8 (uint8_t data)
@@ -70,6 +74,7 @@ void spi::transmit_8 (uint8_t data)
 
 uint8_t spi::receive_8 ()
 {
+	*(uint8_t *)&(SPI1->DR) = 0x00;
 	while (!(SPI1->SR&SPI_SR_RXNE));
 	return static_cast <uint8_t>(SPI1->DR);	
 }

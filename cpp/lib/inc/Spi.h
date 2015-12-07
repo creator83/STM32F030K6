@@ -15,14 +15,17 @@ public:
   enum Role {slave , master};
   enum Cpol {neg, pos};
   enum Cpha {falling, rising};
-  enum pin_def {CS = 4 , SCK , MISO , MOSI};
+
 	enum Size {bit4 = 3, bit5, bit6,  bit7,  bit8,  bit9,  bit10, bit11, bit12, bit13, bit14, bit15, bit16};
+	enum PORT {A,B};
 private:
   Gpio pin;
-  
+	static uint8_t pins_d[2][4];
+  enum pin_def {CS, SCK , MISO , MOSI};
+	uint8_t port_;
 //functions
 public:
-  spi(Division div, Cpol cpl = neg, Cpha cph = falling, Role r = master, Size s=bit8);
+  spi(PORT p, Division div, Cpol cpl = neg, Cpha cph = falling, Role r = master, Size s=bit8);
   void Set_CS ();
   void Clear_CS ();
   void transmit_8 (uint8_t data);
