@@ -1,7 +1,7 @@
 #include "segled.h"
 
 char segled::number [13] = {0x3F ,0x06 , 0x5B , 0x4F , 0x66 , 0x6D , 0x7D, 0x07 , 0x7F , 0x6F ,  0x00, 0x60, 0x6A};
-char pins[4] = {segled::first, segled::second, segled::third, segled::fourth};
+char segled::pins[4] = {first, second, third, fourth};
 
 segled::segled (Port seg, Port dig)
 :pin_segment (seg), pin_digit (dig)
@@ -21,8 +21,6 @@ segled::segled (Port seg, Port dig)
 	pin_digit.setOutPin (second);	
 	pin_digit.setOutPin (third);
 	pin_digit.setOutPin (fourth);		
-	
-
 }
 
 void segled::OFF ()
@@ -46,7 +44,7 @@ void segled::frame (uint8_t dig)
 	pin_segment.clearPin (e);
 	pin_segment.clearPin (f);	
 	pin_segment.clearPin (g);
-	pin_digit.setPin (1 << pins[dig]);
+	pin_digit.setPin (pins[dig]);
 	pin_segment.setValPort (number[buffer[dig]]);
 }
 

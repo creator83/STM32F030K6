@@ -4,12 +4,13 @@
 #include "tact.h"
 #include "segled.h"
 #include "systimer.h"
+#include "max6675.h"
 
 tact frq;
 segled indicator (segled::A, segled::A);
-Gpio B (Gpio::B);
 
-const char pin = 0;
+
+
 
 struct flags
 {
@@ -26,24 +27,16 @@ extern "C"
 
 void SysTick_Handler ()
 {
-	static uint16_t i,k=0;
-	static uint8_t j=0;
-	
-	if(j>3)j=0;
-	if (k>=1000)
+		
+
+	if (flag.led_indicator_delay)flag.led_indicator_delay = 0;
+	else
 	{
-		B.ChangePinState (pin);
-		k=0;
-	}		
-	else	++k;
-	if (i>=1000)
-	{
-		indicator.frame(j);
-		i=0;
+		indicator.digit();
+		flag.led_indicator_delay = 1;
 	}
-	else ++i;
-	++j;
-	/*
+	
+/*	
 	if (flag.led_indicator_delay)flag.led_indicator_delay = 0;
 	else
 	{
@@ -57,14 +50,15 @@ void SysTick_Handler ()
 
 int main()
 {
+
   systimer (systimer::ms, 1);
-	B.setOutPin (pin);
-	indicator.get_buffer (5632);
+	max6675 sensor;
+	
   while (1)
   {
-		/*
+		indicator.get_buffer (sensor.readCelsius());
 		delay_ms (500);
-		if (button.short_press)*/
+		/*if (button.short_press)*/
 		{
 			// foo();
 			//button.short_press = 0;

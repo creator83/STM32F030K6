@@ -17,7 +17,7 @@ private:
 	Gpio pin_segment;
 	Gpio pin_digit;
 	static char number [13];
-	char pins [4];
+	static char pins [4];
 	char n;
 //functions
 
