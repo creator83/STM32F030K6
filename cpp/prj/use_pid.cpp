@@ -81,8 +81,15 @@ void SysTick_Handler ()
 
 }
 
-void init_timer ()
+void init_pwm ()
 {
+	//===Init pins===//
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	GPIOB->MODER &= ~GPIO_MODER_MODER0;
+	GPIOB->MODER |= GPIO_MODER_MODER0_1;
+	GPIOB->AFR[0] |= 1 <<0;
+	
+	//===Init timer===//
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 	TIM3->PSC |= 480-1;
 	TIM3->ARR |= 10;
@@ -99,7 +106,7 @@ int main()
 	pid_Init(K_P * SCALING_FACTOR, K_I * SCALING_FACTOR , K_D * SCALING_FACTOR , &pidData);
   systimer (systimer::ms, 1);
 	max6675 sensor;
-	init_timer ();
+	init_pwm ();
 	TIM3->CCR3 = 58980;
 	
   while (1)
