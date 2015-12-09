@@ -1,12 +1,10 @@
 #include "stm32f0xx.h"                  // Device header
-#include "Gpio.h"
 #include "tact.h"
 
-#ifndef TIMER14_H
-#define TIMER14_H
+#ifndef TIMER3_H
+#define TIMER3_H
 
-
-class timer14
+class timer3
 {
 	//variables
 public:
@@ -16,7 +14,7 @@ public:
 private:
 //functions
 public:
-	timer14 (uint16_t val, mode m);
+	timer3 (uint16_t val, mode m);
 	//timer14 (uint16_t us);
 	//timer14 (uint8_t khz);
 	void Set_CNT (uint16_t);
@@ -30,5 +28,5 @@ public:
 private:
 	
 };
-
+ 
 #endif

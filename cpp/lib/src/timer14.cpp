@@ -24,8 +24,6 @@ timer14::timer14 (uint16_t val, mode m)
 			TIM14->PSC |= val;
 		break;		
 	}
-
-	
 }
 /*
 timer14::timer14 (uint16_t us)
