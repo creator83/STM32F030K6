@@ -1,6 +1,9 @@
 #include "stm32f0xx.h"                  // Device header
 #include "Gpio.h"
 
+#define SPI1_DR_8bit          (*(__IO uint8_t *)((uint32_t)&(SPI1->DR))) 
+
+
 #ifndef SPI_H
 #define SPI_H
 

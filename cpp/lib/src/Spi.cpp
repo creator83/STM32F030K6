@@ -50,7 +50,9 @@ spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
   //Soft mode  
    SPI1->CR1 |= SPI_CR1_SSM ;
    SPI1->CR1 |= SPI_CR1_SSI ;
-	 SPI1->CR2 |= SPI_CR2_SSOE;
+	// SPI1->CR2 |= SPI_CR2_SSOE;
+	
+	if (s == bit8) SPI1->CR2 |= SPI_CR2_FRXTH;
    
 	 //Turn on spi1
    SPI1->CR1 |= SPI_CR1_SPE;
@@ -74,8 +76,12 @@ void spi::transmit_8 (uint8_t data)
 
 uint8_t spi::receive_8 ()
 {
+	//while (SPI1->SR&SPI_SR_BSY);
+	//SPI1_DR_8bit  = 0xFF;
+	//SPI1->DR = 0x0000;
 	*(uint8_t *)&(SPI1->DR) = 0x00;
 	while (!(SPI1->SR&SPI_SR_RXNE));
+	//return  (SPI1_DR_8bit) ;	
 	return static_cast <uint8_t>(SPI1->DR);	
 }
 

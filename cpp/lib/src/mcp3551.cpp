@@ -15,7 +15,8 @@ bool mcp3551::isReady()
 {
   spi1.Clear_CS();
   delay_ms(80);
-  if (!(GPIOB->IDR & (1 << spi1.pins_d[spi1.port_][spi::MISO])))
+	if (!(GPIOB->IDR & (1 << 4)))
+  //if (!(GPIOB->IDR & (1 << spi1.pins_d[spi1.port_][spi::MISO])))
   {
     return true;
   }
