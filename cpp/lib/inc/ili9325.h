@@ -1,9 +1,10 @@
 #include "stm32f0xx.h"                  // Device header
 #include "tact.h"
 #include "Gpio.h"
+#include "delay.h"
 
-#ifndef __ILI9325_H__
-#define __ILI9325_H__
+#ifndef ILI9325_H
+#define ILI9325_H
 
 #define BIT8
 
@@ -57,28 +58,36 @@ class ili9325
 {
 //variables
 public:
-	enum commPins {RST, WR , CS , RS ,RD};
+	
 protected:
 private:
+	enum commPins {RST, WR , CS , RS ,RD};
+
+#ifdef BIT8
+	Gpio pinDataLow;
+	enum dataPins {d0,d1,d2,d3,d4,d5,d6,d7};
+#else
 	Gpio pinDataLow;
 	Gpio pinDataHigh;
+	enum dataPins {d0,d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15};
+#endif
 	Gpio pinCommand;
 	unsigned int x_start, x_end, y_start, y_end;
 
 //functions
 public:
 	ili9325();
-	void point (char x , char y, unsigned int color);
-	void fill_screen (unsigned int color);
-	void set_area (unsigned int x1 , unsigned int y1 , unsigned int x2 , unsigned int y2);
-	void set_cursor (char x , char y);
-	void data(unsigned int dta);	
-	void putchar (unsigned int x , unsigned int y , char * ch , unsigned int color , unsigned int background);
+	void point (uint16_t x , uint16_t y, uint16_t color);
+	void fill_screen (uint16_t color);
+	void set_area (uint16_t x1, uint16_t y1, uint16_t x2 , uint16_t y2);
+	void set_cursor (uint16_t x , uint16_t y);
+	void data (uint16_t dta);	
+	void putchar (uint16_t x , uint16_t y , char * ch , uint16_t color , uint16_t background);
 
 protected:
 private:
 	void init();
-	void index(unsigned char indx);
+	void index(uint8_t indx);
 
 	//void wr_reg (unsigned int indx , unsigned int dta);
 	void wr_reg (unsigned char indx , unsigned int dta);	

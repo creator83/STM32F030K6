@@ -4,11 +4,12 @@
 #include "tact.h"
 #include "ili9325.h"
 
-
+  tact frq;
+	
 int main()
 {
-  tact frq;
-  
+	ili9325 lcd;
+  lcd.fill_screen (YELLOW);
   while (1)
   {
   }

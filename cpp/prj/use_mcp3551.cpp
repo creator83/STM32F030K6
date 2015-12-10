@@ -9,9 +9,8 @@
 int main()
 {
   tact frq;
-  uart uart1 (uart::baud57600);
+  uart uart1 (uart::baud9600);
   mcp3551 sensor;
-
   
   while (1)
   {

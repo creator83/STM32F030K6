@@ -1,8 +1,29 @@
-
-
 #include "ili9325.h"
 
-// default constructor
+#ifdef BIT8
+ili9325::ili9325()
+:pinDataLow (Gpio::A), pinCommand (Gpio::A)
+{
+	pinDataLow.setOutPin(d0);
+	pinDataLow.setOutPin(d1);
+	pinDataLow.setOutPin(d2);
+	pinDataLow.setOutPin(d3);
+	pinDataLow.setOutPin(d4);
+	pinDataLow.setOutPin(d5);
+	pinDataLow.setOutPin(d6);
+	pinDataLow.setOutPin(d7);
+	pinCommand.setOutPin(CS);
+	pinCommand.setOutPin(RS);
+	pinCommand.setOutPin(RST);
+	pinCommand.setOutPin(RD);
+	pinCommand.setOutPin(WR);
+	pinCommand.setPin (RST);
+	pinCommand.setPin (CS);
+	pinCommand.clearPin (RS);
+	pinCommand.setPin (WR);	
+	pinCommand.setPin (RD);
+}
+#else
 ili9325::ili9325()
 :pinDataLow (Gpio::B) , pinDataHigh (Gpio::D) , pinCommand (Gpio::C)
 {
@@ -21,12 +42,13 @@ ili9325::ili9325()
 	init();
 } //ili9325
 
+#endif
 void ili9325::init()
 {
 	pinCommand.clearPin(RST);
-	_delay_ms(100);
+	delay_ms(100);
 	pinCommand.setPin(RST);
-	_delay_ms(100);
+	delay_ms(100);
 	
 	
 	/*
@@ -115,16 +137,16 @@ void ili9325::init()
 	wr_reg(0x11, 0x0007); // DC1[2:0], DC0[2:0], VC[2:0]
 	wr_reg(0x12, 0x0000); // VREG1OUT voltage
 	wr_reg(0x13, 0x0000); // VDV[4:0] for VCOM amplitude
-	_delay_ms(200); // Dis-charge capacitor power voltage
+	delay_ms(200); // Dis-charge capacitor power voltage
 	wr_reg(0x10, 0x1690); // SAP, BT[3:0], AP, DSTB, SLP, STB
 	wr_reg(0x11, 0x0227); // R11h=0x0221 at VCI=3.3V, DC1[2:0], DC0[2:0], VC[2:0]
-	_delay_ms(50); // Delay 50ms
+	delay_ms(50); // Delay 50ms
 	wr_reg(0x12, 0x001C); // External reference voltage= Vci;
-	_delay_ms(50); // Delay 50ms
+	delay_ms(50); // Delay 50ms
 	wr_reg(0x13, 0x1800); // R13=1200 when R12=009D;VDV[4:0] for VCOM amplitude
 	wr_reg(0x29, 0x001C); // R29=000C when R12=009D;VCM[5:0] for VCOMH
 	wr_reg(0x2B, 0x000D); // Frame Rate = 91Hz
-	_delay_ms(50); // Delay 50ms
+	delay_ms(50); // Delay 50ms
 	wr_reg(0x20, 0x0000); // GRAM horizontal Address
 	wr_reg(0x21, 0x0000); // GRAM Vertical Address
 
@@ -173,7 +195,7 @@ void ili9325::init()
 
 }
 
-void ili9325::index(unsigned char indx)
+void ili9325::index(uint8_t indx)
 {
 	//отправляем команду
 	pinCommand.clearPin(RS);	
@@ -188,7 +210,7 @@ void ili9325::index(unsigned char indx)
 	pinCommand.setPin(WR);
 	pinCommand.setPin(CS);
 }
-void ili9325::data(unsigned int dta)
+void ili9325::data(uint16_t dta)
 {
 	//отправляем данные
 	pinCommand.setPin(RS);
@@ -234,20 +256,20 @@ void ili9325::wr_reg (unsigned char indx , unsigned int dta)
 	pinCommand.setPin(WR);
 	pinCommand.setPin(CS);
 }*/
-void ili9325::set_cursor (char x , char y)
+void ili9325::set_cursor (uint16_t x , uint16_t y)
 {
 	wr_reg (0x20 , x);
 	wr_reg(0x21 , y);
 	index(0x0022);
 }
 
-void ili9325::point (char x , char y, unsigned int color)
+void ili9325::point (uint16_t x , uint16_t y, uint16_t color)
 {
 	set_cursor(x,y);
 	data(color);
 }
 
-void ili9325::fill_screen (unsigned int color)
+void ili9325::fill_screen (uint16_t color)
 {
 	set_cursor(0,0);
 	for (long i=0;i<76800;++i)
@@ -256,7 +278,7 @@ void ili9325::fill_screen (unsigned int color)
 	}
 }
 
-void ili9325::set_area (unsigned int x1 , unsigned int y1 , unsigned int x2 , unsigned int y2)
+void ili9325::set_area (uint16_t x1 , uint16_t y1 , uint16_t x2 , uint16_t y2)
 {
 	x_start = x1;
 	x_end = x2;
@@ -268,7 +290,7 @@ void ili9325::set_area (unsigned int x1 , unsigned int y1 , unsigned int x2 , un
 	wr_reg(v_Gram_end,y2);
 }
 
-void ili9325::putchar (unsigned int x , unsigned int y , char * ch , unsigned int color , unsigned int background)
+void ili9325::putchar (uint16_t x , uint16_t y , char * ch , uint16_t color , uint16_t background)
 {
 	set_cursor(x,y);
 	

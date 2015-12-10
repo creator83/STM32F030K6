@@ -4,8 +4,8 @@
 #include "Spi.h"
 #include "delay.h"
 
-#ifndef __MCP3551_H__
-#define __MCP3551_H__
+#ifndef MCP3551_H
+#define MCP3551_H
 
 	const uint8_t pt = 100;
 	const uint16_t r_val = 13407;

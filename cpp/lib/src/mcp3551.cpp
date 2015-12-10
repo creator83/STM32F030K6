@@ -4,7 +4,7 @@
 
 // default constructor
 mcp3551::mcp3551()
-:spi1 (spi::div32)
+:spi1(spi::B, spi::div16, spi::neg, spi::first,spi::master, spi::bit8)
 {
 	delay_ms(1);	
 	//pin.setDirPin(CS);
@@ -15,7 +15,7 @@ bool mcp3551::isReady()
 {
   spi1.Clear_CS();
   delay_ms(80);
-  if (!(GPIOA->IDR & (1 << spi::MISO)))
+  if (!(GPIOB->IDR & (1 << spi1.pins_d[spi1.port_][spi::MISO])))
   {
     return true;
   }
@@ -31,9 +31,9 @@ bool mcp3551::getCode()
 	if (isReady())
 	{
 		spi_code.Byte[3] = 0x00;
-		spi_code.Byte[2] = spi1.transfer(0);
-		spi_code.Byte[1] = spi1.transfer(0);
-		spi_code.Byte[0] = spi1.transfer(0);
+		spi_code.Byte[2] = spi1.receive_8();
+		spi_code.Byte[1] = spi1.receive_8();
+		spi_code.Byte[0] = spi1.receive_8();
                 
                 spi1.Set_CS();
 		
