@@ -2,10 +2,12 @@
 
 uint8_t spi::pins_d[2][4]={{4,5,6,7},{6,3,4,5}};
 
-
+//uint16_t spi::*tx[2](void) = {receive_8(), receive_16()};
+pt2Function function [2];
 spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 :pin (p)
 {
+	
 	port_ = p;
   //tact SPI1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -74,7 +76,7 @@ void spi::transmit_8 (uint8_t data)
 	*(uint8_t *)&(SPI1->DR) = data;
 }
 
-uint8_t spi::receive_8 ()
+uint16_t spi::receive_8 ()
 {
 	//while (SPI1->SR&SPI_SR_BSY);
 	//SPI1_DR_8bit  = 0xFF;
@@ -91,4 +93,6 @@ uint16_t spi::receive_16 ()
 	while (!(SPI1->SR&SPI_SR_RXNE));
 	return SPI1->DR;	
 }
+
+
 

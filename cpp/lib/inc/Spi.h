@@ -8,7 +8,7 @@
 #define SPI_H
 
 typedef unsigned int* reg;
-
+typedef uint16_t (*pt2Function)(void);
 
 class spi
 {
@@ -26,15 +26,15 @@ public:
 	uint8_t port_;
 private:
   Gpio pin;
-	
-  
+	static uint16_t (*tx[2])(void);
+
 //functions
 public:
   spi(PORT p, Division div, Cpol cpl = neg, Cpha cph = first, Role r = master, Size s=bit8);
   void Set_CS ();
   void Clear_CS ();
   void transmit_8 (uint8_t data);
-	uint8_t receive_8 ();
+	uint16_t receive_8 ();
   void transmit_16 (uint16_t data);
 	uint16_t receive_16 ();
 private:
