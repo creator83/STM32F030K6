@@ -4,7 +4,7 @@
 
 // default constructor
 mcp3551::mcp3551()
-:spi1(spi::B, spi::div16, spi::neg, spi::first,spi::master, spi::bit8)
+:spi1(spi::B, spi::div32, spi::neg, spi::first,spi::master, spi::bit8)
 {
 	delay_ms(1);	
 	//pin.setDirPin(CS);

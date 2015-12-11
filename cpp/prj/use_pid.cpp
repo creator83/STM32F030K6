@@ -16,11 +16,11 @@ segled indicator (segled::A, segled::A);
  * need to be modified to adapt to the application at hand
  */
 //! \xrefitem todo "Todo" "Todo list"
-#define K_P     1.00
+#define K_P     2.00
 //! \xrefitem todo "Todo" "Todo list"
-#define K_I     0.00
+#define K_I     4.00
 //! \xrefitem todo "Todo" "Todo list"
-#define K_D     0.00
+#define K_D     0.80
 
 uint8_t stat;
 
@@ -102,12 +102,12 @@ void init_pwm ()
 int main()
 {
 	int16_t referenceValue, measurementValue, inputValue;
-	referenceValue = 30;
+	referenceValue = 60;
 	pid_Init(K_P * SCALING_FACTOR, K_I * SCALING_FACTOR , K_D * SCALING_FACTOR , &pidData);
   systimer (systimer::ms, 1);
 	max6675 sensor;
 	init_pwm ();
-	TIM3->CCR3 = 58980;
+	
 	
   while (1)
   {
@@ -117,7 +117,9 @@ int main()
 		{
 			measurementValue = sensor.readCelsius();
 			inputValue = pid_Controller(referenceValue, measurementValue, &pidData);
-			indicator.get_buffer (inputValue);	
+			indicator.get_buffer (sensor.readCelsius());
+			TIM3->CCR3 = inputValue << 10;
+			//indicator.get_buffer (inputValue);	
 			pid.flag = 0;
 		}
 		/*if (button.short_press)*/
