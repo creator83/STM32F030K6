@@ -64,7 +64,7 @@ void SysTick_Handler ()
 		indicator.digit();
 		flag.led_indicator_delay = 1;
 	}
-		if (pid.counter>400)
+		if (pid.counter>1000)
 	{
 		pid.flag = 1;
 		pid.counter = 0;

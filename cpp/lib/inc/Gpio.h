@@ -40,6 +40,7 @@ public:
   void setPinBit (unsigned int pin);
   void clearPin (unsigned char pin);	
   void setValPort (unsigned int value);	
+	void setClearPort (unsigned int value);	
   void setOutPort (unsigned int value, speed s = Low );		
   void ChangePinState (unsigned char pin);
   void SetPinState (unsigned char pin , unsigned char state);
