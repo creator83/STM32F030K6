@@ -26,7 +26,7 @@ public:
 	uint8_t port_;
 private:
   Gpio pin;
-	static uint16_t (*tx[2])(void);
+	static uint16_t ((*tx[2])(void));
 
 //functions
 public:

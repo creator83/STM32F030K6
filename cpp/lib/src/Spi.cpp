@@ -2,7 +2,7 @@
 
 uint8_t spi::pins_d[2][4]={{4,5,6,7},{6,3,4,5}};
 
-//uint16_t spi::*tx[2](void) = {receive_8(), receive_16()};
+uint16_t spi::*tx[2](void) = {&spi::receive_8, &spi::receive_16};
 pt2Function function [2];
 spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 :pin (p)
