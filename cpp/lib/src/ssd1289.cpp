@@ -13,7 +13,6 @@ ssd1289::ssd1289()
 	pinCommand1.setOutPin (RST);
 	pinCommand2.setOutPin (RD);
 	pinCommand2.setOutPin (WR);
-	pinCommand1.setPin(RST);
 	pinCommand1.setPin(CS);
 	pinCommand2.setPin(WR);
 	init();
@@ -40,15 +39,13 @@ void ssd1289::set_cursor (uint16_t x , uint16_t y)
 
 void ssd1289::init()
 {
-	pinCommand1.clearPin(RST);
 	delay_ms(100);
 	pinCommand1.setPin(RST);
-
 	wr_reg(0X0007, 0X0021);   //далее записываем в регистры значения
 	wr_reg(0X0000, 0X0001);
 	wr_reg(0X0007, 0X0023);
 	wr_reg(0X0010, 0X0000);
-	delay_ms(100);
+	delay_ms(30);
 	wr_reg(0X0007, 0X0033);
 	wr_reg(0X0011, 0X6838);
 	wr_reg(0X0002, 0X0600);	
@@ -102,10 +99,9 @@ void ssd1289::init()
 
 void ssd1289::index(uint16_t indx)
 {
+	pinCommand2.setPin(RD);	
 	//отправляем команду
 	pinCommand2.clearPin(RS);
-	
-	pinCommand2.setPin(RD);	
 	pinCommand1.clearPin(CS);
 	pinDataLow1.setClearPort (0x000F);
 	pinDataLow1.setClearPort (0x00F0);
@@ -123,9 +119,9 @@ void ssd1289::index(uint16_t indx)
 
 void ssd1289::data(uint16_t dta)
 {
+	pinCommand2.setPin(RD);
 	//отправляем данные
 	pinCommand2.setPin(RS);
-	pinCommand2.setPin(RD);
 	pinCommand1.clearPin(CS);
 	pinDataLow1.setClearPort (0x000F);
 	pinDataLow1.setClearPort (0x00F0);

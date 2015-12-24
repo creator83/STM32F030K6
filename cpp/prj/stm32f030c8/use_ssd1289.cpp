@@ -12,7 +12,7 @@ tact frq;
 int main()
 {
 	ssd1289 lcd;
-	lcd.fill_screen(GREEN);
+	//lcd.fill_screen(GREEN);
   while (1)
   {
 		
