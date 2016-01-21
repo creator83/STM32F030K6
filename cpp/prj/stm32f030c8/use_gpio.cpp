@@ -4,10 +4,10 @@
 #include "tact.h"
 #include "systimer.h"
 
-const char pin = 0;
+const char pin = 8;
 
 tact frq;
-Gpio B (Gpio::A);
+Gpio B (Gpio::B);
 
 
 int main()

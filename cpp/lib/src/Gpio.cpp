@@ -74,7 +74,7 @@ void Gpio::setValPort (unsigned int value)
   *(reg)(portAdr[prt]+Bsrr) |= value;
 }
 
-void Gpio::setClearPort (unsigned int value)
+void Gpio::clearPort (unsigned int value)
 {
 	*(reg)(portAdr[prt]+Bsrr) |= (value << 16);
 }
