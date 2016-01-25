@@ -36,7 +36,8 @@ uint16_t max6675::readCelsius()
 {
 	uint16_t v;
 	spi1.Clear_CS();
-	v = spi1.receive_16();
+	//v = spi1.receive_16();
+	v = spi1.receive();
 	spi1.Set_CS();
 	  if (v & 0x4) {
     // uh oh, no thermocouple attached!

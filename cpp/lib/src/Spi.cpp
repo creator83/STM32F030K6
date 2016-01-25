@@ -2,13 +2,13 @@
 
 uint8_t spi::pins_d[2][4]={{4,5,6,7},{6,3,4,5}};
 
-uint16_t spi::*tx[2](void) = {&spi::receive_8, &spi::receive_16};
-pt2Function function [2];
+PotMemFn spi::ptr_receive[2] = {&spi::receive_8, &spi::receive_16};
+
 spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 :pin (p)
 {
-	
 	port_ = p;
+	size_ = s;
   //tact SPI1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
   
@@ -47,7 +47,8 @@ spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 	
 	//Data size
 	SPI1->CR2 &= ~SPI_CR2_DS;
-	SPI1->CR2 |= s << 8;
+	SPI1->CR2 |= 7 << 8;
+	SPI1->CR2 |= s << 10;
   
   //Soft mode  
    SPI1->CR1 |= SPI_CR1_SSM ;
@@ -94,5 +95,8 @@ uint16_t spi::receive_16 ()
 	return SPI1->DR;	
 }
 
-
+uint16_t spi::receive ()
+{
+	 return (this->*(spi::ptr_receive[size_]))();
+}
 

@@ -7,8 +7,9 @@
 #ifndef SPI_H
 #define SPI_H
 
-typedef unsigned int* reg;
-typedef uint16_t (*pt2Function)(void);
+class spi;
+
+typedef uint16_t(spi::*PotMemFn)() ;
 
 class spi
 {
@@ -18,15 +19,16 @@ public:
   enum Role {slave , master};
   enum Cpol {neg, pos};
   enum Cpha {first, second};
-
-	enum Size {bit4 = 3, bit5, bit6,  bit7,  bit8,  bit9,  bit10, bit11, bit12, bit13, bit14, bit15, bit16};
-	enum PORT {A,B};
 	static uint8_t pins_d[2][4];
+	enum Size {bit8, bit16};
+	enum PORT {A,B};
+	
 	enum pin_def {CS, SCK , MISO , MOSI};
 	uint8_t port_;
+	uint8_t size_;
 private:
   Gpio pin;
-	static uint16_t ((*tx[2])(void));
+	static PotMemFn ptr_receive[2];
 
 //functions
 public:
@@ -37,6 +39,7 @@ public:
 	uint16_t receive_8 ();
   void transmit_16 (uint16_t data);
 	uint16_t receive_16 ();
+	uint16_t receive ();
 private:
 };
 
