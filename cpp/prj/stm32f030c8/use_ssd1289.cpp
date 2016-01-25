@@ -13,15 +13,18 @@ uint8_t font [8] = {0x0E,0x11,0x11,0x11,0x1F,0x11,0x11,0x00};
 int main()
 {
 	ssd1289 lcd;
-	lcd.fill_screen(BLACK);
-	lcd.draw (50,50,WHITE,BLACK, font);
-	lcd.symbol (100,100, WHITE,BLACK,'7');
-	lcd.string (150,300, WHITE,BLACK, "HELLO FROM STM32F030C8!!!");
-	delay_ms (2000);
+
   while (1)
   {
 
-		
+			lcd.fill_screen(BLACK);
+	delay_ms (500);
+	lcd.draw (50,50,WHITE,BLACK, font);
+	delay_ms (500);
+	lcd.symbol (100,100, WHITE,BLACK,'7');
+	delay_ms (500);
+	lcd.string (150,300, WHITE,BLACK, "HELLO FROM STM32F030C8!!!");
+	delay_ms (500);
 		
 		for (uint8_t i=0;i<24;++i)
 		{
