@@ -4,7 +4,7 @@
 
 //#define Decimal
 
-#define SOFTSPI
+//#define SOFTSPI
 #define PORT_ GPIOB
 #define cs 6
 #define sck 3

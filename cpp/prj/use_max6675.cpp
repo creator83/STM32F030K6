@@ -3,23 +3,43 @@
 #include "delay.h"
 #include "tact.h"
 #include "max6675.h"
-#include "uart.h"
+#include "segled.h"
+#include "systimer.h"
 
 tact frq;
+segled indicator (segled::A, segled::A);
+
+struct flags
+{
+	unsigned led_indicator_delay : 1;
+}flag;
+
+extern "C"
+{
+	void SysTick_Handler ();
+}
+
+
+void SysTick_Handler ()
+{
+	if (flag.led_indicator_delay)flag.led_indicator_delay = 0;
+	else
+	{
+		indicator.digit();
+		flag.led_indicator_delay = 1;
+	}
+}
+
 
 int main()
 {
-
-  uart uart1 (uart::baud9600);
   max6675 sensor;
-  
+  systimer (systimer::ms, 1);
   
   while (1)
   {
-		sensor.buffer (sensor.readCelsius());
-		uart1.transmit ("==");
-		uart1.transmit (sensor.buffer_value[0]);
-		uart1.transmit (sensor.buffer_value[1]);
+		indicator.get_buffer (sensor.readCelsius());
 		delay_ms (500);
   }
 }
+

@@ -1,8 +1,11 @@
 #include "spi.h"
 
+//CS,SCK,MISO,MOSI
 uint8_t spi::pins_d[2][4]={{4,5,6,7},{6,3,4,5}};
 
 PotMemFn spi::ptr_receive[2] = {&spi::receive_8, &spi::receive_16};
+
+PotMemF spi::ptr_transmite[2] = {&spi::transmit_8, &spi::transmit_16};
 
 spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 :pin (p)
@@ -48,7 +51,7 @@ spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 	//Data size
 	SPI1->CR2 &= ~SPI_CR2_DS;
 	SPI1->CR2 |= 7 << 8;
-	SPI1->CR2 |= s << 10;
+	SPI1->CR2 |= s << 11;
   
   //Soft mode  
    SPI1->CR1 |= SPI_CR1_SSM ;
@@ -71,10 +74,21 @@ void spi::Clear_CS ()
   pin.clearPin (pins_d[port_][CS]);
 }
 
-void spi::transmit_8 (uint8_t data)
+void spi::transmit_8 (uint16_t data)
 {
 	while (SPI1->SR&SPI_SR_BSY);
-	*(uint8_t *)&(SPI1->DR) = data;
+	*(uint8_t *)&(SPI1->DR) = static_cast <uint8_t> (data);
+}
+
+void spi::transmit_16 (uint16_t data)
+{
+	while (SPI1->SR&SPI_SR_BSY);
+	SPI1->DR = data;
+}
+
+void spi::transmit (uint16_t data)
+{
+	(this->*(spi::ptr_transmite[size_]))(data);
 }
 
 uint16_t spi::receive_8 ()
@@ -90,7 +104,7 @@ uint16_t spi::receive_8 ()
 
 uint16_t spi::receive_16 ()
 {
-	SPI1->DR = 0x0000;
+	SPI1->DR = 0xFFFF;
 	while (!(SPI1->SR&SPI_SR_RXNE));
 	return SPI1->DR;	
 }

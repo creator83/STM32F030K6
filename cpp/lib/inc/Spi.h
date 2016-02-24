@@ -11,6 +11,8 @@ class spi;
 
 typedef uint16_t(spi::*PotMemFn)() ;
 
+typedef void(spi::*PotMemF)(uint16_t) ;
+
 class spi
 {
 //variables
@@ -29,15 +31,17 @@ public:
 private:
   Gpio pin;
 	static PotMemFn ptr_receive[2];
+	static PotMemF ptr_transmite[2];
 
 //functions
 public:
   spi(PORT p, Division div, Cpol cpl = neg, Cpha cph = first, Role r = master, Size s=bit8);
   void Set_CS ();
   void Clear_CS ();
-  void transmit_8 (uint8_t data);
-	uint16_t receive_8 ();
+  void transmit_8 (uint16_t data);
   void transmit_16 (uint16_t data);
+	void transmit (uint16_t data);
+	uint16_t receive_8 ();
 	uint16_t receive_16 ();
 	uint16_t receive ();
 private:

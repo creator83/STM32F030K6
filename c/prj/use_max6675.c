@@ -14,7 +14,10 @@
 #define button_ 1
 
 
-extern char buff [4];
+char n [10] = {'0','1','2','3','4','5','6','7','8','9'};
+char buf [2];
+
+void buffer1 (uint16_t t);
 /*
 struct flags
 {
@@ -64,6 +67,7 @@ void init_buttons(void)
 */
 int main ()
 {
+	uint8_t i;
 	uart_init ();
 	max6675_init ();
 	//segled_init ();
@@ -76,9 +80,9 @@ int main ()
 	while (1)
 	{
 	
-		/*
-		segled_buffer (readCelsius());
-		delay_ms (500);
+		buffer1 (readCelsius());
+		//segled_buffer (readCelsius());
+		/*delay_ms (500);
 		if (button.short_press)
 		{
 			// foo();
@@ -87,10 +91,27 @@ int main ()
 		//===Send to Uart===//
 	//	segled_buffer (readCelsius());
 		transmit_string ("==");
-		transmit_string (buff);
+
+		for (i=0;i>2;++i)
+		{
+			transmit_byte (n [buf[i]]);
+		}
 		transmit_byte ('C');
 		delay_ms (500);
 	}
 	
+}
+
+void buffer1 (uint16_t t)
+{
+	char d, o;
+	uint16_t temp = t;
+	
+	for (d=0;temp>=10;++d)temp -=10;
+
+	for (o=0;temp>=1;++o)temp--;
+	
+	buf [1] = d;
+	buf [0] = o;
 }
 

@@ -1,5 +1,6 @@
 #include "stm32f0xx.h"                  // Device header
 #include "spi.h"
+#include "delay.h"
 
 //#define SPI8
 
@@ -11,9 +12,10 @@ class max6675
 //variables
 public:
 	char buffer_value[2];
+	static char number [10];
 private:
   spi spi1;
-	static char number [10];
+	
 
 //functions
 public:
