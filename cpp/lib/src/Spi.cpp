@@ -6,6 +6,7 @@ uint8_t spi::pins_d[2][4]={{4,5,6,7},{6,3,4,5}};
 PotMemFn spi::ptr_receive[2] = {&spi::receive_8, &spi::receive_16};
 
 PotMemF spi::ptr_transmite[2] = {&spi::transmit_8, &spi::transmit_16};
+ptr_ex spi::ptr_exchange[2] =  {&spi::exchange_8, &spi::exchange_16};
 
 spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 :pin (p)
@@ -112,5 +113,25 @@ uint16_t spi::receive_16 ()
 uint16_t spi::receive ()
 {
 	 return (this->*(spi::ptr_receive[size_]))();
+}
+
+
+uint16_t spi::exchange_8 (uint16_t data)
+{
+	while (SPI1->SR&SPI_SR_BSY);
+	*(uint8_t *)&(SPI1->DR) = static_cast <uint8_t> (data);
+	while (!(SPI1->SR&SPI_SR_RXNE));
+	return static_cast <uint8_t>(SPI1->DR);
+}
+uint16_t spi::exchange_16 (uint16_t data)
+{
+	while (SPI1->SR&SPI_SR_BSY);
+	SPI1->DR = data;
+	while (!(SPI1->SR&SPI_SR_RXNE));
+	return SPI1->DR;	
+}
+uint16_t spi::exchange (uint16_t data)
+{
+	return (this->*(spi::ptr_exchange[size_]))(data);
 }
 

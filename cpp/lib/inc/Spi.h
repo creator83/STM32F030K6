@@ -10,6 +10,7 @@
 class spi;
 
 typedef uint16_t(spi::*PotMemFn)() ;
+typedef uint16_t(spi::*ptr_ex)(uint16_t) ;
 
 typedef void(spi::*PotMemF)(uint16_t) ;
 
@@ -32,6 +33,7 @@ private:
   Gpio pin;
 	static PotMemFn ptr_receive[2];
 	static PotMemF ptr_transmite[2];
+  static ptr_ex ptr_exchange[2];
 
 //functions
 public:
@@ -44,6 +46,10 @@ public:
 	uint16_t receive_8 ();
 	uint16_t receive_16 ();
 	uint16_t receive ();
+
+	uint16_t exchange_8 (uint16_t data);
+	uint16_t exchange_16 (uint16_t data);
+	uint16_t exchange (uint16_t data);	
 private:
 };
 
