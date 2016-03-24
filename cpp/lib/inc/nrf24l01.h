@@ -26,7 +26,7 @@ private:
 public:	
 
 	nrf24l01();
-	void write_register (uint8_t reg, uint8_t data);
+	uint8_t write_register (uint8_t reg, uint8_t data);
 	uint8_t read_register (uint8_t reg);
 	void sc_bit (uint8_t reg, uint8_t reg_bit, bool state);
 	void rx_mode ();
@@ -35,9 +35,9 @@ public:
 	uint8_t read_data ();
 	void send_data(uint8_t data); 
 
-	
-private:
 	void init ();
+private:
+	
 	
 	
 };

@@ -24,10 +24,10 @@ int main()
 		spi1.Clear_CS();
 		spi1.transmit (0x0F);
 		spi1.Set_CS();
-		delay_ms (1000);
+		delay_ms (100);
 		spi1.Clear_CS();
 		spi1.transmit (0xF0);
 		spi1.Set_CS();
-		delay_ms (1000);
+		delay_ms (100);
   }
 }

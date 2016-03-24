@@ -9,30 +9,30 @@ nrf24l01::nrf24l01()
 	//===Setup NRF24L01===//
 	
 	//Delay after power on
-	init();	
+	//init();	
 }
 
-void nrf24l01::write_register (uint8_t reg, uint8_t data)
+uint8_t nrf24l01::write_register (uint8_t reg, uint8_t data)
 {
 	spi1.Clear_CS();
 	
 	//command for write registor
-	spi1.transmit (W_REGISTER+reg);
+	
+	uint8_t status = spi1.exchange (W_REGISTER+reg);
 	
 	//write register
 	spi1.transmit (data);
 	spi1.Set_CS();	
+	return status;
 }
 
 uint8_t nrf24l01::read_register (uint8_t reg)
 {
-	uint8_t value;	
-	
 	spi1.Clear_CS ();
 	
 	//command for read registor
 	spi1.transmit (R_REGISTER + reg);
-	value = spi1.exchange (NOP);
+	uint8_t value = spi1.exchange (NOP);
 	spi1.Set_CS ();
 	return value;
 }
@@ -116,3 +116,18 @@ void nrf24l01::init ()
 	sc_bit(CONFIG,PWR_UP,1);
   delay_ms(2);
 }
+/* 
+void nrf24l01::init ()
+{
+	spi1.Clear_CS ();
+	pin.clearPin (CE);
+	delay_ms (15);
+	
+	sc_bit(RX_PW_P0,0,1);
+	sc_bit(CONFIG,MASK_MAX_RT,1);
+  sc_bit(CONFIG,MASK_TX_DS,2);
+  sc_bit(CONFIG,MASK_RX_DR,0);
+	
+	sc_bit(CONFIG,PWR_UP,1);
+  delay_ms(2);
+}         */
