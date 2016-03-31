@@ -21,20 +21,41 @@ ssd1289::ssd1289()
 void ssd1289::point (uint16_t x , uint16_t y, uint16_t color)
 {
 	set_cursor(x,y);
+	index(0x0022);
 	data (color);	
 }
 
 void ssd1289::fill_screen (uint16_t color)
 {
 	set_cursor(0,0);
+	index(0x0022);
 	for (long i=0;i<76800;++i)data(color);
+}
+
+void ssd1289::fill_screen_f (uint16_t color)
+{
+	set_cursor(0,0);
+	index(0x0022);
+	pinCommand1.clearPin(CS);
+	pinCommand2.setPin(RS);
+		pinDataLow1.clearPort (0x000F);
+	pinDataLow1.clearPort (0x00F0);
+	pinDataHigh1.clearPort (0x0F00);
+	pinDataHigh2.clearPort (0x0F00);	
+	pinDataLow1.setValPort(color & 0x000F);
+	pinDataLow2.setValPort(color & 0x00F0);
+	for (long i=0;i<76800;++i)
+	{
+		pinCommand2.clearPin(WR);
+		pinCommand2.setPin(WR);
+	}
+	pinCommand1.setPin(CS);
 }
 
 void ssd1289::set_cursor (uint16_t x , uint16_t y)
 {
 	wr_reg(0x004e, x);
-  wr_reg(0x004f, y);
-  index(0x0022);
+  wr_reg(0x004f, y); 
 }
 
 void ssd1289::symbol (uint16_t x, uint16_t y, uint16_t color, uint16_t phone, uint8_t ch)

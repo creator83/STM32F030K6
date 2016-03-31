@@ -53,6 +53,7 @@ public:
 	ssd1289();
 	void point (uint16_t x , uint16_t y, uint16_t color);
 	void fill_screen (uint16_t color);
+	void fill_screen_f (uint16_t color);
 	void symbol (uint16_t x, uint16_t y, uint16_t color, uint16_t phone, uint8_t ch);
 	void string (uint16_t x, uint16_t y, uint16_t color, uint16_t phone, char *str);
 	void set_cursor (uint16_t x , uint16_t y);
