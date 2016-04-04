@@ -1,29 +1,7 @@
 #include "ili9325.h"
 
-#ifdef BIT8
-ili9325::ili9325()
-:pinDataLow (Gpio::A), pinCommand (Gpio::A)
-{
-	pinDataLow.setOutPin(d0);
-	pinDataLow.setOutPin(d1);
-	pinDataLow.setOutPin(d2);
-	pinDataLow.setOutPin(d3);
-	pinDataLow.setOutPin(d4);
-	pinDataLow.setOutPin(d5);
-	pinDataLow.setOutPin(d6);
-	pinDataLow.setOutPin(d7);
-	pinCommand.setOutPin(CS);
-	pinCommand.setOutPin(RS);
-	pinCommand.setOutPin(RST);
-	pinCommand.setOutPin(RD);
-	pinCommand.setOutPin(WR);
-	pinCommand.setPin (RST);
-	pinCommand.setPin (CS);
-	pinCommand.clearPin (RS);
-	pinCommand.setPin (WR);	
-	pinCommand.setPin (RD);
-}
-#else
+#define MODE 1
+
 ili9325::ili9325()
 :pinDataLow1 (Gpio::B) , pinDataLow2 (Gpio::B), pinDataHigh1 (Gpio::B) , pinDataHigh2 (Gpio::A),pinCommand1 (Gpio::A), pinCommand2 (Gpio::C)
 {
@@ -38,17 +16,21 @@ ili9325::ili9325()
 	pinCommand2.setOutPin (WR);
 	pinCommand1.setPin(CS);
 	pinCommand2.setPin(WR);
+	pinCommand2.setPin(RD);	
+	//
+	pinCommand1.setPin(RST);
+	delay_ms(5);
+	pinCommand1.clearPin(RST);
+	delay_ms(15);
+	pinCommand1.setPin(RST);
+	delay_ms(15);
 	init();
 }
 
-#endif
 void ili9325::init()
 {
-	pinCommand1.clearPin(RST);
-	delay_ms(100);
-	pinCommand1.setPin(RST);
-	delay_ms(100);
-	/*
+
+#if (MODE == 1)	
 wr_reg(0x00E3,0x3008);                          //set the internal timing
 wr_reg(0x00E7,0x0012);                          //set the internal timing
 wr_reg(0x00EF,0x1231);                          //set the internal timing
@@ -111,8 +93,8 @@ wr_reg(TS_INS_PANEL_IF_CTRL5,0x0000);
 wr_reg(TS_INS_PANEL_IF_CTRL6,0x0000);
 wr_reg(TS_INS_DISP_CTRL1,0x0133);
 	
-	*/
-/*
+#elif (MODE==2)
+
 	wr_reg(0xE5, 0x78F0); // set SRAM internal timing
 	wr_reg(0x01, 0x0100); // set Driver Output Control  
 	wr_reg(0x02, 0x0700); // set 1 line inversion  
@@ -124,7 +106,7 @@ wr_reg(TS_INS_DISP_CTRL1,0x0133);
 	wr_reg(0x0C, 0x0000); // RGB interface setting  
 	wr_reg(0x0D, 0x0000); // Frame marker Position  
 	wr_reg(0x0F, 0x0000); // RGB interface polarity  
-	//===Power On sequence ===//  
+	//===Power On sequence ===//                          
 	wr_reg(0x10, 0x0000); // SAP, BT[3:0], AP, DSTB, SLP, STB  
 	wr_reg(0x11, 0x0007); // DC1[2:0], DC0[2:0], VC[2:0]  
 	wr_reg(0x12, 0x0000); // VREG1OUT voltage  
@@ -139,7 +121,7 @@ wr_reg(TS_INS_DISP_CTRL1,0x0133);
 	wr_reg(0x13, 0x1500); // VDV[4:0] for VCOM amplitude  
 	wr_reg(0x29, 0x0027); // 04  VCM[5:0] for VCOMH  
 	wr_reg(0x2B, 0x000D); // Set Frame Rate  
-	delay_ms(50); // Delay 50ms  
+	delay_ms(50); // Delay 50ms                         
 	wr_reg(0x20, 0x0000); // GRAM horizontal Address  
 	wr_reg(0x21, 0x0000); // GRAM Vertical Address  
 	// ----------- Adjust the Gamma Curve ----------//  
@@ -149,7 +131,7 @@ wr_reg(TS_INS_DISP_CTRL1,0x0133);
 	wr_reg(0x35, 0x0200);  
 	wr_reg(0x36, 0x0008);  
 	wr_reg(0x37, 0x0004);  
-	wr_reg(0x38, 0x0000);  
+	wr_reg(0x38, 0x0000);                             
 	wr_reg(0x39, 0x0707);  
 	wr_reg(0x3C, 0x0002);  
 	wr_reg(0x3D, 0x1D04);  
@@ -169,11 +151,11 @@ wr_reg(TS_INS_DISP_CTRL1,0x0133);
 	wr_reg(0x84, 0x0000);  
 	wr_reg(0x85, 0x0000);  
 	//-------------- Panel Control -------------------//  
-	wr_reg(0x90, 0x0010);  
+	wr_reg(0x90, 0x0010);                    
 	wr_reg(0x92, 0x0600);  
 	wr_reg(0x07, 0x0133); // 262K color and display ON  
 	
-*/
+#elif (MODE==3)
 	
   wr_reg(0x0000, 0x0001);                   
   delay_ms(10);                              
@@ -287,7 +269,7 @@ wr_reg(TS_INS_DISP_CTRL1,0x0133);
   wr_reg(PANEL_INTERFACE_CONTROL_1, 0x0010);               //RTNI[4:0] = 10000 (16 ?????? ?? ??????),
                                                       //DIVI[1:0] = 00 (????????? ???????? ??????? Fosc)
   wr_reg(PANEL_INTERFACE_CONTROL_2, 0x0600);              //NOWI[2:0] = 101 (5 ?????? ??????? ?????? gate)
-
+                                                  
   wr_reg(DISPLAY_CONTROL_1, 0x0133);                  //D[1:0] = 11 (??????????? base image, ?????????? ????????),
                                                       //CL = 0 (262144 ?????),
                                                       //DTE = 1, GON = 1 (?????????? ???????????),
@@ -297,14 +279,16 @@ wr_reg(TS_INS_DISP_CTRL1,0x0133);
   wr_reg(HORIZONTAL_ADDRESS_SET, 0x0000);                  //AD[16:0] = 00000000000000000                                         
   wr_reg(VERTICAL_ADDRESS_SET, 0x0000);               //AD[16:0] = 00000000000000000
 	
-
+#endif
 }
 
 void ili9325::index(uint16_t indx)
 {
-	pinCommand2.setPin(RD);	
-	pinCommand2.clearPin(RS);
 	pinCommand1.clearPin(CS);
+	delay_us (1);
+	//отправляем команду
+	pinCommand2.clearPin(RS);
+	delay_us (1);
 	pinDataLow1.clearPort (0x000F);
 	pinDataLow1.clearPort (0x00F0);
 	pinDataHigh1.clearPort (0x0F00);
@@ -312,16 +296,19 @@ void ili9325::index(uint16_t indx)
 	pinDataLow1.setValPort(indx & 0x000F);
 	pinDataLow2.setValPort(indx & 0x00F0);
 	pinCommand2.clearPin(WR);
-	//delay_us(5);
+	delay_us (1);
 	pinCommand2.setPin(WR);
-	pinCommand1.setPin(CS);	
+	delay_us (1);
+	pinCommand1.setPin(CS);		
+	delay_us (1);
 }
 void ili9325::data(uint16_t dta)
 {
-	pinCommand2.setPin(RD);
-	//?????????? ??????
-	pinCommand2.setPin(RS);
 	pinCommand1.clearPin(CS);
+	delay_us (1);
+	//отправляем данные
+	pinCommand2.setPin(RS);
+	delay_us (1);
 	pinDataLow1.clearPort (0x000F);
 	pinDataLow1.clearPort (0x00F0);
 	pinDataHigh1.clearPort (0x0F00);
@@ -331,70 +318,76 @@ void ili9325::data(uint16_t dta)
 	pinDataHigh1.setValPort (dta & 0x0F00);
 	pinDataHigh2.setValPort ((dta & 0xF000)>>4);
 	pinCommand2.clearPin(WR);
-	//delay_ms(2);
+	delay_us (1);
 	pinCommand2.setPin(WR);
-	pinCommand1.setPin(CS);	
-	
+	delay_us (1);
+	pinCommand1.setPin(CS);		
+	delay_us (1);
 }
-
+/*
 void ili9325::wr_reg (uint16_t indx , uint16_t dta)
 {
 	pinCommand1.clearPin(CS);
 	index (indx);
 	data (dta);
 	pinCommand1.setPin(CS);	
-}
-/*
+}    */
+
 void ili9325::wr_reg (uint16_t indx , uint16_t dta)
 {
 	pinCommand1.clearPin(CS);
-	pinCommand2.clearPin(RS);	
-	pinDataLow1.setClearPort (0x000F);
-	pinDataLow1.setClearPort (0x00F0);
-	pinDataHigh1.setClearPort (0x0F00);
-	pinDataHigh2.setClearPort (0x0F00);	
+	delay_us (1);
+	//отправляем команду
+	pinCommand2.clearPin(RS);
+	delay_us (1);
+	pinDataLow1.clearPort (0x000F);
+	pinDataLow1.clearPort (0x00F0);
+	pinDataHigh1.clearPort (0x0F00);
+	pinDataHigh2.clearPort (0x0F00);	
 	pinDataLow1.setValPort(indx & 0x000F);
 	pinDataLow2.setValPort(indx & 0x00F0);
-	pinDataHigh1.setValPort (indx & 0x0F00);
-	pinDataHigh2.setValPort ((indx & 0xF000)>>4);
 	pinCommand2.clearPin(WR);
-	delay_us(5);
+	delay_us (1);
 	pinCommand2.setPin(WR);
+	delay_us (1);
+	//отправляем данные
 	pinCommand2.setPin(RS);
-	pinDataLow1.setClearPort (0x000F);
-	pinDataLow1.setClearPort (0x00F0);
-	pinDataHigh1.setClearPort (0x0F00);
-	pinDataHigh2.setClearPort (0x0F00);	
+	delay_us (1);
+	pinDataLow1.clearPort (0x000F);
+	pinDataLow1.clearPort (0x00F0);
+	pinDataHigh1.clearPort (0x0F00);
+	pinDataHigh2.clearPort (0x0F00);	
 	pinDataLow1.setValPort(dta & 0x000F);
 	pinDataLow2.setValPort(dta & 0x00F0);
 	pinDataHigh1.setValPort (dta & 0x0F00);
 	pinDataHigh2.setValPort ((dta & 0xF000)>>4);
 	pinCommand2.clearPin(WR);
-	delay_us(5);
+	delay_us (1);
 	pinCommand2.setPin(WR);
-	pinCommand1.setPin(CS);
-}*/
+	delay_us (1);
+	pinCommand1.setPin(CS);		
+	delay_us (1);
+}
 
 void ili9325::set_cursor (uint16_t x , uint16_t y)
 {
 	wr_reg (0x20 , x);
 	wr_reg(0x21 , y);
-	index(0x0022);
+	
 }
 
 void ili9325::point (uint16_t x , uint16_t y, uint16_t color)
 {
 	set_cursor(x,y);
+	index(0x0022);
 	data(color);
 }
 
 void ili9325::fill_screen (uint16_t color)
 {
 	set_cursor(0,0);
-	for (long i=0;i<76800;++i)
-	{
-		data(color);
-	}
+	index(0x0022);
+	for (long i=0;i<76800;++i)data(color);
 }
 
 void ili9325::set_area (uint16_t x1 , uint16_t y1 , uint16_t x2 , uint16_t y2)

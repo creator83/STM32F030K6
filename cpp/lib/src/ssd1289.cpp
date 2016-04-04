@@ -8,33 +8,54 @@ ssd1289::ssd1289()
 	pinDataLow1.setOutPort(0x00F0);
 	pinDataHigh1.setOutPort(0x0F00);
 	pinDataHigh2.setOutPort(0x0F00);
-	pinCommand1.setOutPin (CS);
-	pinCommand2.setOutPin (RS);
+	pinCommand1.setOutPin (CS,Gpio::Output , Gpio::High);
+	pinCommand2.setOutPin (RS, Gpio::Output , Gpio::High);
 	pinCommand1.setOutPin (RST);
 	pinCommand2.setOutPin (RD);
-	pinCommand2.setOutPin (WR);
+	pinCommand2.setOutPin (WR, Gpio::Output , Gpio::High);
 	pinCommand1.setPin(CS);
 	pinCommand2.setPin(WR);
+	pinCommand2.setPin(RD);	
 	init();
 } //ssd1289
 
 void ssd1289::point (uint16_t x , uint16_t y, uint16_t color)
 {
 	set_cursor(x,y);
+	index(0x0022);
 	data (color);	
 }
 
 void ssd1289::fill_screen (uint16_t color)
 {
 	set_cursor(0,0);
+	index(0x0022);
 	for (long i=0;i<76800;++i)data(color);
+}
+void ssd1289::fill_screen_f (uint16_t color)
+{
+	set_cursor(0,0);
+	index(0x0022);	
+	pinCommand1.clearPin(CS);
+	//отправляем данные
+	pinCommand2.setPin(RS);
+	pinDataLow1.clearPort (0x000F);
+	pinDataLow1.clearPort (0x00F0);
+	pinDataHigh1.clearPort (0x0F00);
+	pinDataHigh2.clearPort (0x0F00);	
+	pinDataLow1.setValPort(color & 0x000F);
+	pinDataLow2.setValPort(color & 0x00F0);
+	for (long i=0;i<76800;++i)
+	{
+		pinCommand2.clearPin(WR);
+		pinCommand2.setPin(WR);		
+	}
 }
 
 void ssd1289::set_cursor (uint16_t x , uint16_t y)
 {
 	wr_reg(0x004e, x);
-  wr_reg(0x004f, y);
-  index(0x0022);
+  wr_reg(0x004f, y); 
 }
 
 void ssd1289::symbol (uint16_t x, uint16_t y, uint16_t color, uint16_t phone, uint8_t ch)
@@ -196,10 +217,9 @@ void ssd1289::init()
 
 void ssd1289::index(uint16_t indx)
 {
-	pinCommand2.setPin(RD);	
+	pinCommand1.clearPin(CS);
 	//отправляем команду
 	pinCommand2.clearPin(RS);
-	pinCommand1.clearPin(CS);
 	pinDataLow1.clearPort (0x000F);
 	pinDataLow1.clearPort (0x00F0);
 	pinDataHigh1.clearPort (0x0F00);
@@ -207,17 +227,15 @@ void ssd1289::index(uint16_t indx)
 	pinDataLow1.setValPort(indx & 0x000F);
 	pinDataLow2.setValPort(indx & 0x00F0);
 	pinCommand2.clearPin(WR);
-	//delay_us(5);
 	pinCommand2.setPin(WR);
 	pinCommand1.setPin(CS);	
 }
 
 void ssd1289::data(uint16_t dta)
 {
-	pinCommand2.setPin(RD);
+	pinCommand1.clearPin(CS);
 	//отправляем данные
 	pinCommand2.setPin(RS);
-	pinCommand1.clearPin(CS);
 	pinDataLow1.clearPort (0x000F);
 	pinDataLow1.clearPort (0x00F0);
 	pinDataHigh1.clearPort (0x0F00);
@@ -227,16 +245,56 @@ void ssd1289::data(uint16_t dta)
 	pinDataHigh1.setValPort (dta & 0x0F00);
 	pinDataHigh2.setValPort ((dta & 0xF000)>>4);
 	pinCommand2.clearPin(WR);
-	//delay_ms(2);
 	pinCommand2.setPin(WR);
 	pinCommand1.setPin(CS);					
 }
-
+    /*
 void ssd1289::wr_reg (uint16_t indx , uint16_t dta)
 {
 	pinCommand1.clearPin(CS);
 	index (indx);
 	data (dta);
 	pinCommand1.setPin(CS);	
-}
+}     */
 
+void ssd1289::wr_reg (uint16_t indx , uint16_t dta)
+{
+	pinCommand1.clearPin(CS);
+	//отправляем команду
+	pinCommand2.clearPin(RS);
+	pinDataLow1.clearPort (0x000F);
+	pinDataLow1.clearPort (0x00F0);
+	pinDataHigh1.clearPort (0x0F00);
+	pinDataHigh2.clearPort (0x0F00);	
+	pinDataLow1.setValPort(indx & 0x000F);
+	pinDataLow2.setValPort(indx & 0x00F0);
+	pinCommand2.clearPin(WR);
+	pinCommand2.setPin(WR);
+	//отправляем данные
+	pinCommand2.setPin(RS);
+	pinDataLow1.clearPort (0x000F);
+	pinDataLow1.clearPort (0x00F0);
+	pinDataHigh1.clearPort (0x0F00);
+	pinDataHigh2.clearPort (0x0F00);	
+	pinDataLow1.setValPort(dta & 0x000F);
+	pinDataLow2.setValPort(dta & 0x00F0);
+	pinDataHigh1.setValPort (dta & 0x0F00);
+	pinDataHigh2.setValPort ((dta & 0xF000)>>4);
+	pinCommand2.clearPin(WR);
+	pinCommand2.setPin(WR);
+	pinCommand1.setPin(CS);	
+} 
+
+void ssd1289::data_f (uint16_t dta)
+{
+	pinDataLow1.clearPort (0x000F);
+	pinDataLow1.clearPort (0x00F0);
+	pinDataHigh1.clearPort (0x0F00);
+	pinDataHigh2.clearPort (0x0F00);	
+	pinDataLow1.setValPort(dta & 0x000F);
+	pinDataLow2.setValPort(dta & 0x00F0);
+	pinDataHigh1.setValPort (dta & 0x0F00);
+	pinDataHigh2.setValPort ((dta & 0xF000)>>4);
+	pinCommand2.clearPin(WR);
+	pinCommand2.setPin(WR);
+}

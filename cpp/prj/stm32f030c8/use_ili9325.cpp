@@ -20,10 +20,10 @@ int main()
 	lcd.string (150,300, WHITE,BLACK, "HELLO FROM STM32F030C8!!!");*/
   while (1)
   {
-		for (uint8_t i=0;i<24;++i)
+		for (uint8_t i=0;i<5;++i)
 		{
 			lcd.fill_screen(mass [i]);
-			delay_ms (1000);
+			
 		}
   }
 }
