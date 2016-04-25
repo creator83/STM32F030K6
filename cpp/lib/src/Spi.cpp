@@ -23,10 +23,10 @@ spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
 
 
   //SCK
-  pin.setOutPin (pins_d[p][SCK] , Gpio::AltFunc , Gpio::High);
+  pin.setOutPin (pins_d[p][SCK] , Gpio::AltFunc, Gpio::High );
     
   //MOSI
-  pin.setOutPin(pins_d[p][MOSI]  , Gpio::AltFunc , Gpio::High);
+  pin.setOutPin(pins_d[p][MOSI]  , Gpio::AltFunc, Gpio::High );
   
   //MISO
   pin.setOutPin (pins_d[p][MISO]  , Gpio::AltFunc);
@@ -77,14 +77,16 @@ void spi::Clear_CS ()
 
 void spi::transmit_8 (uint16_t data)
 {
-	while (SPI1->SR&SPI_SR_BSY);
+	while (!(SPI1->SR&SPI_SR_TXE));
 	*(uint8_t *)&(SPI1->DR) = static_cast <uint8_t> (data);
+	while (SPI1->SR&SPI_SR_BSY);
 }
 
 void spi::transmit_16 (uint16_t data)
 {
-	while (SPI1->SR&SPI_SR_BSY);
+	while (!(SPI1->SR&SPI_SR_TXE));
 	SPI1->DR = data;
+	while (SPI1->SR&SPI_SR_BSY);
 }
 
 void spi::transmit (uint16_t data)

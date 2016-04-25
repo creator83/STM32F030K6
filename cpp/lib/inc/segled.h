@@ -5,7 +5,7 @@
 #ifndef SEGLED_H
 #define SEGLED_H
 
-//#define USE_SPI
+#define USE_SPI
 
 
 
@@ -42,6 +42,7 @@ private:
 public:	
 	#ifdef USE_SPI
 	segled (Port dig);
+	void segment (uint8_t val);
 	#else
 	segled (Port seg, Port dig);
 	#endif

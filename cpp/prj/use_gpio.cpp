@@ -1,5 +1,5 @@
 #include "stm32f0xx.h"
-#include "Gpio.h"
+#include "gpio.h"
 #include "delay.h"
 #include "tact.h"
 #include "systimer.h"
@@ -8,7 +8,7 @@
 tact frq;
 Gpio B (Gpio::B);
 
-const char pin = 0;
+const char pin = 1;
 
 extern "C"
 {

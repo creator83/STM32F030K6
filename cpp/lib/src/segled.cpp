@@ -9,12 +9,20 @@ char segled::numberDp [13] = {0xBF , 0x86 , 0xDB , 0xCF , 0xE6 , 0xED , 0xFD , 0
 char segled::pins[3] = {first, second, third};
 
 segled::segled (Port dig)
-:spi1 (spi::A, spi::div256), pin_digit (dig)
+:spi1 (spi::A, spi::div128), pin_digit (dig)
 {
 	//===Settings digit pins===//
 	pin_digit.setOutPin (first);
 	pin_digit.setOutPin (second);	
 	pin_digit.setOutPin (third);
+}
+
+void segled::segment (uint8_t val)
+{
+	spi1.Clear_CS();
+	spi1.put_data (val);
+	while (spi1.flag_bsy());
+	spi1.Set_CS();
 }
 
 void segled::OFF ()
@@ -31,9 +39,11 @@ void segled::frame (uint8_t dig)
 	pin_digit.clearPin (third);
 	if (dig==1)
 	{
+		/*
 		spi1.Clear_CS();
 		spi1.transmit (numberDp[buffer[dig]]);
-		spi1.Set_CS();
+		spi1.Set_CS();*/
+		segment (numberDp[buffer[dig]]);
 	}
 	else
 	{
@@ -83,6 +93,7 @@ segled::segled (Port seg, Port dig)
 	pin_digit.setOutPin (fourth);		
 }
 
+
 void segled::OFF ()
 {
 	pin_digit.clearPin (first);
@@ -109,6 +120,8 @@ void segled::frame (uint8_t dig)
 }
 
 #endif
+
+
 
 void segled::digit ()
 {

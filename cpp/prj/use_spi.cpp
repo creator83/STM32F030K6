@@ -1,12 +1,18 @@
 #include "stm32f0xx.h"
-#include "Gpio.h"
+#include "gpio.h"
 #include "delay.h"
 #include "tact.h"
-#include "Spi.h"
-#include "nrf24l01.h"
-#include "uart.h"
+#include "spi.h"
+
 
 tact frq;
+
+spi spi1 (spi::A, spi::div128);
+Gpio A (Gpio::A);
+
+const char frac = 0;
+const char ones = 1;
+const char dec = 2;
 
  /* 
   extern "C"
@@ -16,7 +22,11 @@ tact frq;
 
 int main()
 {
-	spi spi1 (spi::A, spi::div256);
+	
+	A.setOutPin (frac);
+	A.setOutPin (ones);
+	A.setOutPin (dec);
+	A.setPin (frac);
 
   while (1)
   {
