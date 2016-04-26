@@ -43,7 +43,8 @@ struct flags
 	unsigned l_press      : 1;	
 }button1;
 
-
+void short_press ();
+void long_press ();
 extern "C"
 {
 	void SysTick_Handler ();
@@ -59,24 +60,51 @@ void SysTick_Handler ()
 		indicator.digit();
 		flag.led_indicator_delay = 1;
 	}
+	if (button1.sh_press) short_press ();
+	if (button1.l_press) long_press ();
 	
 }
   
 
 void TIM14_IRQHandler ()
 {
+	TIM14->SR &= ~TIM_SR_UIF;
 	if (button1.curr_state)
 	{
-		
+		if (!A.PinState(button))
+		{
+			button1.count++;
+			return;
+		}
+		else
+		{
+			if (button1.count<50)
+			{
+				button1.sh_press = 1;
+				button1.count = 0;
+				button1.curr_state = 0;
+			}
+			else 
+			{
+				button1.l_press = 1;
+				button1.count = 0;
+				button1.curr_state = 0;
+			}
+		}
+				
 	}
 	else
 	{
-		if (!A.PinState(button)) button1.curr_state = 1;
+		if (!A.PinState(button)) 
+		{
+			button1.curr_state = 1;
+		}
 	}
 	
 	
 	
 }
+
 
 
 
@@ -96,8 +124,7 @@ int main()
 	
   while (1)
   {
-		A.ChangePinState (triac);
-		delay_ms (1000);
+
   }
 }
 
@@ -111,4 +138,32 @@ void TIM14_init ()
 	TIM14->CR1 |= TIM_CR1_CEN;
 }
 
+void short_press ()
+{
+		button1.sh_press = 0;
+		A.setPin (triac);
+		delay_ms (500);
+		A.clearPin (triac);
+}
+
+void long_press ()
+{
+		button1.l_press = 0;
+		A.setPin (triac);
+		delay_ms (200);
+		A.clearPin (triac);
+		delay_ms (200);
+		A.setPin (triac);
+		delay_ms (200);
+		A.clearPin (triac);
+		delay_ms (200);	
+		A.setPin (triac);
+		delay_ms (200);
+		A.clearPin (triac);
+		delay_ms (200);
+		A.setPin (triac);
+		delay_ms (200);
+		A.clearPin (triac);
+		delay_ms (200);		
+}
 
