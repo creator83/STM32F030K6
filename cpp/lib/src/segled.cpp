@@ -30,6 +30,7 @@ void segled::OFF ()
 	pin_digit.clearPin (first);
 	pin_digit.clearPin (second);	
 	pin_digit.clearPin (third);
+	segment (0);
 }
 
 void segled::frame (uint8_t dig)
