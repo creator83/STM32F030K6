@@ -18,7 +18,7 @@ char numberDp [13] = {0xBF , 0x86 , 0xDB , 0xCF , 0xE6 , 0xED , 0xFD , 0x87 , 0x
 void scan_enc ();
 
 const char button = 6 ;
-const char enc_button = 6 ;
+const char enc_button = 1 ;
 const char triac = 3;
 const char encA = 9 ;
 const char encB = 10;
@@ -40,6 +40,7 @@ struct flags
 {
 	unsigned led_indicator_delay : 1;
 	unsigned off :1;
+	unsigned enc_off :1;
 }flag;
 
 
@@ -51,11 +52,12 @@ struct flags
 	unsigned action_state : 1;
 	unsigned count        : 7;
 	unsigned sh_press     : 1;
-	unsigned l_press      : 1;	
-}button1;
+	unsigned l_press      : 1;
+	unsigned debouncer    : 1;
+}button1, enc_btn;
 
-void short_press ();
-void long_press ();
+void btn_action ();
+void enc_btn_action ();
 extern "C"
 {
 	void SysTick_Handler ();
@@ -78,34 +80,99 @@ void SysTick_Handler ()
 		flag.led_indicator_delay = 1;
 	}
 	}
+	if (!(flag.off||flag.enc_off)) scan_enc ();
 }
   
 void TIM3_IRQHandler ()
 {
 	TIM3->SR &= ~TIM_SR_UIF;
-	if (button1.sh_press) short_press ();
-	if (button1.l_press) long_press ();
+	if (button1.sh_press)  btn_action ();
+	if (enc_btn.sh_press)enc_btn_action ();
 }
 
 void TIM17_IRQHandler ()
 {
 	TIM17->SR &= ~TIM_SR_UIF;
-	static uint8_t i = N;
-	if (i)
+	flag.enc_off = 1;
+	if (N)
 	{
-		i--;
-		indicator.get_buffer (i);
+		N--;
+		indicator.get_buffer (N);
 		A.setPin (triac);
 	}
 	else 
 	{
-		i = N;
 		TIM17->CR1 &= ~TIM_CR1_CEN;
 		A.clearPin (triac);	
-		indicator.get_buffer (N+(encod.count>>2));
+		indicator.get_buffer (encod.count>>1);
+		flag.enc_off = 0;
 	}
 }
 
+void TIM14_IRQHandler ()
+{
+	TIM14->SR &= ~TIM_SR_UIF;
+//debouncer
+	
+//scan button
+	if (!flag.off)
+	{
+		if  (!button1.debouncer)
+		{
+	if (button1.curr_state)
+	{
+		if (!A.PinState(button)) button1.count++;
+		if (A.PinState(button)&&button1.count>2)
+		{
+			button1.curr_state = 0;
+			button1.count = 0;
+			button1.sh_press = 1;
+		}
+
+	}
+	else
+	{
+		if (!A.PinState(button)) button1.curr_state = 1;
+	}
+	}
+		else button1.count++;
+	if (button1.debouncer&&button1.count>5) 
+	{
+		button1.debouncer=0;
+		button1.count = 0;
+	}
+	}
+	
+	//scan button encoder
+		if  (!enc_btn.debouncer)
+		{
+		if (enc_btn.curr_state)
+	{
+		if (!B.PinState(enc_button)) enc_btn.count++;
+		if (B.PinState(enc_button)&&enc_btn.count>2)
+		{
+			enc_btn.curr_state = 0;
+			enc_btn.count = 0;
+			enc_btn.sh_press = 1;
+		}
+
+	}
+	else
+	{
+		if (!B.PinState(enc_button)) enc_btn.curr_state = 1;
+	}
+	}
+		else enc_btn.count++;
+	if (enc_btn.debouncer&&enc_btn.count>5) 
+	{
+		enc_btn.debouncer=0;
+		enc_btn.count = 0;
+	}
+			
+}
+	
+
+/*
 void TIM14_IRQHandler ()
 {
 	TIM14->SR &= ~TIM_SR_UIF;
@@ -160,13 +227,14 @@ void TIM14_IRQHandler ()
 }
 	
 }
-
+*/
 void TIM17_init ();
 
 
 int main()
 {
-	indicator.get_buffer (N);
+	encod.count = N << 1;
+	indicator.get_buffer (encod.count>>1);
 	A.setOutPin (triac);
 	A.setInPin (button);
 	A.setInPin (encA);
@@ -217,35 +285,22 @@ void TIM3_init ()
 	
 }
 
-void short_press ()
+void btn_action()
 {
 		button1.sh_press = 0;
+		enc_btn.debouncer = 1;
+		N = encod.count>>1;
 		TIM17->CR1 |= TIM_CR1_CEN;
+		
 }
 
 
-void long_press ()
+void enc_btn_action ()
 {
-	
+	enc_btn.debouncer = 1;
+	enc_btn.sh_press = 0;
+	flag.off ^= 1;
 	indicator.OFF ();
-	flag.off ^= 0;
-	/*	button1.l_press = 0;
-		A.setPin (triac);
-		delay_ms (200);
-		A.clearPin (triac);
-		delay_ms (200);
-		A.setPin (triac);
-		delay_ms (200);
-		A.clearPin (triac);
-		delay_ms (200);	
-		A.setPin (triac);
-		delay_ms (200);
-		A.clearPin (triac);
-		delay_ms (200);
-		A.setPin (triac);
-		delay_ms (200);
-		A.clearPin (triac);
-		delay_ms (200);		*/
 }
 
 void scan_enc ()
@@ -280,6 +335,6 @@ void scan_enc ()
 		}				
 	}
 	encod.state = new_;
-	indicator.get_buffer (N+(encod.count>>2));
+	indicator.get_buffer (encod.count>>1);
 }
 
