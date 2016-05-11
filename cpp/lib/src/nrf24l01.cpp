@@ -1,9 +1,20 @@
 #include "nrf24l01.h"
 
 nrf24l01::nrf24l01()
-:spi1 (spi::A, spi::div256), pin (Gpio::A), int1 (intrpt::A, IRQ_, intrpt::Falling_edge)
+:spi1 (spi::A, spi::div256), pin (Gpio::A) , int1 (intrpt::A, IRQ_, intrpt::Falling_edge)
 {
+	chan = 3;
+  delay_ms (15);
 	pin.setOutPin (CE);
+  if (init ())
+  {
+    delay_ms (15);
+    change_bit (CONFIG, PWR_UP, 1);
+    delay_ms (3);
+    startup = true;
+  }
+  else startup = false;
+	
 	NVIC_EnableIRQ (EXTI0_1_IRQn);
 	
 	//===Setup NRF24L01===//
@@ -12,122 +23,125 @@ nrf24l01::nrf24l01()
 	//init();	
 }
 
-uint8_t nrf24l01::write_register (uint8_t reg, uint8_t data)
+uint8_t nrf24l01::w_reg (uint8_t reg, uint8_t val)
 {
 	spi1.Clear_CS();
-	
-	//command for write registor
-	
-	uint8_t status = spi1.exchange (W_REGISTER+reg);
-	
-	//write register
-	spi1.transmit (data);
-	spi1.Set_CS();	
-	return status;
+  spi1.put_data (W_REGISTER|reg);
+  while (!spi1.flag_rxne());
+  uint8_t status = spi1.get_data();
+  while (!spi1.flag_txe());
+  spi1.put_data (val); 
+  while (!spi1.flag_rxne());
+  uint8_t reg_val = spi1.get_data();
+  spi1.Set_CS ();
+  return reg_val;    
 }
 
-uint8_t nrf24l01::read_register (uint8_t reg)
+uint8_t nrf24l01::r_reg (uint8_t reg)
 {
-	spi1.Clear_CS ();
-	
-	//command for read registor
-	spi1.transmit (R_REGISTER + reg);
-	uint8_t value = spi1.exchange (NOP);
-	spi1.Set_CS ();
-	return value;
+	spi1.Clear_CS();
+  spi1.put_data (R_REGISTER|reg);
+  while (!spi1.flag_rxne());
+  uint8_t status = spi1.get_data();
+  while (!spi1.flag_txe());
+  spi1.put_data (NOP); 
+  while (!spi1.flag_rxne());
+  uint8_t reg_val = spi1.get_data();
+  spi1.Set_CS ();
+  return reg_val;  
 }
 
-void nrf24l01::sc_bit (uint8_t reg, uint8_t reg_bit, bool state)
+uint8_t nrf24l01::w_data (uint8_t data_)
 {
-	uint8_t reg_val = read_register (reg);
-	
-	if (state) reg_val = reg_val|(1<<reg_bit);
-	else reg_val = reg_val|(~(1<<reg_bit));	
-	
-	spi1.Clear_CS ();
-	
-	//command for write registor
-	spi1.transmit (W_REGISTER+reg);
-	
-	write_register (reg, reg_val);
-}
-void nrf24l01::rx_mode ()
-{
-	//mode standby-1
-	pin.clearPin (CE);
-	
-	//
-	sc_bit(CONFIG, PRIM_RX, 1);
-	
-	pin.setPin (CE);
-	delay_us (15);
-	delay_us (140);
-}
-void nrf24l01::tx_mode ()
-{
-	//mode standby-1
-	pin.clearPin (CE);
-	
-	//
-	sc_bit(CONFIG, PRIM_RX, 0);
-	
-	pin.setPin (CE);
-	delay_us (15);
-	pin.clearPin (CE);
-	delay_us (140);	
+  spi1.Clear_CS();
+  spi1.put_data (W_TX_PAYLOAD);
+  while (!spi1.flag_rxne());
+  uint8_t status = spi1.get_data();
+  spi1.put_data (data_);
+  while (spi1.flag_bsy ());
+  spi1.Set_CS ();
+  return status;
 }
 
-void nrf24l01::write_data (uint8_t data)
+uint8_t nrf24l01::command (uint8_t cmd_)
 {
-	spi1.Clear_CS ();
-	spi1.transmit (W_TX_PAYLOAD);
-	spi1.transmit (data);
-	spi1.Set_CS();
+  spi1.Clear_CS();
+  spi1.put_data (cmd_);
+  while (!spi1.flag_rxne());
+  uint8_t status = spi1.get_data();
+  spi1.Set_CS ();
+  return status;
 }
 
-uint8_t nrf24l01::read_data ()
+uint8_t nrf24l01::get_status ()
 {
-	uint8_t temp;
-	spi1.Clear_CS ();
-	spi1.transmit (R_RX_PAYLOAD);
-	temp = spi1.exchange (NOP);
-	spi1.Set_CS();
-	return temp;
+  spi1.Clear_CS();
+  spi1.put_data (NOP);
+  while (!spi1.flag_rxne());
+  uint8_t status = spi1.get_data();
+  spi1.Set_CS ();
+  return status; 
 }
-void nrf24l01::send_data(uint8_t data)
+
+void nrf24l01::change_bit (uint8_t reg, uint8_t bit, bool state)
 {
-	write_data (data);
-	tx_mode();
-	rx_mode();
+  uint8_t val = r_reg (reg);
+  
+  if (state) val = val|(1 << bit);
+  else val = val&(~(1 << bit));
+  w_reg (reg, val);
+}
+
+bool nrf24l01::init ()
+{
+   for(uint8_t i = 0;i<100;++i) 
+   {
+    w_reg(CONFIG, /*(1 << EN_CRC) | (1 << CRCO) |*/ (1 << PWR_UP));
+    if (r_reg(CONFIG) == (/*(1 << EN_CRC) | (1 << CRCO) |*/ (1 << PWR_UP))) 
+    {
+      count = i;
+      return true;
+    }
+    delay_ms(1);
+   }
+  return false;
+}
+
+uint8_t nrf24l01::receive_byte ()
+{
+  spi1.Clear_CS();
+  spi1.put_data (R_RX_PAYLOAD);
+  while (!spi1.flag_rxne());
+  uint8_t status = spi1.get_data();
+  while (!spi1.flag_txe());
+  spi1.put_data (NOP); 
+  while (!spi1.flag_rxne());
+  uint8_t value = spi1.get_data();
+  spi1.Set_CS ();
+  return value;
+}
+
+void nrf24l01::rx_state ()
+{
+   pin.setPin (CE);
+ 
+  change_bit (CONFIG, PRIM_RX, 1);
+  pin.setPin (CE);
+  delay_us(140);
+}
+
+void nrf24l01::w_tx_buffer (uint8_t data_)
+{
+	spi1.Clear_CS();
+  spi1.put_data (W_TX_PAYLOAD);
+  while (!spi1.flag_rxne());
+  uint8_t status = spi1.get_data();
+  while (!spi1.flag_txe());
+  spi1.put_data (data_); 
+  while (spi1.flag_bsy());
+  spi1.Set_CS ();
 }
 
 
-void nrf24l01::init ()
-{
-	spi1.Clear_CS ();
-	pin.clearPin (CE);
-	delay_ms (15);
-	
-	sc_bit(RX_PW_P0,0,1);
-	sc_bit(CONFIG,MASK_MAX_RT,1);
-  sc_bit(CONFIG,MASK_TX_DS,2);
-  sc_bit(CONFIG,MASK_RX_DR,0);
-	
-	sc_bit(CONFIG,PWR_UP,1);
-  delay_ms(2);
-}
-/* 
-void nrf24l01::init ()
-{
-	spi1.Clear_CS ();
-	pin.clearPin (CE);
-	delay_ms (15);
-	
-	sc_bit(RX_PW_P0,0,1);
-	sc_bit(CONFIG,MASK_MAX_RT,1);
-  sc_bit(CONFIG,MASK_TX_DS,2);
-  sc_bit(CONFIG,MASK_RX_DR,0);
-	
-	sc_bit(CONFIG,PWR_UP,1);
-  delay_ms(2);
-}         */
+
+

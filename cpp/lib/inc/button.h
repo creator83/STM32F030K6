@@ -15,6 +15,10 @@ public:
 	bool long_press;
 	bool push_l_state;
 	bool push_state;
+	bool act_state;
+	bool debouncer;
+	uint8_t sh_press_lmt;
+	uint8_t long_press_lmt;
 	uint8_t p;
 	Gpio pin;
 //func

@@ -5,24 +5,34 @@ button::button (PORT p_, uint8_t pin_)
 {
 	pin.setInPin (pin_);
 	p = p_;
+	sh_press_lmt = 2;
 }
 
 void button::scan_short ()
 {
-	if (push_state)
+	if (!debouncer)
 	{
-		if (pin.PinState(p))
+		if (push_state)
 		{
-			short_press = true;
-			push_state = false;
+			if (!pin.PinState(p)) count ++;
+			if (pin.PinState(p)&&count>sh_press_lmt)
+			{
+				count = 0;
+				push_state = false;
+				short_press = true;
+			}
+		}
+		else
+		{
+			if (!pin.PinState(p)) push_state = true;
 		}
 	}
-	else
+	else count ++;
+	if (debouncer&&count>5)
 	{
-			if (!pin.PinState(p)) push_state = true;
-	}
-	
-	
+		debouncer = false;
+		count = 0;
+	}		
 }
 
 void button::action_short (void (*func)())
