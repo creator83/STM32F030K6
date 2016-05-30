@@ -1,6 +1,7 @@
 #include "stm32f0xx.h"                  // Device header
 #include "Gpio.h"
 #include "delay.h"
+#include "general_timer.h"
 
 #ifndef DS18B20_H
 #define DS18B20_H
@@ -16,6 +17,7 @@ class ds18b20
 {
 //variables
 public:
+	enum resolution {bit9, bit10, bit11, bit12};
   enum Port {A , B , C , F=5};
   
 private:
