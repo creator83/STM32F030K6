@@ -1,8 +1,8 @@
 #include "ds18b20.h"
 
 
-ds18b20::ds18b20(Port p, uint8_t n)
-:pin (p)
+ds18b20::ds18b20(Port p, uint8_t n, timers t)
+:pin (p), timer (t)
 {
   pin_ = n;
   pin.setInPin (pin_);

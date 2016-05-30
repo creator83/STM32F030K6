@@ -23,12 +23,16 @@ private:
 	uint8_t tmr;
 //functions
 public:
+	general_timer (uint8_t t);
 	general_timer (timers t, uint16_t psc, uint16_t arr);
+	general_timer (timers t);
 	void timer3_init ();
 	void timer14_init ();
 	void timer15_init ();
 	void timer16_init ();
 	void timer17_init ();
+	void output_mode ();
+	void set_interrupt (int8_t pr);
 	void Set_CNT (uint16_t);
 	void Set_PSC (uint16_t);
 	void Set_ARR (uint16_t);

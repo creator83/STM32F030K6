@@ -19,14 +19,15 @@ class ds18b20
 public:
 	enum resolution {bit9, bit10, bit11, bit12};
   enum Port {A , B , C , F=5};
+	enum timers {TIM_3, TIM_14, TIM_15, TIM_16, TIM_17};
   
 private:
   Gpio pin;
   uint8_t pin_;
-  
+	general_timer timer;
 //function
 public:
-  ds18b20(Port p, uint8_t n);
+  ds18b20(Port p, uint8_t n, timers t);
   char convertTemp ();
 private:
   bool find();
