@@ -8,11 +8,9 @@
 tact frq;
 
 spi spi1 (spi::A, spi::div128);
-Gpio A (Gpio::A);
 
-const char frac = 0;
-const char ones = 1;
-const char dec = 2;
+
+
 
  /* 
   extern "C"
@@ -20,24 +18,26 @@ const char dec = 2;
     void EXTI0_1_IRQHandler();
   }*/
 
+void transfer_byte (uint8_t data );
+
 int main()
 {
 	
-	A.setOutPin (frac);
-	A.setOutPin (ones);
-	A.setOutPin (dec);
-	A.setPin (frac);
-
   while (1)
   {
 
-		spi1.Clear_CS();
-		spi1.transmit (0x0F);
-		spi1.Set_CS();
-		delay_ms (100);
-		spi1.Clear_CS();
-		spi1.transmit (0xF0);
-		spi1.Set_CS();
-		delay_ms (100);
+		transfer_byte (0x0F);
+		delay_ms (500);
+		transfer_byte (0xF0);
+		delay_ms (500);
   }
+}
+
+
+void transfer_byte (uint8_t data )
+{
+	spi1.Clear_CS ();
+	spi1.put_data (data);
+	while (spi1.flag_bsy());
+	spi1.Set_CS ();
 }

@@ -1,7 +1,7 @@
 #include "spi.h"
 
 //CS,SCK,MISO,MOSI
-uint8_t spi::pins_d[2][4]={{4,5,6,7},{6,3,4,5}};
+uint8_t spi::pins_d[2][4]= {{4,5,6,7},{6,3,4,5}};
 
 PotMemFn spi::ptr_receive[2] = {&spi::receive_8, &spi::receive_16};
 

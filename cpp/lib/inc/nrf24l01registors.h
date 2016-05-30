@@ -27,6 +27,8 @@
 #define RX_PW_P4    0x15
 #define RX_PW_P5    0x16
 #define FIFO_STATUS 0x17
+#define DYNPD       0x1C
+#define FEATURE     0x1D
 
 //Bit Mnemonics
 #define MASK_RX_DR  6

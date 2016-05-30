@@ -11,8 +11,10 @@ uint16_t max6675::readCelsius()
 {
 	uint16_t v;
 	spi1.Clear_CS();
-	delay_ms (200);
-	v = spi1.receive_16();
+	while (spi1.flag_bsy());
+	spi1.put_data (0x00);
+	while (spi1.flag_rxne());
+	v = spi1.get_data ();
 	//v = spi1.receive();
 	spi1.Set_CS();
 	  if (v & 0x4) {

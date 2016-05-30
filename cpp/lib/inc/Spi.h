@@ -32,6 +32,7 @@ class spi
 {
 //variables
 public:
+	enum N_SPI {SPI_1, SPI_2};
 	enum mode {hardware, software};
 	enum Division {div2 , div4 , div8 , div16 , div32 , div64 , div128 , div256};
 	enum Role {slave , master};
@@ -53,6 +54,7 @@ private:
 //functions
 public:
   spi(PORT p, Division div, Cpol cpl = neg, Cpha cph = first, Role r = master, Size s=bit8);
+	spi(N_SPI, PORT p, Division div, Cpol cpl = neg, Cpha cph = first, Role r = master, Size s=bit8);
 	void Set_CS ();
   void Clear_CS ();
 	uint16_t get_data ();

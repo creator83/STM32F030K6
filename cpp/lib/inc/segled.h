@@ -5,7 +5,7 @@
 #ifndef SEGLED_H
 #define SEGLED_H
 
-#define USE_SPI
+//#define USE_SPI
 
 
 
