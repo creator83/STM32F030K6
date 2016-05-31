@@ -24,19 +24,20 @@ public:
 private:
   Gpio pin;
   uint8_t pin_;
-	general_timer timer;
 //function
 public:
-  ds18b20(Port p, uint8_t n, timers t);
-  char convertTemp ();
+  ds18b20(Port p, uint8_t n);
+  uint8_t convertTemp ();
 private:
   bool find();
-  void write_bit (char bit);
-  void write_byte (unsigned char data);
+	void write_0 ();
+	void write_1 ();
+  void write_byte (uint8_t data);
   bool read_bit ();
+	uint8_t init ();
   uint8_t read_byte ();
   uint16_t GetTemp ();
-  
+  uint16_t GetCode (uint8_t size=2);
 };
 
 #endif

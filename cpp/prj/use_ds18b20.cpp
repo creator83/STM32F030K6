@@ -6,8 +6,8 @@
 int main ()
 {
   tact frq;
-  uart uart1 (uart::baud57600);
-  ds18b20 sensor (ds18b20::A , 0, ds18b20::TIM_14);
+  uart uart1 (uart::baud9600);
+  ds18b20 sensor (ds18b20::A , 0);
     
   while (1)
   {
