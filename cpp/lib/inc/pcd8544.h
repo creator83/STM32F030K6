@@ -77,6 +77,8 @@ public:
 	void draw_pictur (const char * pic, uint16_t l);
 	void pixel (uint8_t x , uint8_t y);
 	void hor_line_buffer (uint8_t x1 , uint8_t x2,  uint8_t y1, uint8_t thick);
+	void hor_line (uint8_t x1 , uint8_t x2,  uint8_t y, uint8_t thick);
+	void ver_line (uint8_t x , uint8_t y1,  uint8_t y2, uint8_t thick);
 	void string_screen (uint8_t x , uint8_t y , char *str);
 	void string_buffer (uint8_t x , uint8_t y , char *str);
 	void bin_number (uint8_t x , uint8_t y , uint8_t num);

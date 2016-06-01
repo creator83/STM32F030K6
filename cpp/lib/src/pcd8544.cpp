@@ -226,6 +226,27 @@ void pcd8544::hor_line_buffer (uint8_t x1 , uint8_t x2,  uint8_t y1 , uint8_t t)
 	}
 }
 
+void pcd8544::hor_line (uint8_t x1 , uint8_t x2,  uint8_t y , uint8_t t)
+{
+	uint8_t l = x2 - x1;
+	uint8_t dy = y%8;
+	uint8_t thick = 1 << dy;
+	gotoxy (x1,(y>>3));
+		
+	for (uint8_t i=0;i<t;++i)
+	{
+		thick |= 1 << (i+dy);
+	}
+	pin.setPin (DC);
+	spi1.Clear_CS ();
+	for (uint8_t i=0;i<l;++i)
+	{
+		while (!spi1.flag_txe());
+		spi1.put_data (thick);
+	}
+	while (spi1.flag_bsy ());
+	spi1.Set_CS ();
+}
 void pcd8544::string_screen (uint8_t x , uint8_t y , char *str)
 {
 	gotoxy (x,y);
