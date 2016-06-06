@@ -2,16 +2,17 @@
 
 uint32_t dma::adr_channel [5] = {DMA1_Channel1_BASE, DMA1_Channel2_BASE, DMA1_Channel3_BASE, DMA1_Channel4_BASE, DMA1_Channel5_BASE};
 
-PTR_DMA dma::ptr_periph[] = {};
+PTR_DMA dma::ptr_periph[] = {&dma::spi1_rx, &dma::spi1_tx};
 
 dma::dma (channel_ ch, mode_ m, periph_ p, size_ mem, size_ per)
 {
 	ch_ = ch;
 	size_mem = mem;
 	size_periph = per;
-	
+	RCC->AHBENR |= RCC_AHBENR_DMAEN;
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR &= ~(DMA_CCR_PSIZE|DMA_CCR_MSIZE|DMA_CCR_DIR);
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= (size_mem << 10|size_periph << 8|m << 4)|DMA_CCR_TCIE;
+	(this->*(dma::ptr_periph[p]))();
 }
 
 dma::dma (channel_ ch, size_ mem, size_ per)
@@ -20,7 +21,7 @@ dma::dma (channel_ ch, size_ mem, size_ per)
 	size_mem = mem;
 	size_periph = per;
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR &= ~(DMA_CCR_PSIZE|DMA_CCR_MSIZE|DMA_CCR_DIR);
-	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= (size_mem << 10|size_periph << 8)|DMA_CCR_TCIE|DMA_CCR_MEM2MEM;	
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= (size_mem << 10|size_periph << 8)|DMA_CCR_TCIE|DMA_CCR_MEM2MEM|DMA_CCR_DIR;	
 }
 
 void dma::set_sources (uint32_t * mem, uint32_t * per)
@@ -40,10 +41,20 @@ void dma::set_periph (uint32_t per)
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CPAR = per;
 }
 
-void dma::set_destination (uint32_t * mem)
+void dma::set_destination (uint32_t  mem)
 {
-	((DMA_Channel_TypeDef *)adr_channel [ch_])->CPAR = (uint32_t)mem;
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CPAR = mem;
 
+}
+
+void dma::spi1_tx ()
+{
+	SPI1->CR2 |= SPI_CR2_TXDMAEN;
+}
+
+void dma::spi1_rx ()
+{
+	
 }
 
 void dma::set_length (uint16_t length)

@@ -1,6 +1,8 @@
 #include "pcd8544.h"
 
-uint8_t pcd8544::buffer [width*page] = {0};
+uint8_t pcd8544::buffer [page][width] = {0};
+
+const char pcd8544::null_val = 0;
 
 char pcd8544::NewFontLAT[] = {
 0x00,0x00,0x00,0x00,0x00,0x00, //32/ -->
@@ -90,10 +92,18 @@ char pcd8544::Big_number[] = {
 
 
 pcd8544::pcd8544()
-:spi1 (spi::B, spi::div8), pin (Gpio::B)
+:spi1 (spi::B, spi::div8), pin (Gpio::B), mem2spi1(dma::ch3, dma::mem2periph, dma::SPI1_TX), mem2buff (dma::ch5)
 {
+	//Settings pins
 	pin.setOutPin (RST);
 	pin.setOutPin (DC);
+	
+	//settings dma
+	mem2spi1.set_periph ((uint32_t)&SPI1->DR);
+	mem2spi1.set_inc_per (false);
+	NVIC_EnableIRQ(DMA1_Channel4_5_IRQn);
+	NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
+	
 	init ();
 }
 
@@ -195,7 +205,7 @@ void pcd8544::draw_char_buffer (uint8_t x , uint8_t y , char ch)
 	uint16_t position = x+y*83;
 	for (uint8_t i=0;i<6;++i,ptr++,position++)
 	{
-		buffer [position]= *ptr;
+		*buffer [position]= *ptr;
 	}
 }
 
@@ -222,7 +232,7 @@ void pcd8544::hor_line_buffer (uint8_t x1 , uint8_t x2,  uint8_t y1 , uint8_t t)
 	}
 	for (uint8_t i=0;i<l;++i,position++)
 	{
-		buffer [position]= thick;
+		*buffer [position]= thick;
 	}
 }
 
@@ -325,8 +335,8 @@ void pcd8544::refresh_buffer ()
 	
 }
 
-void pcd8544::draw_pictur (const char * pic, uint16_t l)
-{
+void pcd8544::draw_picture (const char * pic, uint16_t l)
+{/*
 	gotoxy(0,0);
 	pin.setPin (DC);
 	spi1.Clear_CS ();
@@ -336,22 +346,16 @@ void pcd8544::draw_pictur (const char * pic, uint16_t l)
 		spi1.put_data (*pic);	
 	}
 	while (spi1.flag_bsy ());
-	spi1.Set_CS ();
+	spi1.Set_CS ();*/
+	gotoxy(0,0);
+	mem2spi1.set_mem ((uint32_t)pic);
+	mem2spi1.set_inc_mem (true);
+	mem2spi1.set_length (l);
+	assert_chip ();
+	mem2spi1.start();	
 }
 
-void pcd8544::draw_buffer ()
-{
-  gotoxy(0,0);
-	pin.setPin (DC);
-	spi1.Clear_CS ();
-  for (int i=0 ;i<page*width ;++i ) 
-	{
-		while (!spi1.flag_txe());
-		spi1.put_data (buffer[i]);	
-	}
-	while (spi1.flag_bsy ());
-	spi1.Set_CS ();
-}
+
 
 void pcd8544::pixel (uint8_t x , uint8_t y)
 {
@@ -374,15 +378,32 @@ uint32_t * pcd8544::buffer_adress ()
 
 void pcd8544::clear_buffer ()
 {
+	mem2buff.set_mem ((uint32_t)&null_val);
+	mem2buff.set_inc_mem (false);
+	mem2buff.set_destination ((uint32_t)buffer);
+	mem2buff.set_inc_per (true);
+	mem2buff.set_length (width*page);
+	mem2buff.start ();
+}
+
+void pcd8544::draw_buffer ()
+{
 	/*
-	mem2mem
-	cmar = &null_val;
-	cmar non_inc;
-	cpar = buffer;
-	cpar inc;
-	cnt = width*page;
-	dma_en;
-	*/
+  gotoxy(0,0);
+	pin.setPin (DC);
+	spi1.Clear_CS ();
+  for (int i=0 ;i<page*width ;++i ) 
+	{
+		while (!spi1.flag_txe());
+		spi1.put_data (*buffer[i]);	
+	}
+	while (spi1.flag_bsy ());
+	spi1.Set_CS ();*/
+	mem2spi1.set_mem ((uint32_t)buffer);
+	mem2spi1.set_inc_mem (true);
+	mem2spi1.set_length (width*page);
+	assert_chip ();
+	mem2spi1.start();	
 }
 
 void pcd8544::clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)

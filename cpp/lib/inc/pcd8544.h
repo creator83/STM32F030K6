@@ -51,12 +51,14 @@ class pcd8544
 private:
 	spi spi1;
 	Gpio pin;
+	dma mem2spi1;
+	dma mem2buff;
 	enum PIN {RST=1, DC=7};
 	enum COM {COMMAND, DATA};
-	static uint8_t buffer [width*page];
+	static uint8_t buffer [page][width];
 	static char NewFontLAT[]; 
 	static char Big_number[]; 
-	static const char null_val = 0;
+	static const char null_val;
 public:
 	pcd8544();
 	void send_byte (uint8_t dta , bool com_);
@@ -73,7 +75,7 @@ public:
 	void draw_char(uint8_t x , uint8_t y , char ch);
 	void draw_char_buffer (uint8_t x , uint8_t y , char ch);
 	void draw_char(char ch);
-	void draw_pictur (const char * pic, uint16_t l);
+	void draw_picture (const char * pic, uint16_t l);
 	void pixel (uint8_t x , uint8_t y);
 	void hor_line (uint8_t x1 , uint8_t x2,  uint8_t y, uint8_t thick);
 	void ver_line (uint8_t x , uint8_t y1,  uint8_t y2, uint8_t thick);

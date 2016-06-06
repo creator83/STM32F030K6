@@ -30,7 +30,7 @@ public:
 	void set_sources (uint32_t * mem, uint32_t * per);
 	void set_mem (uint32_t mem);
 	void set_periph (uint32_t per);
-	void set_destination (uint32_t * mem);
+	void set_destination (uint32_t mem);
 	void set_length (uint16_t length);
 	void set_inc_mem (bool state);
 	void set_inc_per (bool state);
@@ -43,6 +43,7 @@ public:
 	void clear_gif_flag ();
 	void clear_all_flag ();
 	void spi1_tx ();
+	void spi1_rx ();
 };
 
 #endif
