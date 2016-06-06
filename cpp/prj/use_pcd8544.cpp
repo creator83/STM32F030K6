@@ -203,7 +203,6 @@ void SysTick_Handler (void)
 
 int main()
 {
-	std::vector <bool> flag(10);
 	systimer sys(systimer::ms, 1);
 	//init_dma_spi_tx ();
 	init_dma_mem ();

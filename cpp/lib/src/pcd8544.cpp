@@ -278,9 +278,7 @@ void pcd8544::gotoxy(uint8_t x, uint8_t y)
 void pcd8544::clear_screen ()
 {
 	int i;
-  gotoxy(0,0);
-	pin.setPin (DC);
-	spi1.Clear_CS ();
+
   for (i=0 ;i<page*width ;++i ) 
 	{
 		while (!spi1.flag_txe());
@@ -288,8 +286,24 @@ void pcd8544::clear_screen ()
 	}
 	while (spi1.flag_bsy ());
 	spi1.Set_CS ();
+	/*
+	gotoxy(0,0);
+	pin.setPin (DC);
+	spi1.Clear_CS ();
+	cmar = &null_val;
+	cmar non_inc;
+	cpar = spi;
+	cpar non_inc;
+	cnt = width*page;
+	dma_en;
+	
+	*/
 }
 
+void  pcd8544::clear_screen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
+{
+	
+}
 
 void pcd8544::fill_screen ()
 {
@@ -353,4 +367,39 @@ void pcd8544::assert_chip ()
 	spi1.Clear_CS ();
 }
 
+uint32_t * pcd8544::buffer_adress ()
+{
+	return (uint32_t *) buffer;
+}
+
+void pcd8544::clear_buffer ()
+{
+	/*
+	mem2mem
+	cmar = &null_val;
+	cmar non_inc;
+	cpar = buffer;
+	cpar inc;
+	cnt = width*page;
+	dma_en;
+	*/
+}
+
+void pcd8544::clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
+{
+	/*
+	mem2mem
+	cmar = &null_val;
+	cmar non_inc;
+	cpar inc;
+	uint8_t *ptr = &buffer[y>>3][x];
+	for (ui i=0;i < dy;++i)
+	{
+		ptr = &buffer[y>>3+i][x];
+		cpar = ptr;
+		cnt = dx;
+	}
+	*/
+	
+}
 

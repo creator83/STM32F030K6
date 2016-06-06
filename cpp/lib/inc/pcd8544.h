@@ -2,6 +2,7 @@
 #include "Gpio.h"
 #include "Spi.h"
 #include "delay.h"
+#include "dma.h"
 //#include "font6x8.h"
 
 #ifndef PCD8544_H
@@ -47,6 +48,7 @@ const char page  =  6;
 class pcd8544
 {
 	//variable
+private:
 	spi spi1;
 	Gpio pin;
 	enum PIN {RST=1, DC=7};
@@ -54,6 +56,7 @@ class pcd8544
 	static uint8_t buffer [width*page];
 	static char NewFontLAT[]; 
 	static char Big_number[]; 
+	static const char null_val = 0;
 public:
 	pcd8544();
 	void send_byte (uint8_t dta , bool com_);
@@ -61,31 +64,34 @@ public:
 	void send_data (uint8_t *dta);
 	void send_comm (uint8_t comm);
 	void clear_screen ();
-
+	void clear_screen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy);
 	void fill_screen ();
-	void clear_buffer ();
-	void refresh_buffer ();
 	void init ();
 	void gotoxy(uint8_t x, uint8_t y);
 	void draw_font(char * font, char ch);
-	void draw_font_buffer(uint8_t * font, char ch);
 	void draw_big_number(uint8_t x, uint8_t y, uint8_t ch);
 	void draw_char(uint8_t x , uint8_t y , char ch);
 	void draw_char_buffer (uint8_t x , uint8_t y , char ch);
 	void draw_char(char ch);
-	void draw_buffer ();
 	void draw_pictur (const char * pic, uint16_t l);
 	void pixel (uint8_t x , uint8_t y);
-	void hor_line_buffer (uint8_t x1 , uint8_t x2,  uint8_t y1, uint8_t thick);
 	void hor_line (uint8_t x1 , uint8_t x2,  uint8_t y, uint8_t thick);
 	void ver_line (uint8_t x , uint8_t y1,  uint8_t y2, uint8_t thick);
 	void string_screen (uint8_t x , uint8_t y , char *str);
-	void string_buffer (uint8_t x , uint8_t y , char *str);
 	void bin_number (uint8_t x , uint8_t y , uint8_t num);
 	void assert_chip ();
 	void desassert_chip ();
 	bool spi_bsy ();
-
+	//function with buffer
+	void draw_buffer ();
+	void string_buffer (uint8_t x , uint8_t y , char *str);
+	void hor_line_buffer (uint8_t x1 , uint8_t x2,  uint8_t y1, uint8_t thick);
+	void clear_buffer ();
+	void clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy);
+	void refresh_buffer ();
+	void draw_font_buffer(uint8_t * font, char ch);
+	uint32_t * buffer_adress ();
+	
 };
 
 inline void pcd8544::desassert_chip (){spi1.Set_CS ();}
