@@ -6,6 +6,8 @@
 #include "nrf24l01.h"
 #include "pcd8544.h"
 #include "systimer.h"
+#include "dma.h"
+#include <vector>
 
 
 typedef unsigned int* reg;
@@ -201,9 +203,16 @@ void SysTick_Handler (void)
 
 int main()
 {
+	std::vector <bool> flag(10);
 	systimer sys(systimer::ms, 1);
-	init_dma_spi_tx ();
+	//init_dma_spi_tx ();
 	init_dma_mem ();
+	dma spi_screen (dma::ch3, dma::mem2periph, dma::SPI1_TX);
+	spi_screen.set_periph ((uint32_t)&SPI1->DR);
+	spi_screen.set_mem ((uint32_t)pic);
+	spi_screen.set_inc_mem (true);
+	
+	
 	lcd.draw_big_number (10,0,2);
 	lcd.draw_big_number (25,0,3);
 	lcd.draw_big_number (40,0,6);

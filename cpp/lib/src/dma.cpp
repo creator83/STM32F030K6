@@ -2,29 +2,42 @@
 
 uint32_t dma::adr_channel [5] = {DMA1_Channel1_BASE, DMA1_Channel2_BASE, DMA1_Channel3_BASE, DMA1_Channel4_BASE, DMA1_Channel5_BASE};
 
-dma::dma (channel_ ch, mode_ m, size_ mem, size_ per)
+PTR_DMA dma::ptr_periph[] = {};
+
+dma::dma (channel_ ch, mode_ m, periph_ p, size_ mem, size_ per)
+{
+	ch_ = ch;
+	size_mem = mem;
+	size_periph = per;
+	
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR &= ~(DMA_CCR_PSIZE|DMA_CCR_MSIZE|DMA_CCR_DIR);
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= (size_mem << 10|size_periph << 8|m << 4)|DMA_CCR_TCIE;
+}
+
+dma::dma (channel_ ch, size_ mem, size_ per)
 {
 	ch_ = ch;
 	size_mem = mem;
 	size_periph = per;
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR &= ~(DMA_CCR_PSIZE|DMA_CCR_MSIZE|DMA_CCR_DIR);
-	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= (size_mem << 10|size_periph << 8|m << 4)|DMA_CCR_TCIE;
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= (size_mem << 10|size_periph << 8)|DMA_CCR_TCIE|DMA_CCR_MEM2MEM;	
 }
-
-
 
 void dma::set_sources (uint32_t * mem, uint32_t * per)
 {
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CMAR = (uint32_t)mem;
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CPAR = (uint32_t)per;
-
-	
 }
 
-void dma::set_source (uint32_t * mem)
+void dma::set_mem (uint32_t mem)
 {
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CMAR = (uint32_t)mem;
 
+}
+
+void dma::set_periph (uint32_t per)
+{
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CPAR = per;
 }
 
 void dma::set_destination (uint32_t * mem)
@@ -37,6 +50,25 @@ void dma::set_length (uint16_t length)
 {
 	((DMA_Channel_TypeDef *)adr_channel [ch_])->CNDTR = length;
 }
+
+void dma::set_inc_mem (bool state)
+{
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR &= ~DMA_CCR_MINC;
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= state << 7;
+}
+
+void dma::set_inc_per (bool state)
+{
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR &= ~DMA_CCR_PINC;
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= state << 6;
+}
+
+void dma::set_prior (prior p)
+{
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR &= ~ DMA_CCR_PL;
+	((DMA_Channel_TypeDef *)adr_channel [ch_])->CCR |= p << 12;
+}
+
 
 void dma::start ()
 {
