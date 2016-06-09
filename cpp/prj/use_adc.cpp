@@ -100,6 +100,8 @@ const char pic3 []={
 
 
 void init_adc ();
+void buff_arr (uint16_t mes, uint16_t * arr);
+uint16_t single_conv ();
 
 //uint8_t 
 const char * arr [2] = {pic, pic3};
@@ -109,7 +111,6 @@ void DMA1_Channel2_3_IRQHandler(void)
 {
 	DMA1->IFCR |= DMA_IFCR_CTCIF3|DMA_IFCR_CGIF3|DMA_IFCR_CHTIF3;
 	DMA1_Channel3->CCR &= ~ DMA_CCR_EN;	
-	while (lcd.spi_bsy());
 	lcd.desassert_chip ();
 }
 
@@ -143,6 +144,8 @@ int main()
 	
 	}
 }
+
+
 
 void init_adc ()
 {
@@ -199,22 +202,37 @@ void init_adc ()
 	ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; 
 	
 	/* (4) Wake-up the VREFINT (only for VBAT, Temp sensor and VRefInt) */
-	ADC->CCR |= ADC_CCR_VREFEN;
-	uint16_t Adc_result [4];
-	while (1)
-	{
+	//ADC->CCR |= ADC_CCR_VREFEN;
+
+}
+
+void buff_arr (uint16_t mes, uint16_t * arr)
+{
+	char hundr, dec, ones;
+	uint16_t temp = mes;
+	for (hundr=0;temp>=100;++hundr)temp -=100;
+	
+	for (dec=0;temp>=10;++dec)temp -=10;
+
+	for (ones=0;temp>=1;++ones)temp--;
+		arr [0] = hundr;
+		arr [1] = dec;
+		arr [2] = ones;
+}
+
+uint16_t single_conv ()
+{
+		uint16_t Adc_result;
 		/* Performs the AD conversion */
 		ADC1->CR |= ADC_CR_ADSTART; /* Start the ADC conversion */
-		
-		for (uint8_t i=0; i < 4; i++)
-		{
 			while ((ADC1->ISR & ADC_ISR_EOC) == 0) /* Wait end of conversion */
 			{
 				/* For robust implementation, add here time-out management */
 			}
-			Adc_result [i] = ADC1->DR; /* Store the ADC conversion result */
-		}
+			Adc_result = ADC1->DR; /* Store the ADC conversion result */
+
 		ADC1->CFGR1 ^= ADC_CFGR1_SCANDIR;
-	}
+
+	return Adc_result;
 }
 

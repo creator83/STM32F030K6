@@ -107,7 +107,6 @@ void DMA1_Channel2_3_IRQHandler(void)
 {
 	DMA1->IFCR |= DMA_IFCR_CTCIF3|DMA_IFCR_CGIF3|DMA_IFCR_CHTIF3;
 	DMA1_Channel3->CCR &= ~ DMA_CCR_EN;	
-	while (lcd.spi_bsy());
 	lcd.desassert_chip ();
 	
 	/*lcd.clear_screen();

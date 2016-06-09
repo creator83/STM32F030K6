@@ -72,6 +72,7 @@ public:
 	bool flag_bsy ();
 	bool flag_txe ();
 	bool flag_rxne ();
+	uint8_t flag_ftvl ();
 private:
 };
 
@@ -80,6 +81,8 @@ inline uint16_t spi::get_data (){return SPI1->DR;}
 inline bool spi::flag_bsy (){return SPI1->SR&SPI_SR_BSY;}
 inline bool spi::flag_txe (){return SPI1->SR&SPI_SR_TXE;}
 inline bool spi::flag_rxne (){return SPI1->SR&SPI_SR_RXNE;}
+inline uint8_t spi::flag_ftvl (){return SPI1->SR&SPI_SR_FTLVL;}
+
 
 
 

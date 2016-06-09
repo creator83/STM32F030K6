@@ -100,8 +100,6 @@ public:
 	
 };
 
-inline void pcd8544::desassert_chip (){spi1.Set_CS ();}
-inline bool  pcd8544::spi_bsy (){return spi1.flag_bsy();}
 
 
 

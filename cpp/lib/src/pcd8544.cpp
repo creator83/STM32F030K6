@@ -407,11 +407,14 @@ void pcd8544::draw_buffer ()
 	}
 	while (spi1.flag_bsy ());
 	spi1.Set_CS ();
-/*	mem2spi1.set_mem ((uint32_t)buffer);
+	
+/*
+	mem2spi1.set_mem ((uint32_t)buffer);
 	mem2spi1.set_inc_mem (true);
 	mem2spi1.set_length (width*page);
 	assert_chip ();
-	mem2spi1.start();	*/
+	mem2spi1.start();	
+	*/
 }
 
 void pcd8544::point_buffer (uint8_t x, uint8_t y, uint8_t t)
@@ -465,5 +468,12 @@ void pcd8544::clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
 	}
 	*/
 	
+}
+
+void pcd8544::desassert_chip ()
+{
+	while (spi1.flag_ftvl());
+	while (spi1.flag_bsy());
+	spi1.Set_CS();
 }
 
