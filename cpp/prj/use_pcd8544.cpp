@@ -131,8 +131,11 @@ uint8_t number_ [4] = {2,3,6,9};
 
 void SysTick_Handler (void)
 {
-	lcd.string_number_buffer (5,0, number_,3);
-	lcd.draw_buffer ();
+	if (!NVIC_GetPendingIRQ (DMA1_Channel2_3_IRQn))	
+	{
+		lcd.string_number_buffer (5,0, number_,3);
+		lcd.draw_buffer ();
+	}
 }
 
 

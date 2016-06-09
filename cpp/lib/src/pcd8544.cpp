@@ -434,15 +434,21 @@ void pcd8544::point_buffer (uint8_t x, uint8_t y, uint8_t t)
 void pcd8544::big_number_buffer (uint8_t x , uint8_t y , uint8_t num)
 {
 	char *ptr = &Big_number [num][0];
-	for (uint8_t i=0;i<3;++i)
+	for (uint8_t i=0, k=0;i<3;++i,k+=14)
 	{
 		for (uint8_t j=0;j<14;++j,ptr++)
 		{
 			buffer [y+i][x+j] = *ptr;
 		}
 		
+/*
+	mem2buff.set_mem ((uint32_t)&Big_number [num][k]);
+	mem2buff.set_inc_mem (true);
+	mem2buff.set_destination ((uint32_t)&buffer [y+i][x]);
+	mem2buff.set_inc_per (true);
+	mem2buff.set_length (14);
+	mem2buff.start ();	*/
 	}
-
 }
 void pcd8544::string_number_buffer (uint8_t x , uint8_t y , uint8_t *arr, uint8_t l)
 {
@@ -467,7 +473,15 @@ void pcd8544::clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
 		cnt = dx;
 	}
 	*/
-	
+	mem2buff.set_mem ((uint32_t)&null_val);
+	mem2buff.set_inc_mem (false);
+	mem2buff.set_inc_per (true);
+	for (uint8_t i=0;i<dy;++i)
+	{
+		mem2buff.set_destination ((uint32_t)&buffer[y+i][x]);
+		mem2buff.set_length (dx);
+		mem2buff.start ();
+	}	
 }
 
 void pcd8544::desassert_chip ()
