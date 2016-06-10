@@ -396,6 +396,7 @@ void pcd8544::clear_buffer ()
 
 void pcd8544::draw_buffer ()
 {
+	
 	uint8_t * ptr = &buffer[0][0];
   gotoxy(0,0);
 	pin.setPin (DC);
@@ -407,14 +408,14 @@ void pcd8544::draw_buffer ()
 	}
 	while (spi1.flag_bsy ());
 	spi1.Set_CS ();
-	
-/*
-	mem2spi1.set_mem ((uint32_t)buffer);
+
+	/*
+	mem2spi1.set_mem ((uint32_t)&buffer[0][0]);
 	mem2spi1.set_inc_mem (true);
 	mem2spi1.set_length (width*page);
 	assert_chip ();
-	mem2spi1.start();	
-	*/
+	mem2spi1.start();	*/
+	
 }
 
 void pcd8544::point_buffer (uint8_t x, uint8_t y, uint8_t t)
@@ -440,15 +441,19 @@ void pcd8544::big_number_buffer (uint8_t x , uint8_t y , uint8_t num)
 		{
 			buffer [y+i][x+j] = *ptr;
 		}
-		
-/*
-	mem2buff.set_mem ((uint32_t)&Big_number [num][k]);
-	mem2buff.set_inc_mem (true);
-	mem2buff.set_destination ((uint32_t)&buffer [y+i][x]);
-	mem2buff.set_inc_per (true);
-	mem2buff.set_length (14);
-	mem2buff.start ();	*/
 	}
+
+/*
+	for (uint8_t i=0, k=0;i<3;++i,k+=14)
+	{	
+		mem2buff.set_mem ((uint32_t)&Big_number [num][k]);
+		mem2buff.set_inc_mem (true);
+		mem2buff.set_destination ((uint32_t)&buffer [y+i][x]);
+		mem2buff.set_inc_per (true);
+		mem2buff.set_length (14);
+		mem2buff.start ();	
+	}*/
+	
 }
 void pcd8544::string_number_buffer (uint8_t x , uint8_t y , uint8_t *arr, uint8_t l)
 {

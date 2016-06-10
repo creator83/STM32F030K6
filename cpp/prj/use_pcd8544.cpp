@@ -142,7 +142,7 @@ void SysTick_Handler (void)
 
 int main()
 {
-	systimer sys(systimer::ms, 1);
+	//systimer sys(systimer::ms, 1);
 	//init_dma_spi_tx ();
 	//init_dma_mem ();
 	/*dma spi_screen (dma::ch3, dma::mem2periph, dma::SPI1_TX);
@@ -202,30 +202,33 @@ lcd.bin_number (5,0,0x0F);
 	lcd.big_number_buffer (21, 0, 3);
 	lcd.big_number_buffer (37, 0, 6);
 	
-	lcd.big_number_buffer (56, 0, 8);*/
+	lcd.big_number_buffer (56, 0, 8);
+	
 	
 	lcd.hor_line_buffer (0,84,27,2);
+	lcd.draw_buffer ();
 	lcd.point_buffer (52,2,3);
-	lcd.big_number_buffer (56, 0, number_[3]);
-	
+	lcd.draw_buffer ();
+	lcd.big_number_buffer (5, 0, 2);
+	lcd.draw_buffer ();*/
+
 	
 	
 	while (1)
 	{
+		/*
 		for (uint8_t i=0;i<10;++i)
 		{
 			number_[0] = i;
 			delay_ms (300);
-		}
-/*
+		}*/
+
 		for (uint8_t i=0;i<2;++i)
 		{
 			lcd.draw_picture (arr[i], length);
-			delay_ms (1000);
-			
-			delay_ms (1000);
+			delay_ms (500);
 		}
-	*/
+	
 	}
 }
 
