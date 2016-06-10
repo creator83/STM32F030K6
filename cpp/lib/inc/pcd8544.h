@@ -58,6 +58,8 @@ private:
 	static uint8_t buffer [page][width];
 	static char NewFontLAT[]; 
 	static char Big_number[10][42]; 
+	static char Med_number[10][16];
+	static char Med_number1[10][18]; 
 	static const char null_val;
 public:
 	pcd8544();
@@ -88,6 +90,7 @@ public:
 	void draw_buffer ();
 	void string_buffer (uint8_t x , uint8_t y , char *str);
 	void hor_line_buffer (uint8_t x1 , uint8_t x2,  uint8_t y1, uint8_t thick);
+	void ver_line_buffer (uint8_t x , uint8_t y1,  uint8_t y2, uint8_t thick);
 	
 	void clear_buffer ();
 	void clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy);
@@ -95,7 +98,9 @@ public:
 	void point_buffer (uint8_t x, uint8_t y, uint8_t thick);
 	void draw_font_buffer(uint8_t * font, char ch);
 	void big_number_buffer (uint8_t x , uint8_t y , uint8_t num);
+	void med_number_buffer (uint8_t x , uint8_t y , uint8_t num);
 	void string_number_buffer (uint8_t x , uint8_t y , uint8_t *arr, uint8_t l);
+	void string_numberM_buffer (uint8_t x , uint8_t y , uint8_t *arr, uint8_t l);
 	uint32_t * buffer_adress ();
 	
 };

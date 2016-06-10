@@ -128,6 +128,9 @@ void DMA1_Channel4_5_IRQHandler(void)
 }
 
 uint8_t number_ [4] = {2,3,6,9};
+uint8_t mem1 [3] = {2,3,0};
+uint8_t mem2 [3] = {2,5,0};
+uint8_t mem3 [3] = {2,6,5};
 
 void SysTick_Handler (void)
 {
@@ -202,15 +205,30 @@ lcd.bin_number (5,0,0x0F);
 	lcd.big_number_buffer (21, 0, 3);
 	lcd.big_number_buffer (37, 0, 6);
 	
-	lcd.big_number_buffer (56, 0, 8);
+	lcd.big_number_buffer (56, 0, 8);*/
 	
 	
 	lcd.hor_line_buffer (0,84,27,2);
 	lcd.draw_buffer ();
 	lcd.point_buffer (52,2,3);
 	lcd.draw_buffer ();
-	lcd.big_number_buffer (5, 0, 2);
-	lcd.draw_buffer ();*/
+	// current value
+	lcd.string_number_buffer (5,0, number_,3);
+	lcd.big_number_buffer (56, 0, number_[3]);
+	lcd.draw_buffer ();
+	
+	//mem1
+	lcd.string_numberM_buffer (1,4, mem1,3);
+	//mem2
+	lcd.string_numberM_buffer (30,4, mem2,3);
+	//mem3
+	lcd.string_numberM_buffer (59,4, mem3,3);
+	
+	//vertical lines
+	
+	lcd.ver_line_buffer (28, 4, 2, 1);
+	lcd.ver_line_buffer (55, 4, 2, 1);
+	
 
 	
 	
@@ -221,13 +239,13 @@ lcd.bin_number (5,0,0x0F);
 		{
 			number_[0] = i;
 			delay_ms (300);
-		}*/
+		}
 
 		for (uint8_t i=0;i<2;++i)
 		{
 			lcd.draw_picture (arr[i], length);
 			delay_ms (500);
-		}
+		}*/
 	
 	}
 }
