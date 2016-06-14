@@ -134,18 +134,20 @@ uint8_t mem3 [3] = {2,6,5};
 
 void SysTick_Handler (void)
 {
-	if (!NVIC_GetPendingIRQ (DMA1_Channel2_3_IRQn))	
-	{
-		lcd.string_number_buffer (5,0, number_,3);
 		lcd.draw_buffer ();
-	}
 }
+
+struct nmb
+{
+	uint16_t val;
+	uint8_t buff [4];
+} current_val, mem1_, mem2_, mem3_;
 
 
 
 int main()
 {
-	//systimer sys(systimer::ms, 1);
+	systimer sys(systimer::ms, 100);
 	//init_dma_spi_tx ();
 	//init_dma_mem ();
 	/*dma spi_screen (dma::ch3, dma::mem2periph, dma::SPI1_TX);
@@ -219,16 +221,19 @@ lcd.bin_number (5,0,0x0F);
 	
 	//mem1
 	lcd.string_numberM_buffer (1,4, mem1,3);
+	lcd.draw_buffer ();
 	//mem2
 	lcd.string_numberM_buffer (30,4, mem2,3);
+	lcd.draw_buffer ();
 	//mem3
 	lcd.string_numberM_buffer (59,4, mem3,3);
+	lcd.draw_buffer ();
 	
 	//vertical lines
-	
 	lcd.ver_line_buffer (28, 4, 2, 1);
-	lcd.ver_line_buffer (55, 4, 2, 1);
-	
+	lcd.draw_buffer ();
+	lcd.ver_line_buffer (56, 4, 2, 1);
+	lcd.draw_buffer ();
 
 	
 	

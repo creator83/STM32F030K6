@@ -561,7 +561,7 @@ void pcd8544::string_numberM_buffer (uint8_t x , uint8_t y , uint8_t *arr, uint8
 {
 	for (uint8_t i=0,shift=0;i<l;++i, shift +=8)
 	{
-		big_number_buffer (x+shift,y, *(arr+i));
+		med_number_buffer (x+shift,y, *(arr+i));
 	}
 }
 void pcd8544::clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
