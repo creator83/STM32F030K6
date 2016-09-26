@@ -3,7 +3,7 @@
 char max6675::number [10] = {'0','1','2','3','4','5','6','7','8','9'};
 
 max6675::max6675 ()
-:spi1(spi::B, spi::div256, spi::neg, spi::second,spi::master, spi::bit16)
+:spi1(spi::A, spi::div256, spi::neg, spi::second,spi::master, spi::bit16)
 {
 }
 

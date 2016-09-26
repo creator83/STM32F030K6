@@ -13,7 +13,7 @@ Gpio button (Gpio::B);
 Gpio B (Gpio::B);
 
 const uint8_t butt = 5;
-const uint8_t beep = 7;
+
 
 void encoder_init ();
 void init_pwm ();

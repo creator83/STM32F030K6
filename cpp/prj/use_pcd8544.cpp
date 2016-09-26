@@ -7,7 +7,7 @@
 #include "pcd8544.h"
 #include "systimer.h"
 #include "dma.h"
-#include <vector>
+#include "max6675.h"
 
 
 typedef unsigned int* reg;
@@ -143,6 +143,9 @@ struct nmb
 	uint8_t buff [4];
 } current_val, mem1_, mem2_, mem3_;
 
+uint8_t buff [4];
+
+void buff_arr (uint16_t mes, uint8_t * arr);
 
 
 int main()
@@ -291,3 +294,19 @@ void pic_shift (uint8_t sh)
 	}
 }
 */
+
+void buff_arr (uint16_t mes, uint8_t * arr)
+{
+	char hundr, dec, ones = 0;
+	uint16_t temp = mes;
+	for (hundr=0;temp>=100;++hundr)temp -=100;
+	
+	for (dec=0;temp>=10;++dec)temp -=10;
+
+	for (ones=0;temp>=1;++ones)temp--;
+		arr [0] = hundr;
+		arr [1] = dec;
+		arr [2] = ones;
+}
+
+

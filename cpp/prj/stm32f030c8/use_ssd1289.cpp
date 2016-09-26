@@ -18,24 +18,27 @@ int main()
 {
 	ssd1289 lcd;
 	
-
-  while (1)
-  {
-
-	/*lcd.fill_screen(BLACK);
+	lcd.fill_screen(BLACK);
 	delay_ms (500);
 	lcd.draw (50,50,WHITE,BLACK, font);
+
 	delay_ms (500);
 	lcd.symbol (100,100, WHITE,BLACK,'7');
 	delay_ms (500);
 	lcd.string (150,300, WHITE,BLACK, "HELLO FROM STM32F030C8!!!");
-	delay_ms (500);          */
+	delay_ms (500);    
+  while (1)	
+	{
+
+	/*
+       */
 		
 
-		delay_ms (1000);
-		for (uint8_t i=0;i<5;++i)
+		/*
+		for (uint8_t i=0;i<24;++i)
 		{
 			lcd.fill_screen_f(mass [i]);
-		}		
+			delay_ms (1000);
+		}		*/
   }
 }
