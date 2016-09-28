@@ -1,19 +1,16 @@
-#include "spi.h"
+#include "Spi.h"
 
-//CS,SCK,MISO,MOSI
-uint8_t spi::pins_d[2][4]= {{4,5,6,7},{6,3,4,5}};
+SPI_TypeDef * Spi::SpiBase [2] = {SPI1, SPI2};
 
-PotMemFn spi::ptr_receive[2] = {&spi::receive_8, &spi::receive_16};
+PotMemFn Spi::ptr_receive[2] = {&Spi::receive_8, &Spi::receive_16};
 
-PotMemF spi::ptr_transmite[2] = {&spi::transmit_8, &spi::transmit_16};
-ptr_ex spi::ptr_exchange[2] =  {&spi::exchange_8, &spi::exchange_16};
+PotMemF Spi::ptr_transmite[2] = {&Spi::transmit_8, &Spi::transmit_16};
+ptr_ex Spi::ptr_exchange[2] =  {&Spi::exchange_8, &Spi::exchange_16};
 
-spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
-:pin (p)
+
+Spi::Spi (Role r)
 {
-	port_ = p;
-	size_ = s;
-  //tact SPI1
+  //tact Spi1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
   
   //===Settings pins===//
@@ -34,106 +31,106 @@ spi::spi(PORT p, Division div, Cpol cpl, Cpha cph, Role r, Size s)
   Set_CS ();
   
   
-  //===Settings SPI===//
+  //===Settings Spi===//
   
 
   //Mode Master/Slave
-  SPI1->CR1 |= r << 2;
+  Spi1->CR1 |= r << 2;
     
   // CPOL
-  SPI1->CR1 |= cpl << 1;
+  Spi1->CR1 |= cpl << 1;
   
   //CPHA
-  SPI1->CR1 |= cph << 0;
+  Spi1->CR1 |= cph << 0;
   
   // Division
-  SPI1->CR1 |= div << 3;
+  Spi1->CR1 |= div << 3;
 	
 	//Data size
-	SPI1->CR2 &= ~SPI_CR2_DS;
-	SPI1->CR2 |= 7 << 8;
-	SPI1->CR2 |= s << 11;
+	Spi1->CR2 &= ~Spi_CR2_DS;
+	Spi1->CR2 |= 7 << 8;
+	Spi1->CR2 |= s << 11;
   
   //Soft mode  
-   SPI1->CR1 |= SPI_CR1_SSM ;
-   SPI1->CR1 |= SPI_CR1_SSI ;
-	 SPI1->CR2 |= SPI_CR2_SSOE;
+   Spi1->CR1 |= Spi_CR1_SSM ;
+   Spi1->CR1 |= Spi_CR1_SSI ;
+	 Spi1->CR2 |= Spi_CR2_SSOE;
 	
-	if (s == bit8) SPI1->CR2 |= SPI_CR2_FRXTH;
+	if (s == bit8) Spi1->CR2 |= Spi_CR2_FRXTH;
    
-	 //Turn on spi1
-   SPI1->CR1 |= SPI_CR1_SPE;
+	 //Turn on Spi1
+   Spi1->CR1 |= Spi_CR1_SPE;
 }
 
-void spi::Set_CS ()
+void Spi::Set_CS ()
 {
   pin.setPin (pins_d[port_][CS]);
 }
 
-void spi::Clear_CS ()
+void Spi::Clear_CS ()
 {
   pin.clearPin (pins_d[port_][CS]);
 }
 
-void spi::transmit_8 (uint16_t data)
+void Spi::transmit_8 (uint16_t data)
 {
-	while (!(SPI1->SR&SPI_SR_TXE));
-	*(uint8_t *)&(SPI1->DR) = static_cast <uint8_t> (data);
-	while (SPI1->SR&SPI_SR_BSY);
+	while (!(Spi1->SR&Spi_SR_TXE));
+	*(uint8_t *)&(Spi1->DR) = static_cast <uint8_t> (data);
+	while (Spi1->SR&Spi_SR_BSY);
 }
 
-void spi::transmit_16 (uint16_t data)
+void Spi::transmit_16 (uint16_t data)
 {
-	while (!(SPI1->SR&SPI_SR_TXE));
-	SPI1->DR = data;
-	while (SPI1->SR&SPI_SR_BSY);
+	while (!(Spi1->SR&Spi_SR_TXE));
+	Spi1->DR = data;
+	while (Spi1->SR&Spi_SR_BSY);
 }
 
-void spi::transmit (uint16_t data)
+void Spi::transmit (uint16_t data)
 {
-	(this->*(spi::ptr_transmite[size_]))(data);
+	(this->*(Spi::ptr_transmite[size_]))(data);
 }
 
-uint16_t spi::receive_8 ()
+uint16_t Spi::receive_8 ()
 {
-	//while (SPI1->SR&SPI_SR_BSY);
-	//SPI1_DR_8bit  = 0xFF;
-	//SPI1->DR = 0x0000;
-	*(uint8_t *)&(SPI1->DR) = 0x00;
-	while (!(SPI1->SR&SPI_SR_RXNE));
-	//return  (SPI1_DR_8bit) ;	
-	return static_cast <uint8_t>(SPI1->DR);	
+	//while (Spi1->SR&Spi_SR_BSY);
+	//Spi1_DR_8bit  = 0xFF;
+	//Spi1->DR = 0x0000;
+	*(uint8_t *)&(Spi1->DR) = 0x00;
+	while (!(Spi1->SR&Spi_SR_RXNE));
+	//return  (Spi1_DR_8bit) ;	
+	return static_cast <uint8_t>(Spi1->DR);	
 }
 
-uint16_t spi::receive_16 ()
+uint16_t Spi::receive_16 ()
 {
-	SPI1->DR = 0xFFFF;
-	while (!(SPI1->SR&SPI_SR_RXNE));
-	return SPI1->DR;	
+	Spi1->DR = 0xFFFF;
+	while (!(Spi1->SR&Spi_SR_RXNE));
+	return Spi1->DR;	
 }
 
-uint16_t spi::receive ()
+uint16_t Spi::receive ()
 {
-	 return (this->*(spi::ptr_receive[size_]))();
+	 return (this->*(Spi::ptr_receive[size_]))();
 }
 
 
-uint16_t spi::exchange_8 (uint16_t data)
+uint16_t Spi::exchange_8 (uint16_t data)
 {
-	while (SPI1->SR&SPI_SR_BSY);
-	*(uint8_t *)&(SPI1->DR) = static_cast <uint8_t> (data);
-	while (!(SPI1->SR&SPI_SR_RXNE));
-	return static_cast <uint8_t>(SPI1->DR);
+	while (Spi1->SR&Spi_SR_BSY);
+	*(uint8_t *)&(Spi1->DR) = static_cast <uint8_t> (data);
+	while (!(Spi1->SR&Spi_SR_RXNE));
+	return static_cast <uint8_t>(Spi1->DR);
 }
-uint16_t spi::exchange_16 (uint16_t data)
+uint16_t Spi::exchange_16 (uint16_t data)
 {
-	while (SPI1->SR&SPI_SR_BSY);
-	SPI1->DR = data;
-	while (!(SPI1->SR&SPI_SR_RXNE));
-	return SPI1->DR;	
+	while (Spi1->SR&Spi_SR_BSY);
+	Spi1->DR = data;
+	while (!(Spi1->SR&Spi_SR_RXNE));
+	return Spi1->DR;	
 }
-uint16_t spi::exchange (uint16_t data)
+uint16_t Spi::exchange (uint16_t data)
 {
-	return (this->*(spi::ptr_exchange[size_]))(data);
+	return (this->*(Spi::ptr_exchange[size_]))(data);
 }
 

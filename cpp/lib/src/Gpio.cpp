@@ -1,7 +1,6 @@
-#include "Gpio.h"
+#include "gpio.h"
 
-unsigned int Gpio::portAdr [6] = {GPIOA_BASE, GPIOB_BASE, GPIOC_BASE,0,0,GPIOF_BASE};
-unsigned int Gpio::portAdrBit [6] = {0x42000000, 0x42000400, 0x42000800,0,0,0x42001400};
+GPIO_TypeDef* Gpio::GpioBase [6] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF};
 
 Gpio::Gpio (Port p)
 {
@@ -17,37 +16,38 @@ Gpio::Gpio(uint8_t p )
   RCC->AHBENR |= (0x20000 << p);
 }
 
+
+void Gpio::settingPin (uint8_t pin , mode m )
+{
+	
+}
+
 void Gpio::setOutPin (unsigned char pin , mode m , speed s , out o)	
 {
-  *(reg)(portAdr[prt]+Moder) |= (m << (2*pin));
-  *(reg)(portAdr[prt]+Otyper) |= (o << pin);
-  *(reg)(portAdr[prt]+Ospeedr) |= (s << (2*pin));
+	GpioBase [prt]->MODER|= (m << (2*pin));
+	GpioBase [prt]->OTYPER |= (o << pin);
+	GpioBase [prt]->OSPEEDR |= (s << (2*pin));
 }
 
 void Gpio::setInPin (unsigned char pin , PP p)
 {
-  *(reg)(portAdr[prt]+Moder) &= ~(0x03 << (2*pin));
-  *(reg)(portAdr[prt]+Pupdr) |= (p << (2*pin));
+	GpioBase [prt]->MODER &= ~(0x03 << (2*pin));
+	GpioBase [prt]->PUPDR |= (p << (2*pin));
 }
 
 void Gpio::setPin (unsigned int pin )
 {
-  *(reg)(portAdr[prt]+Bsrr) |= 1 << pin;
-}
-
-void Gpio::setPinBit (unsigned int pin )
-{
-  *(reg)(portAdrBit[prt] + 0x1C) = pin ;
+	GpioBase [prt]->BSRR |= 1 << pin;
 }
 
 void Gpio::clearPin (unsigned char pin)
 {
-  *(reg)(portAdr[prt]+Bsrr) |= (1 << (pin+16));
+	GpioBase [prt]->BSRR|= (1 << (pin+16));
 }
 
 void Gpio::ChangePinState (unsigned char pin)
 {
-  *(reg)(portAdr[prt]+Odr) ^= 1 << pin;
+	GpioBase [prt]->ODR ^= 1 << pin;
 }
 
 void Gpio::SetPinState (unsigned char pin , unsigned char state)
@@ -62,30 +62,30 @@ void Gpio::setOutPort (unsigned int value, speed s )
   {
     if (value & (1<<i))
     {
-      *(reg)(portAdr[prt]+Moder) |= (1 << (2*i));
-      *(reg)(portAdr[prt]+Ospeedr) |= (1 << (2*i));
+			GpioBase [prt]->MODER |= (1 << (2*i));
+			GpioBase [prt]->OSPEEDR |= (1 << (2*i));
     }
-    *(reg)(portAdr[prt]+Otyper) &= ~(value);
+		GpioBase [prt]->OTYPER &= ~(value);
   }
 }
 
 void Gpio::setValPort (unsigned int value)
 {
-  *(reg)(portAdr[prt]+Bsrr) |= value;
+	GpioBase [prt]->BSRR |= value;
 }
 
 void Gpio::clearPort (unsigned int value)
 {
-	*(reg)(portAdr[prt]+Bsrr) |= (value << 16);
+	GpioBase [prt]->BSRR |= (value << 16);
 }
 
 void Gpio::PuPd (unsigned char pin , PP p)
 {
-  *(reg)(portAdr[prt]+Pupdr) &= ~(0x03 << (2*pin));
-  *(reg)(portAdr[prt]+Pupdr) |= (p << (2*pin));
+	GpioBase [prt]->PUPDR &= ~(0x03 << (2*pin));
+	GpioBase [prt]->PUPDR |= (p << (2*pin));
 }
 
 bool Gpio::PinState (unsigned char pin)
 {
-  return ((*(reg)(portAdr[prt]+Idr))&(1 << pin));
+  return ((GpioBase [prt]->IDR)&(1 << pin));
 }
