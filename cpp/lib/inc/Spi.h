@@ -48,6 +48,7 @@ private:
   static ptr_ex ptr_exchange[2];
 	static PtrF1 spi_mode [2];
 	uint8_t size_;
+	mode spi_m;
 
 //functions
 public:
@@ -66,6 +67,8 @@ public:
   void set_f_size (Fsize f = bit_8);
   void set_baudrate (Division d);
 
+	mode & GetSpiMode (){return spi_m;}
+
 	static void set_cpol (Spi &, Cpol c);
   static void set_cpha (Spi &, Cpha c);
   static void set_ctar (Spi &, uint8_t c);
@@ -73,8 +76,8 @@ public:
   static void set_f_size (Spi &, Fsize f = bit_8);
 
 
-	void set_Cs ();
-  void clear_Cs ();
+	void assert_Cs (uint8_t p);
+  void disassert_Cs (uint8_t p);
 	uint16_t get_data ();
 	void put_data (uint16_t data);
   void transmit_8 (uint16_t data);

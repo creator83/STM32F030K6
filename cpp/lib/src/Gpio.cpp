@@ -35,6 +35,12 @@ void Gpio::settingAf (uint8_t pin, Afmode a)
 	GpioBase [prt]->AFR[0]|= a << (4*pin); 
 }
 
+void Gpio::settingOut (uint8_t pin, Omode o)
+{
+	GpioBase [prt]->OTYPER &= ~(1 << pin);
+	GpioBase [prt]->OTYPER |= o << pin;
+}
+
 void Gpio::setPin (uint8_t pin )
 {
 	GpioBase [prt]->BSRR |= 1 << pin;

@@ -19,7 +19,7 @@ Spi::Spi (Role r, mode m)
 	SPI1->CR1 |= r << 2;
     
   //Soft mode 
-
+	spi_m = m;
 	(this->*(Spi::spi_mode[m]))();
 	
 	 //Turn on Spi1
@@ -41,8 +41,17 @@ void Spi::softwareMode ()
 void Spi::set_CS (Gpio::Port p, const uint8_t & pin, Gpio::Afmode af)
 {
 	Cs.settingPinPort (p);
-	Cs.settingPin (pin, Gpio::AltFunc);
-	Cs.settingAf (pin, af);
+	if (spi_m == hardware)
+	{
+		Cs.settingPin (pin, Gpio::AltFunc);
+		Cs.settingAf (pin, af);
+	}
+	else 
+	{
+		Cs.settingPin (pin, Gpio::Output);
+		Cs.settingOut (pin, Gpio::PushPull);
+		Cs.setPin (pin);
+	}
 }
 
 void Spi::set_SCK (Gpio::Port p, const uint8_t & pin, Gpio::Afmode af)
@@ -89,6 +98,16 @@ void Spi::set_baudrate (Division d)
 {
 	SPI1->CR1 &= ~SPI_CR1_BR;
 	SPI1->CR1 |= d << 3;
+}
+
+void Spi::assert_Cs (uint8_t p)
+{
+	Cs.clearPin (p);
+}
+
+void Spi::disassert_Cs (uint8_t p)
+{
+	Cs.setPin (p);
 }
 
 void Spi::transmit_8 (uint16_t data)

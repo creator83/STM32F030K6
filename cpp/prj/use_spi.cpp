@@ -3,7 +3,7 @@
 #include "delay.h"
 #include "tact.h"
 #include "spi.h"
-
+#include "shift_registr.h"
 
 tact frq;
 
@@ -17,17 +17,18 @@ tact frq;
     void EXTI0_1_IRQHandler();
   }*/
 
-void transfer_byte (uint8_t data );
 
 int main()
 {
+	Spi spi1 (Spi::master, Spi::hardware);
+	Shift reg (spi1);
 	
   while (1)
   {
+		reg.send (0x0F);
+		delay_ms (500);
+		reg.send (0xF0);
+		delay_ms (500);		
   }
 }
 
-
-void transfer_byte (uint8_t data )
-{
-}
