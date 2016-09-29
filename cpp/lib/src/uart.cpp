@@ -2,21 +2,21 @@
 
 
 uart::uart (baud b)
-:pin (Gpio::A)
 {
   RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
   
-  //настройка выхода
-  pin.setOutPin (TX , Gpio::AltFunc , Gpio::High);
+  //===setting pin===//
+	//TX
+	Tx.settingPinPort (UartDef::TxPort);
+	Tx.settingPin (UartDef::TxPin, Gpio::AltFunc);
+	Tx.settingAf (UartDef::TxPin, UartDef::TxAf);
+	
+	//RX
+	Rx.settingPinPort (UartDef::RxPort);
+	Rx.settingPin (UartDef::RxPin, Gpio::AltFunc);
+	Rx.settingAf (UartDef::RxPin, UartDef::RxAf);
   
-  //настройка входа
-  
-  pin.setOutPin (RX , Gpio::AltFunc , Gpio::High , Gpio::OpenDrain);
-  
-  //
-  GPIOA->AFR[1] |= (1 << 4|1 << 8);
-  
-  //настройка UART
+  //settings UART
   USART1->CR1 |= (USART_CR1_RE|USART_CR1_TE);
   
   USART1->BRR |= (tact::get_frq()*1000000/b);
@@ -34,7 +34,6 @@ void uart::transmit (char * str)
   while (*str)
   {
     while (!(USART1->ISR&USART_ISR_TXE));
-    USART1->TDR = *str;
-    str++;
+    USART1->TDR = *str++;
   }
 }

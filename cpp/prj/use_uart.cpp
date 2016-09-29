@@ -12,7 +12,6 @@ int main()
   
   while (1)
   {
-    /*
     for (uint8_t i=0;i<20;++i)
     {
       uart1.transmit (i);
@@ -23,13 +22,11 @@ int main()
     {
       uart1.transmit (i);
       delay_ms (500);
-    }*/
+    }
     uart1.transmit ("====Hello===== ");
     delay_ms (1000);
     uart1.transmit ("Its STM32F030 BABY :-)))");
     delay_ms (1000);
-    uart1.transmit ("Русишш");
-    delay_ms (1000);    
-    
+   
   }
 }

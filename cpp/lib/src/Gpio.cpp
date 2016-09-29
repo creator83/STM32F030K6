@@ -17,25 +17,25 @@ Gpio::Gpio(uint8_t p )
 }
 
 
-void Gpio::settingPin (uint8_t pin , mode m )
+void Gpio::settingPin (uint8_t pin , Mode m )
 {
-	
-}
-
-void Gpio::setOutPin (unsigned char pin , mode m , speed s , out o)	
-{
+	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin));
 	GpioBase [prt]->MODER|= (m << (2*pin));
-	GpioBase [prt]->OTYPER |= (o << pin);
-	GpioBase [prt]->OSPEEDR |= (s << (2*pin));
 }
 
-void Gpio::setInPin (unsigned char pin , PP p)
+void Gpio::settingPinPort (Port p)
 {
-	GpioBase [prt]->MODER &= ~(0x03 << (2*pin));
-	GpioBase [prt]->PUPDR |= (p << (2*pin));
+	prt = p;
+	//takt port
+  RCC->AHBENR |= (0x20000 << p);
 }
 
-void Gpio::setPin (unsigned int pin )
+void Gpio::settingAf (uint8_t pin, Afmode a)
+{
+	GpioBase [prt]->AFR[0]|= a << (4*pin); 
+}
+
+void Gpio::setPin (uint8_t pin )
 {
 	GpioBase [prt]->BSRR |= 1 << pin;
 }
@@ -85,7 +85,7 @@ void Gpio::PuPd (unsigned char pin , PP p)
 	GpioBase [prt]->PUPDR |= (p << (2*pin));
 }
 
-bool Gpio::PinState (unsigned char pin)
+bool Gpio::pinState (unsigned char pin)
 {
   return ((GpioBase [prt]->IDR)&(1 << pin));
 }
