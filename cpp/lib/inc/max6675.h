@@ -2,25 +2,47 @@
 #include "spi.h"
 #include "delay.h"
 
-//#define SPI8
+namespace Max6675Def
+{
+//===Defenitions===//
+//CS
+const Gpio::Port CsPort = Gpio::A;
+const uint8_t CsPin = 4;
+
+//SCK
+const Gpio::Port SckPort = Gpio::A;
+const uint8_t SckPin = 5;
+
+//MISO
+const Gpio::Port MisoPort = Gpio::A;
+const uint8_t MisoPin = 6;
+}
 
 #ifndef MAX6675_H
 #define MAX6675_H
 
-class max6675
+
+class Max6675;
+typedef bool(Max6675::*Ptrdata)(uint8_t);
+
+class Max6675
 {
 //variables
 public:
-	char buffer_value[2];
-	static char number [10];
-private:
-  spi spi1;
-	
 
+private:
+	Gpio CS, SCK, MOSI;
+	Spi * mod;
+	static Ptrdata receiveF [2];
+	Spi::mode  m;
+	uint16_t temp;
 //functions
 public:
-	max6675 ();
-	uint16_t readCelsius();
-	void buffer (uint16_t t);
+	Max6675 (Spi &);
+	void setMode ();
+	bool readCelsius();
+private:
+	bool readCelsius_hardware();
+	bool readCelsius_software();
 };
 #endif

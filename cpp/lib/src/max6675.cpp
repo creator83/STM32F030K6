@@ -1,42 +1,68 @@
 #include "max6675.h"
 
-char max6675::number [10] = {'0','1','2','3','4','5','6','7','8','9'};
+Ptrdata Max6675::receiveF [2] = {&Max6675::};
 
-max6675::max6675 ()
-:spi1(spi::A, spi::div256, spi::neg, spi::second,spi::master, spi::bit16)
+Max6675::Max6675 (Spi &s)
 {
+	mod = &s;
+	m = mod->GetSpiMode();
+	setMode();
 }
 
-uint16_t max6675::readCelsius()
+
+
+void Max6675::setMode ()
 {
-	uint16_t v;
-	spi1.Clear_CS();
-	delay_ms (200);
-	v = spi1.receive_16();
-	//v = spi1.receive();
-	spi1.Set_CS();
-	  if (v & 0x4) {
+//===settings GPIO===//
+	//CS
+	mod->set_CS(Max6675Def::CsPort, Max6675Def::CsPin, Gpio::AF0);
+
+	//SCK
+	mod->set_SCK(Max6675Def::SckPort, Max6675Def::SckPin, Gpio::AF0);
+
+	//MOSI
+	mod->set_MISO(Max6675Def::MisoPort, Max6675Def::MisoPin, Gpio::AF0);
+
+	//settings SPI
+	mod->set_cpha(Spi::second);
+	mod->set_cpol(Spi::neg);
+	mod->set_baudrate(Spi::div8);
+	mod->set_f_size(Spi::bit_16);
+}
+
+bool Max6675::readCelsius()
+{
+	(this->*(Max6675::commandSend[m]))(data);
+}
+
+bool Max6675::readCelsius_hardware()
+{
+	while (!mod->flag_txe());
+	mod->put_data(0);
+	while (!mod->flag_rxne());
+	temp = mod->get_data();
+	  if (temp & 0x4) {
     // uh oh, no thermocouple attached!
     return 0; 
     //return -100;
   }
-	v>>=5;
-	return v;	
+	temp>>=5;
 }
 
-
-
-void max6675::buffer (uint16_t t)
+bool Max6675::readCelsius_software()
 {
-	char dec, ones;
-	uint16_t temp = t;
-	
-	for (dec=0;temp>=10;++dec)temp -=10;
-
-	for (ones=0;temp>=1;++ones)temp--;
-	
-	buffer_value [0]= number [dec];
-	buffer_value [1]= number [ones];
+	mod->assert_Cs(Max6675Def::CsPin);
+	//delay_ms (200);
+	while (!mod->flag_txe());
+	mod->put_data(0);
+	while (!mod->flag_rxne());
+	temp = mod->get_data();
+	mod->disassert_Cs (Max6675Def::CsPin);
+	if (temp & 0x4) {
+    // uh oh, no thermocouple attached!
+  return false; 
+    //return -100;
+  }
+	temp>>=5;
+	return true;
 }
-
-
