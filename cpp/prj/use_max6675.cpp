@@ -31,8 +31,9 @@ void SysTick_Handler ()
 
 int main()
 {
-  max6675 sensor;
-  systimer (systimer::ms, 1);
+	Spi spi1 (Spi::master, Spi::software);
+  Max6675 sensor (spi1);
+  //systimer (systimer::ms, 1);
   
   while (1)
   {

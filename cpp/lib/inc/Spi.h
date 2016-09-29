@@ -66,6 +66,8 @@ public:
   void set_cpha (Cpha c = first);
   void set_f_size (Fsize f = bit_8);
   void set_baudrate (Division d);
+	void start ();
+	void stop ();
 
 	mode & GetSpiMode (){return spi_m;}
 

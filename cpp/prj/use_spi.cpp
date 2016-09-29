@@ -20,7 +20,7 @@ tact frq;
 
 int main()
 {
-	Spi spi1 (Spi::master, Spi::hardware);
+	Spi spi1 (Spi::master, Spi::software);
 	Shift reg (spi1);
 	
   while (1)

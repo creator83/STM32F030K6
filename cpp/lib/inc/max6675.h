@@ -23,7 +23,7 @@ const uint8_t MisoPin = 6;
 
 
 class Max6675;
-typedef bool(Max6675::*Ptrdata)(uint8_t);
+typedef bool(Max6675::*Ptrdata)();
 
 class Max6675
 {

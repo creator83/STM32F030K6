@@ -23,7 +23,7 @@ Spi::Spi (Role r, mode m)
 	(this->*(Spi::spi_mode[m]))();
 	
 	 //Turn on Spi1
-   SPI1->CR1 |= SPI_CR1_SPE;
+   //SPI1->CR1 |= SPI_CR1_SPE;
 }
 
 void Spi::hardwareMode ()

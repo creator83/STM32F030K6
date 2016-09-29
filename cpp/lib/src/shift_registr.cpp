@@ -12,6 +12,7 @@ Shift::Shift(Spi &s)
 
 void Shift::setMode ()
 {
+	SPI1->CR1 &= ~ SPI_CR1_SPE;
 	//===settings GPIO===//
 	//CS
 	mod->set_CS(ShiftDef::CsPort, ShiftDef::CsPin, Gpio::AF0);
@@ -27,6 +28,7 @@ void Shift::setMode ()
 	mod->set_cpol(Spi::neg);
 	mod->set_baudrate(Spi::div8);
 	mod->set_f_size(Spi::bit_8);
+	SPI1->CR1 |= SPI_CR1_SPE;
 }
 
 void Shift::send (uint8_t data)
