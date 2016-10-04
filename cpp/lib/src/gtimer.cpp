@@ -31,6 +31,11 @@ void Gtimer::setArr (uint16_t a)
 	timerBase [n_]->ARR = a;
 }
 
+void Gtimer::setChannelValue (uint16_t val)
+{
+	timerBase [n_]->CCR1 |= val << (ch_*16);
+}
+
 uint16_t Gtimer::getCnt ()
 {
 	return timerBase [n_]->CNT;

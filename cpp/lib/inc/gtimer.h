@@ -28,6 +28,7 @@ public:
 		void setCnt (uint16_t);
 		void setPsc (uint16_t);
 		void setArr (uint16_t);
+		void setChannelValue (uint16_t);
 		uint16_t getCnt ();
 		void Start ();
 		void Stop ();

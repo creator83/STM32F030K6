@@ -1,36 +1,28 @@
 #include "stm32f0xx.h"
-#include "Gpio.h"
+#include "gpio.h"
 #include "tact.h"
-#include "timer14.h"
+#include "pwm.h"
+#include "delay.h"
 
-
-const uint8_t pin=1;
-	Gpio A (Gpio::A);
-	tact frq;
-	timer14 timer (300, timer14::ms);
-	
 	extern "C"
 {
 	void TIM14_IRQHandler(void);
 }
 
-void TIM14_IRQHandler(void)
-{
-	A.ChangePinState (pin);
-	timer.ClearFlag();
-}
 
 int main ()
 {
-	
-	Gpio A (Gpio::A);
-	A.setOutPin (pin);
-	
-	timer.interrupt (timer14::Update);
-	timer.Start();
-	
+	Pwm led_pwm (Gtimer::Timer3, Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse, Pwm::off);
+	led_pwm.setArr (100);
+	led_pwm.setChannelValue (50);
+	led_pwm.Start();
 
 	while (1)
 	{
+		for (uint8_t i=0;i<=100;++i)
+		{
+			led_pwm.setChannelValue (i);
+			delay_ms (100);
+		}
 	}
 }

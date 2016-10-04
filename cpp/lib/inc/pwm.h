@@ -5,9 +5,11 @@
 namespace PwmDef
 {
 //===Defenitions===//
-//CS
-const Gpio::Port PwmPort = Gpio::C;
-const uint8_t PwmPin = 1;
+//pwm
+const Gpio::Port PwmPort = Gpio::B;
+const uint8_t PwmPin = 0;
+const Gpio::Afmode PwmAlt = Gpio::AF1;	
+const Gtimer::nChannel PwmCh = Gtimer::channel3;
 }
 
 
@@ -18,7 +20,7 @@ const uint8_t PwmPin = 1;
 
 class Pwm;
 
-typedef void(Pwm::*PtrPwm)(Pwm::pulseMode) ;
+
 
 class Pwm : public Gtimer
 {
@@ -27,23 +29,19 @@ public:
 
 	enum mode {EdgePwm, CenterPwm1, CenterPwm2, CenterPwm3};
 	enum pulseMode {highPulse, lowPulse};
-
+	enum inverse {off=6, on};
 
 private:
 	
 	Gpio pin;
-	static PtrPwm funcMode [3];
 
 
 public:
-	Pwm (nTimer n_, nChannel ch, mode, pulseMode);
+	Pwm (nTimer n_, nChannel ch, mode, pulseMode, inverse);
 
 
 private:
 	void setMode ();
-	void setEdgePwm (pulseMode m);
-	void setCenterPwm ();
-	void setCombinePwm ();
 
 };
 
