@@ -16,11 +16,12 @@ public:
 		enum nChannel {channel1, channel2, channel3, channel4};
 		
 private:
-		nTimer n_;
-		nChannel ch_;
+		
 protected:
 		static PtrTimer iniTimer [5];
 		static TIM_TypeDef* timerBase [5];
+		nTimer n_;
+		nChannel ch_;
 //functions
 public:
 		Gtimer (nTimer n, uint16_t divider);
@@ -30,9 +31,10 @@ public:
 		void setArr (uint16_t);
 		void setChannelValue (uint16_t);
 		uint16_t getCnt ();
-		void Start ();
-		void Stop ();
-		void ClearFlag();
+		void start ();
+		void stop ();
+		void clearFlag();
+		TIM_TypeDef * getPtrTimer (){return timerBase [n_];}
 
 private:
 		void clockTimer3 ();

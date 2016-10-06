@@ -1,16 +1,16 @@
 #include "stm32f0xx.h"
 #include "gpio.h"
 #include "gtimer.h"
-
+/*
 namespace PwmDef
 {
 //===Defenitions===//
 //pwm
 const Gpio::Port PwmPort = Gpio::B;
 const uint8_t PwmPin = 0;
-const Gpio::Afmode PwmAlt = Gpio::AF1;	
+const Gpio::Afmode PwmAlt = Gpio::AF4;	
 const Gtimer::nChannel PwmCh = Gtimer::channel3;
-}
+}*/
 
 
 
@@ -22,7 +22,7 @@ class Pwm;
 
 
 
-class Pwm : public Gtimer
+class Pwm 
 {
   //variables
 public:
@@ -32,14 +32,16 @@ public:
 	enum inverse {off=6, on};
 
 private:
-	
-	Gpio pin;
-
+	Gpio pwmPin;
+	Gtimer * timer;
+	Gtimer::nChannel pwmChannel;
+	TIM_TypeDef * ptrTimer;
 
 public:
-	Pwm (nTimer n_, nChannel ch, mode, pulseMode, inverse);
-
-
+	Pwm (Gtimer &, Gpio::Port, uint8_t pin_, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = off);
+	void setValue (uint16_t);
+	void start ();
+	void stop ();
 private:
 	void setMode ();
 

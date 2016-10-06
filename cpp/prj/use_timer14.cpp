@@ -3,6 +3,8 @@
 #include "tact.h"
 #include "pwm.h"
 #include "delay.h"
+#include "qenc.h"
+#include "gtimer.h"
 
 	extern "C"
 {
@@ -10,19 +12,23 @@
 }
 
 
+
+
 int main ()
 {
-	Pwm led_pwm (Gtimer::Timer3, Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse, Pwm::off);
-	led_pwm.setArr (100);
-	led_pwm.setChannelValue (50);
-	led_pwm.Start();
+	Gtimer timer14 (Gtimer::Timer14, 1000);
+	Qenc encoder (1000);
+	Pwm led_pwm (timer14, Gpio::B, 1, Gpio::AF0, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
+	led_pwm.start();
 
 	while (1)
 	{
-		for (uint8_t i=0;i<=100;++i)
+		led_pwm.setValue (encoder.getValue());
+		delay_ms (1);
+		/*for (uint8_t i=0;i<=100;i+=100)
 		{
 			led_pwm.setChannelValue (i);
 			delay_ms (100);
-		}
+		}*/
 	}
 }

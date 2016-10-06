@@ -41,17 +41,17 @@ uint16_t Gtimer::getCnt ()
 	return timerBase [n_]->CNT;
 }
 
-void Gtimer::Start ()
+void Gtimer::start ()
 {
 	timerBase [n_]->CR1 |= TIM_CR1_CEN;
 }
 
-void Gtimer::Stop ()
+void Gtimer::stop ()
 {
 	timerBase [n_]->CR1 &= ~TIM_CR1_CEN;
 }
 
-void Gtimer::ClearFlag()
+void Gtimer::clearFlag()
 {
 	
 }

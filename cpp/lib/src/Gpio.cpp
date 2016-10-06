@@ -17,7 +17,7 @@ Gpio::Gpio(uint8_t p )
 }
 
 
-void Gpio::settingPin (uint8_t pin , Mode m )
+void Gpio::settingPin (uint8_t pin , Mode  m )
 {
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin));
 	GpioBase [prt]->MODER|= (m << (2*pin));

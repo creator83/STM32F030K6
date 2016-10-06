@@ -15,7 +15,7 @@ void TIM16_IRQHandler ()
  {
 	 NVIC_SetPriority(TIM16_IRQn, 1);
    RCC->APB2ENR |= RCC_APB2ENR_TIM16EN;
-   TIM16->PSC = tact::get_frq()*1000 - 1;
+   TIM16->PSC = Tact::get_frq()*1000 - 1;
    TIM16->ARR = delay;
    TIM16->EGR |= TIM_EGR_UG;
    TIM16->CR1 |= TIM_CR1_OPM;
@@ -43,7 +43,7 @@ void delay_us(uint16_t delay)
  {
    NVIC_SetPriority(TIM16_IRQn, 3);
 	 RCC->APB2ENR |= RCC_APB2ENR_TIM16EN;
-   TIM16->PSC = tact::get_frq() - 1;
+   TIM16->PSC = Tact::get_frq() - 1;
    TIM16->ARR = delay;
    TIM16->EGR |= TIM_EGR_UG;
    TIM16->CR1 |= TIM_CR1_OPM;

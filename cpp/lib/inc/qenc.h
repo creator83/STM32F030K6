@@ -3,33 +3,26 @@
 #include "gtimer.h"
 
 /*
- * FTM1
- * PHA - PTA12 (Alt7)
- * PHB - PTA13 (Alt7)
- * PHA - PTB0 (Alt6)
- * PHB - PTB1 (Alt6)
- *
- * FTM2
- * PHA - PTB18 (Alt6)
- * PHB - PTB19 (Alt6)
+ * TIM3
+ * PHA - PTA6 (Af1)
+ * PHB - PTA7 (Af1)
+ * PHA - PTB4 (Af1)
+ * PHB - PTB5 (Af1)
  */
-/*
+
 namespace QdDef
 {
 //===Defenitions===//
-const Ftm::nFtm N = Ftm::FTM_1;
 //PHA
 const Gpio::Port PhaPort = Gpio::B;
-const Gpio::mux PhaAlt = Gpio::Alt6;
-const uint8_t PhaPin = 0;
+const Gpio::Afmode PhaAf = Gpio::AF1;
+const uint8_t PhaPin = 4;
 
 //PHB
 const Gpio::Port PhbPort = Gpio::B;
-const Gpio::mux PhbAlt = Gpio::Alt6;
-const uint8_t PhbPin = 1;
-
-
-}*/
+const Gpio::Afmode PhbAf = Gpio::AF1;
+const uint8_t PhbPin = 5;
+}
 
 
 
@@ -51,7 +44,6 @@ private:
 public:
 	Qenc (uint16_t range);
 	uint16_t getValue ();
-	void setRange (uint16_t r);
 
 private:
 	void setMode ();

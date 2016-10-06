@@ -19,7 +19,7 @@ uart::uart (baud b)
   //settings UART
   USART1->CR1 |= (USART_CR1_RE|USART_CR1_TE);
   
-  USART1->BRR |= (tact::get_frq()*1000000/b);
+  USART1->BRR |= (Tact::get_frq()*1000000/b);
   USART1->CR1 |= USART_CR1_UE;
 }
 

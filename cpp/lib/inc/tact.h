@@ -6,7 +6,7 @@
 typedef unsigned int* reg;
 
 
-class tact
+class Tact
 {
   //variables
 public:
@@ -17,16 +17,16 @@ private:
   uint8_t src;
   //functions
 public:
-  tact (uint8_t frq , src_tact s );
-  tact ();
-  tact (src_tact s);
+  Tact (uint8_t frq , src_tact s );
+  Tact ();
+  Tact (src_tact s);
   static uint8_t & get_frq (){return f_cpu;};
 private:
   void init_pll (uint8_t i);
   void init_pll ();  
   void init_hse ();
   void init_hsi ();  
-  void Set_frq (uint8_t frq);
+  void setFrq (uint8_t frq);
 
 };
 

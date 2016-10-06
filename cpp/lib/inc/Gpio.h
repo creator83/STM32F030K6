@@ -24,7 +24,7 @@ public:
 	Gpio(){}
   Gpio(Port p );
   Gpio(uint8_t p );
-  void settingPin (uint8_t pin , Mode m = Output);
+  void settingPin (uint8_t pin , Mode  m = Output);
 	void settingPinPort (Port p);
 	void settingAf (uint8_t pin, Afmode a);
 	void settingOut (uint8_t pin, Omode o);

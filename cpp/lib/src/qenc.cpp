@@ -4,9 +4,9 @@
 
 
 Qenc::Qenc (uint16_t range)
-:Ftm (QdDef::N)
+:Gtimer (Gtimer::Timer3)
 {
-	high = range;
+	high = range << 2;
 	setMode ();
 }
 
@@ -16,36 +16,28 @@ void Qenc::setMode ()
 	//===Setings pin===//
 	//pha
 	pha.settingPinPort(QdDef::PhaPort);
-	pha.settingPin(QdDef::PhaPin, QdDef::PhaAlt);
+	pha.settingPin(QdDef::PhaPin, Gpio::AltFunc);
+	pha.settingAf (QdDef::PhaPin, QdDef::PhaAf);
 	//phb
 	pha.settingPinPort(QdDef::PhbPort);
-	pha.settingPin(QdDef::PhbPin, QdDef::PhbAlt);
+	pha.settingPin(QdDef::PhbPin, Gpio::AltFunc);
+	pha.settingAf (QdDef::PhbPin, QdDef::PhbAf);
 
 	//===Settings timer===//
-	FTM_SC_REG(ftm_ptr[num_ftm]) = 0;
-	setPeriod(4);
-	FTM_CNTIN_REG(ftm_ptr[num_ftm]) = 0;
-	FTM_CnSC_REG(ftm_ptr[num_ftm], 0) = 0;
-	FTM_CnSC_REG(ftm_ptr[num_ftm], 1) = 0;
-	FTM_QDCTRL_REG(ftm_ptr[num_ftm]) |= FTM_QDCTRL_QUADEN_MASK;
-	FTM_MODE_REG (ftm_ptr[num_ftm]) |= FTM_MODE_WPDIS_MASK|FTM_MODE_FTMEN_MASK;
-	interruptEnable();
+	timerBase [n_]->CCMR1 |= TIM_CCMR1_CC1S_0 | TIM_CCMR1_CC2S_0;
+	timerBase [n_]->CCER &= ~(TIM_CCER_CC1P|TIM_CCER_CC2P);
+	timerBase [n_]->SMCR |= TIM_SMCR_SMS_0 | TIM_SMCR_SMS_1;
 	start ();
 }
 
 uint16_t Qenc::getValue ()
 {
-	clearTof();
-	value = FTM_CNT_REG (ftm_ptr[num_ftm]);
+	value = timerBase [n_]->CNT;
 	if (value>high)
 	{
 		value = high;
-		FTM_CNT_REG (ftm_ptr[num_ftm]) = high;
+		timerBase [n_]->CNT = high;
 	}
-	return value;
+	return value >> 2;
 }
 
-void Qenc::setRange (uint16_t r)
-{
-
-}

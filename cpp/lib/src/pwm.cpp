@@ -1,19 +1,36 @@
 #include "pwm.h"
 
 
-Pwm::Pwm (nTimer n_, nChannel ch, mode m, pulseMode m_, inverse i)
-:Gtimer (n_)
+Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode m, inverse i)
 {
-	//N channel output
-	timerBase [n_]->CCER |= 1 << (ch*4);
-	timerBase [n_]->CCER &= ~ (1 << ((ch*4)+1));
-	timerBase [n_]->CCER &= ~ (m_ << ((ch*4)+1));
+	timer = &t;
+	ptrTimer = timer->getPtrTimer();
+	pwmChannel = ch;
+	timer->stop ();
+	//Settings pins
+	pwmPin.settingPinPort(p);
+	pwmPin.settingPin (pin, Gpio::AltFunc);
+	pwmPin.settingAf (pin, af);
 	
-	timerBase [n_]->CCMR1 &= ~ (7 << ((ch*8)+4));
-	timerBase [n_]->CCMR1 |= (i << ((ch*8)+4));
-	//settings pin
-	pin.settingPinPort(PwmDef::PwmPort);
-	pin.settingPin (PwmDef::PwmPin, Gpio::AltFunc);
-	pin.settingAf (PwmDef::PwmPin, PwmDef::PwmAlt);
+	//settings timer
+	ptrTimer->CCER |= 1 << (pwmChannel*4);
+	ptrTimer->CCER &= ~ (1 << ((pwmChannel*4)+1));
+	ptrTimer->CCER &= ~ (m << ((pwmChannel*4)+1));
+	ptrTimer->CCMR1 &= ~ (7 << ((pwmChannel*8)+4));
+	ptrTimer->CCMR1 |= (i << ((pwmChannel*8)+4));
 }
 
+void Pwm::setValue (uint16_t val)
+{
+	timer->setChannelValue (val);
+}
+
+void Pwm::start ()
+{
+	timer->start();
+}
+
+void Pwm::stop ()
+{
+	timer->stop ();
+}

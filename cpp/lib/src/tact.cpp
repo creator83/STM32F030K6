@@ -1,8 +1,8 @@
 #include "tact.h"
 
-uint8_t tact::f_cpu;
+uint8_t Tact::f_cpu;
 
-tact::tact ()
+Tact::Tact ()
 {
   f_cpu = 48;
   init_hsi ();
@@ -21,7 +21,7 @@ tact::tact ()
   
 }
 
-tact::tact (src_tact s)
+Tact::Tact (src_tact s)
 {
   src = s;
   f_cpu = 48;
@@ -31,9 +31,9 @@ tact::tact (src_tact s)
   init_pll();
 }
 
-tact::tact (uint8_t frq, src_tact s )
+Tact::Tact (uint8_t frq, src_tact s )
 {
-  Set_frq(frq);
+  setFrq(frq);
   src = s;
   
   if (s) init_hse();
@@ -42,7 +42,7 @@ tact::tact (uint8_t frq, src_tact s )
   init_pll(f_cpu);
 }
 
-void tact::init_hse ()
+void Tact::init_hse ()
 {
   RCC->CR |= RCC_CR_HSEON;
   while (!((RCC->CR)&RCC_CR_HSERDY));
@@ -50,7 +50,7 @@ void tact::init_hse ()
   RCC->CFGR |= RCC_CFGR_SW_HSE;
 }
 
-void tact::init_hsi ()
+void Tact::init_hsi ()
 {
 	/*
   RCC->CR |= RCC_CR_HSION;
@@ -68,7 +68,7 @@ void tact::init_hsi ()
 	
 	}
 }
-void tact::Set_frq (uint8_t frq)
+void Tact::setFrq (uint8_t frq)
 {
   if (frq>48) f_cpu = 48;
   else if (frq<4) f_cpu = 4;
@@ -77,7 +77,7 @@ void tact::Set_frq (uint8_t frq)
 }
 
 //Init PLL
-void tact::init_pll ()
+void Tact::init_pll ()
 {
   RCC->CFGR &= ~(RCC_CFGR_PLLSRC|RCC_CFGR_PLLXTPRE|RCC_CFGR_PLLMUL);  
   
@@ -99,7 +99,7 @@ void tact::init_pll ()
   
 }    
 
-void tact::init_pll (uint8_t i)
+void Tact::init_pll (uint8_t i)
 {
   RCC->CFGR &= ~(RCC_CFGR_PLLSRC|RCC_CFGR_PLLXTPRE|RCC_CFGR_PLLMUL);
 
