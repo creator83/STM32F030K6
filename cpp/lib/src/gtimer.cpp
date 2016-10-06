@@ -7,6 +7,7 @@ TIM_TypeDef * Gtimer::timerBase [5] = {TIM3, TIM14, TIM15, TIM16, TIM17};
 Gtimer::Gtimer (nTimer n, uint16_t divider)
 {
 	n_ = n;
+	(this->*(Gtimer::iniTimer[n_]))();
 	setPsc (divider);
 }
 

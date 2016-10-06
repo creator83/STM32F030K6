@@ -16,7 +16,7 @@
 
 int main ()
 {
-	Gtimer timer14 (Gtimer::Timer14, 1000);
+	Gtimer timer14 (Gtimer::Timer14, 100);
 	Qenc encoder (1000);
 	Pwm led_pwm (timer14, Gpio::B, 1, Gpio::AF0, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
 	led_pwm.start();
@@ -25,10 +25,15 @@ int main ()
 	{
 		led_pwm.setValue (encoder.getValue());
 		delay_ms (1);
-		/*for (uint8_t i=0;i<=100;i+=100)
+		/*for (uint16_t i=0;i<=1000;i+=100)
 		{
-			led_pwm.setChannelValue (i);
-			delay_ms (100);
-		}*/
+			led_pwm.setValue (i);
+			delay_ms (10);
+		}
+		for (int16_t i=1000;i>=0;i-=100)
+		{
+			led_pwm.setValue (i);
+			delay_ms (10);
+		}		*/
 	}
 }
