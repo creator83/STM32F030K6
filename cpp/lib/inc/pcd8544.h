@@ -95,6 +95,7 @@ public:
 	Pcd8544 (Spi &);
 	void init ();
 	void dma (dmaMode );
+	void dmaSetting ();
 	void command (uint8_t comm);
 	void data (uint8_t dta, uint16_t n);
 	void array (const uint8_t *dta, uint16_t n);
