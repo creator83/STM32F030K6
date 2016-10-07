@@ -1,9 +1,34 @@
 #include "stm32f0xx.h"                  // Device header
-#include "Gpio.h"
+#include "gpio.h"
 #include "Spi.h"
 #include "delay.h"
 #include "dma.h"
-//#include "font6x8.h"
+#include "font6x8.h"
+
+
+namespace Pcd8544Def
+{
+//===Defenitions===//
+//CS
+const Gpio::Port CsPort = Gpio::A;
+const uint8_t CsPin = 4;
+
+//SCK
+const Gpio::Port SckPort = Gpio::A;
+const uint8_t SckPin = 5;
+
+//MOSI
+const Gpio::Port MosiPort = Gpio::A;
+const uint8_t MosiPin = 7;
+	
+//RESET
+const Gpio::Port RstPort = Gpio::A;
+const uint8_t RstPin = 7;	
+	
+//DC
+const Gpio::Port DcPort = Gpio::A;
+const uint8_t DcPin = 7;
+}
 
 #ifndef PCD8544_H
 #define PCD8544_H
@@ -45,33 +70,48 @@ const char width = 84;
 const char height= 48;
 const char page  =  6;
 
-class pcd8544
+class Pcd8544
 {
+public:
+	struct sFont
+	{
+		const uint8_t * font;
+		uint8_t width;
+		uint8_t shift;
+	};		
+	enum dmaMode {off, on};
 	//variable
 private:
-	spi spi1;
-	Gpio pin;
-	dma mem2spi1;
-	dma mem2buff;
-	enum PIN {RST=1, DC=7};
-	enum COM {COMMAND, DATA};
+	Spi* spimodule;
+	Gpio reset, dc;
+	Dma mem2spi1;
+	Dma mem2buff;
 	static uint8_t buffer [page][width];
-	static char NewFontLAT[]; 
 	static char Big_number[10][42]; 
-	static char Med_number[10][16];
 	static char Med_number1[10][18]; 
 	static const char null_val;
+	static dmaMode dmaMode_;
 public:
-	pcd8544();
-	void send_byte (uint8_t dta , bool com_);
-	void send_byte (uint8_t dta);
-	void send_data (uint8_t *dta);
-	void send_comm (uint8_t comm);
-	void clear_screen ();
-	void clear_screen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy);
-	void fill_screen ();
+	Pcd8544 (Spi &);
 	void init ();
-	void gotoxy(uint8_t x, uint8_t y);
+	void dma (dmaMode );
+	void command (uint8_t comm);
+	void data (uint8_t dta, uint16_t n);
+	void array (const uint8_t *dta, uint16_t n);
+	void byte (uint8_t dta);
+	void setPosition (uint8_t x, uint8_t y);
+	void setLinePosition (uint8_t line, uint8_t position);
+	
+	void clearScreen ();
+	void clearScreen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy);
+	void fillScreen ();
+	void chipAssert ();
+	void chipDisassert ();
+	void character (uint8_t line , uint8_t position , const char ch, sFont &);
+	void string (uint8_t line , uint8_t position, uint8_t interval, const char *str, sFont &);
+
+	void parsingBin (uint8_t line , uint8_t position, uint8_t interval, uint8_t number, sFont &);
+
 	void draw_font(char * font, char ch);
 	void draw_big_number(uint8_t x, uint8_t y, uint8_t ch);
 	void draw_char(uint8_t x , uint8_t y , char ch);
@@ -83,8 +123,7 @@ public:
 	void ver_line (uint8_t x , uint8_t y1,  uint8_t y2, uint8_t thick);
 	void string_screen (uint8_t x , uint8_t y , char *str);
 	void bin_number (uint8_t x , uint8_t y , uint8_t num);
-	void assert_chip ();
-	void desassert_chip ();
+
 	bool spi_bsy ();
 	//function with buffer
 	void draw_buffer ();

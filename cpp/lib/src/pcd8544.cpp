@@ -1,78 +1,12 @@
 #include "pcd8544.h"
 
-uint8_t pcd8544::buffer [page][width] = {0};
+uint8_t Pcd8544::buffer [page][width] = {0};
+Pcd8544::dmaMode Pcd8544::dmaMode_ = Pcd8544::off;
 
-const char pcd8544::null_val = 0;
+const char Pcd8544::null_val = 0;
 
-char pcd8544::NewFontLAT[] = {
-0x00,0x00,0x00,0x00,0x00,0x00, //32/ -->
-0x00,0x2F,0x00,0x00,0x00,0x00, //33/ --> !
-0x00,0x03,0x00,0x03,0x00,0x00, //34/ --> "
-0x14,0x3E,0x14,0x3E,0x14,0x00, //35/ --> #
-0x12,0x25,0x7F,0x29,0x12,0x00, //36/ --> $
-0x13,0x09,0x04,0x32,0x11,0x00, //37/ --> %
-0x1A,0x25,0x35,0x7A,0x00,0x00, //38/ --> &
-0x00,0x03,0x00,0x00,0x00,0x00, //39/ --> '
-0x00,0x00,0x00,0x1E,0x21,0x00, //40/ --> (
-0x21,0x1E,0x00,0x00,0x00,0x00, //41/ --> )
-0x14,0x08,0x14,0x00,0x00,0x00, //42/ --> *
-0x08,0x08,0x3E,0x08,0x08,0x00, //43/ --> +
-0x40,0x30,0x00,0x00,0x00,0x00, //44/ --> ,
-0x08,0x08,0x08,0x08,0x00,0x00, //45/ --> -
-0x00,0x20,0x00,0x00,0x00,0x00, //46/ --> .
-0x20,0x18,0x04,0x03,0x00,0x00, //47/ --> /
-0x1E,0x25,0x25,0x29,0x1E,0x00, //48/ --> 0
-0x20,0x22,0x3F,0x20,0x20,0x00, //49/ --> 1
-0x32,0x29,0x29,0x29,0x26,0x00, //50/ --> 2
-0x12,0x21,0x21,0x25,0x1A,0x00, //51/ --> 3
-0x18,0x14,0x12,0x3F,0x10,0x00, //52/ --> 4
-0x27,0x25,0x25,0x25,0x19,0x00, //53/ --> 5
-0x1E,0x25,0x25,0x25,0x18,0x00, //54/ --> 6
-0x01,0x01,0x39,0x05,0x03,0x00, //55/ --> 7
-0x1A,0x25,0x25,0x25,0x1A,0x00, //56/ --> 8
-0x06,0x29,0x29,0x29,0x1E,0x00, //57/ --> 9
-0x00,0x12,0x00,0x00,0x00,0x00, //58/ --> :
-0xC0,0xB2,0x80,0x80,0x80,0x00, //59/ --> ;
-0x00,0x08,0x14,0x22,0x00,0x00, //60/ --> <
-0x14,0x14,0x14,0x14,0x00,0x00, //61/ --> =
-0x00,0x22,0x14,0x08,0x00,0x00, //62/ --> >
-0x02,0x01,0x29,0x06,0x00,0x00, //63/ --> ?
-0x00,0x00,0x00,0x00,0x00,0x00, //64/ --> @
-0x3C,0x0A,0x09,0x0A,0x3C,0x00, //65/ --> A
-0x3F,0x25,0x25,0x25,0x1A,0x00, //66/ --> B
-0x1E,0x21,0x21,0x21,0x12,0x00, //67/ --> C
-0x3F,0x21,0x21,0x12,0x0C,0x00, //68/ --> D
-0x3F,0x25,0x25,0x25,0x21,0x00, //69/ --> E
-0x3F,0x05,0x05,0x05,0x01,0x00, //70/ --> F
-0x1E,0x21,0x29,0x29,0x1A,0x00, //71/ --> G
-0x3F,0x04,0x04,0x04,0x3F,0x00, //72/ --> H
-0x00,0x21,0x3F,0x21,0x00,0x00, //73/ --> I
-0x10,0x20,0x21,0x1F,0x01,0x00, //74/ --> J
-0x3F,0x04,0x0A,0x11,0x20,0x00, //75/ --> K
-0x3F,0x20,0x20,0x20,0x20,0x00, //76/ --> L
-0x3F,0x02,0x0C,0x02,0x3F,0x00, //77/ --> M
-0x3F,0x02,0x04,0x08,0x3F,0x00, //78/ --> N
-0x1E,0x21,0x21,0x21,0x1E,0x00, //79/ --> O
-0x3F,0x09,0x09,0x09,0x06,0x00, //80/ --> P
-0x1E,0x21,0x29,0x31,0x3E,0x40, //81/ --> Q
-0x3F,0x09,0x09,0x19,0x26,0x00, //82/ --> R
-0x12,0x25,0x25,0x29,0x12,0x00, //83/ --> S
-0x01,0x01,0x3F,0x01,0x01,0x00, //84/ --> T
-0x1F,0x20,0x20,0x20,0x1F,0x00, //85/ --> U
-0x03,0x1C,0x20,0x1C,0x03,0x00, //86/ --> V
-0x1F,0x20,0x18,0x20,0x1F,0x00, //87/ --> W
-0x31,0x0A,0x04,0x0A,0x31,0x00, //88/ --> X
-0x03,0x04,0x38,0x04,0x03,0x00, //89/ --> Y
-0x31,0x29,0x25,0x23,0x21,0x00, //90/ --> Z
-0x00,0x00,0x00,0x3F,0x21,0x00, //91/ --> [
-0x03,0x04,0x18,0x20,0x00,0x00, //92/ --> обратный слэш
-0x21,0x3F,0x00,0x00,0x00,0x00, //93/ --> ]
-0x04,0x02,0x01,0x02,0x04,0x00, //94/ --> ^
-0x20,0x20,0x20,0x20,0x20,0x00, //95/ --> _
-0x00,0x01,0x02,0x00,0x00,0x00  //96/ --> `
 
-};
-char pcd8544::Big_number[10][42] = {
+char Pcd8544::Big_number[10][42] = {
 
 0x00, 0xfc, 0xfa, 0xf6, 0x0e, 0x0e, 0x0e, 0x0e, 0x0e, 0x0e, 0xf6, 0xfa, 0xfc, 0x00, 0x00, 0xef, 0xc7, 0x83, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x83, 0xc7, 0xef, 0x00, 0x00, 0x7f, 0xbf, 0xdf, 0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xe0, 0xdf, 0xbf, 0x7f, 0x00,   // 0
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xf8, 0xfc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x83, 0xc7, 0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x3f, 0x7f, 0x00,   // 1
@@ -87,41 +21,8 @@ char pcd8544::Big_number[10][42] = {
 // /
 };
 
-char pcd8544::Med_number[10][16]= {
 	
-0x00,0xF8,0xFC,0xFC,0x0C,0xFC,0xF8,0xF8,
-0x00,0x3F,0x7F,0x7F,0x60,0x7F,0x7F,0x3F, //0
-
-0x00,0x10,0x10,0xF8,0xF8,0xFC,0x00,0x00,
-0x00,0x00,0x00,0x7F,0x7F,0x7F,0x00,0x00, //1
-
-0x00,0x78,0x7C,0x0C,0xFC,0xFC,0xF8,0x00,
-0x00,0x70,0x7C,0x7F,0x6F,0x63,0x60,0x00, //2
-
-0x00,0x38,0x3C,0x8C,0xFC,0xFC,0x78,0x00,
-0x00,0x3C,0x7C,0x61,0x7F,0x7F,0x3F,0x00, //3
-
-0x00,0xC0,0xF8,0x3C,0xFC,0xFC,0xFC,0x00,
-0x1E,0x1F,0x1D,0x1C,0x7F,0x7F,0x7F,0x1C, //4
-
-0x00,0xFC,0xFC,0xFC,0xCC,0xCC,0xCC,0x8C,
-0x00,0x3D,0x7D,0x7D,0x60,0x7F,0x7F,0x3F, //5
-
-0x00,0xF8,0xFC,0xFC,0xCC,0xDC,0xDC,0x98,
-0x00,0x3F,0x7F,0x7F,0x60,0x7F,0x7F,0x3F, //6
-
-0x00,0x0C,0x0C,0x0C,0xFC,0xFC,0x7C,0x00,
-0x00,0x00,0x60,0x7F,0x7F,0x0F,0x00,0x00, //7
-
-0x00,0x78,0xFC,0xFC,0x8C,0xFC,0xFC,0x78,
-0x00,0x3F,0x7F,0x7F,0x61,0x7F,0x7F,0x3F, //8
-
-0x00,0xF8,0xFC,0xFC,0x0C,0xFC,0xFC,0xF8,
-0x00,0x33,0x77,0x77,0x66,0x7F,0x7F,0x3F //9	
-	
-};	
-	
-char pcd8544::Med_number1[10][18]= {
+char Pcd8544::Med_number1[10][18]= {
 	
 0x00,0xF8,0xFC,0xFE,0x06,0x06,0xFE,0xFC,0xF8,
 0x00,0x3F,0x7F,0xFF,0xC0,0xC0,0xFF,0x7F,0x3F, //0
@@ -154,49 +55,179 @@ char pcd8544::Med_number1[10][18]= {
 0x00,0x33,0x77,0xF7,0xC6,0xC6,0xFF,0x7F,0x3F //9
 };
 
-
-pcd8544::pcd8544()
-:spi1 (spi::B, spi::div8), pin (Gpio::B), mem2spi1(dma::ch3, dma::mem2periph, dma::SPI1_TX), mem2buff (dma::ch5)
+Pcd8544::Pcd8544 (Spi &module)
 {
+	spimodule = &module;
+	
 	//Settings pins
-	pin.setOutPin (RST);
-	pin.setOutPin (DC);
+	//CS
+	spimodule->set_CS(Pcd8544Def::CsPort, Pcd8544Def::CsPin, Gpio::AF0);
+
+	//SCK
+	spimodule->set_SCK(Pcd8544Def::SckPort, Pcd8544Def::SckPin, Gpio::AF0);
+
+	//MOSI
+	spimodule->set_MOSI(Pcd8544Def::MosiPort, Pcd8544Def::MosiPin, Gpio::AF0);
 	
-	//settings dma
-	mem2spi1.set_periph ((uint32_t)&SPI1->DR);
-	mem2spi1.set_inc_per (false);
-	NVIC_EnableIRQ(DMA1_Channel4_5_IRQn);
-	NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
+	//DC
+	dc.settingPinPort (Pcd8544Def::DcPort);
+	dc.settingPin (Pcd8544Def::DcPin);
+	//DC
+	reset.settingPinPort (Pcd8544Def::RstPort);	
+	reset.settingPin (Pcd8544Def::RstPin);
 	
+	//===Settings Spi===//
+		//settings SPI
+	spimodule->set_cpha(Spi::first);
+	spimodule->set_cpol(Spi::neg);
+	spimodule->set_baudrate(Spi::div16);
+	spimodule->set_f_size(Spi::bit_8);
+	SPI1->CR1 |= SPI_CR1_SPE;
 	init ();
 }
 
-void pcd8544::init ()
+void Pcd8544::init ()
 {
-	pin.setPin (RST);
-	pin.clearPin (RST);
-	pin.setPin (RST);
-	send_comm(lcd_setfunctionext);    
-  send_comm(lcd_setvop + 70); 
-  send_comm(lcd_tempcoef + temp3);
-  send_comm(lcd_setbias + bias_1_65);
-  send_comm(lcd_setfunction);
-  send_comm(lcd_displaynormal);
-	clear_screen ();
+	reset.setPin (Pcd8544Def::RstPin);
+	reset.clearPin (Pcd8544Def::RstPin);
+	reset.setPin (Pcd8544Def::RstPin);
+	command(lcd_setfunctionext);    
+  command(lcd_setvop + 70); 
+  command(lcd_tempcoef + temp3);
+  command(lcd_setbias + bias_1_65);
+  command(lcd_setfunction);
+	command(lcd_displaynormal);
+	clearScreen ();
 }
 
-void pcd8544::send_byte (uint8_t dta)
+void  Pcd8544::dma (dmaMode m)
 {
-	pin.setPin (DC);
-	spi1.Clear_CS ();
-	spi1.put_data (dta);
-	while (spi1.flag_bsy ());
-	spi1.Set_CS ();
+	dmaMode_ = m;
 }
 
-void pcd8544::send_data (uint8_t *dta)
+void Pcd8544::command (uint8_t comm)
 {
+	
+	dc.clearPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	spimodule->put_data (comm);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
 }
+
+void Pcd8544::byte (uint8_t dta)
+{
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	spimodule->put_data (dta);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+}
+
+void Pcd8544::array (const uint8_t *dta, uint16_t n)
+{
+	for (uint16_t i=0;i<n;++i) 
+	{
+		while (!spimodule->flag_txe());
+		spimodule->put_data (*dta++);
+	}
+}
+
+
+void Pcd8544::data (uint8_t dta, uint16_t n)
+{
+	for (uint16_t i=0;i<n;++i) 
+	{
+		while (!spimodule->flag_txe());
+		spimodule->put_data (dta);
+	}	
+}
+
+
+
+void Pcd8544::clearScreen ()
+{
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	data (0, page*width);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+}
+
+void Pcd8544::setPosition(uint8_t x, uint8_t y)
+{
+  command (lcd_setXaddr | x);
+  command (lcd_setYaddr | y);
+}
+
+void Pcd8544::setLinePosition (uint8_t line, uint8_t position)
+{
+	command (lcd_setXaddr | line);
+  command (lcd_setYaddr | position);
+}
+
+void  Pcd8544::clearScreen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
+{
+	
+}
+
+void Pcd8544::fillScreen ()
+{
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	data (0xFF, page*width);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+}
+
+void Pcd8544::chipAssert ()
+{
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+}
+
+void Pcd8544::chipDisassert ()
+{
+	
+}
+
+void Pcd8544::character (uint8_t line , uint8_t position , const char ch, sFont & s)
+{
+	setLinePosition (line, position);
+	const uint8_t ** tempPtr = &s.font;
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	array (*(tempPtr+(ch-s.shift)), s.width);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+/*	for (uint8_t i=0;i<s.width;++i)
+	{
+		
+	}*/
+	//uint8_t * ptr [][6] = &arr;
+}
+
+void Pcd8544::string (uint8_t line , uint8_t pos , uint8_t interval, const char *str, sFont &f)
+{
+	uint8_t position = pos;
+	while (*str)
+	{	
+		character (line, position, *str++,f);
+		position += interval;
+	}
+}
+
+void Pcd8544::parsingBin (uint8_t line , uint8_t pos, uint8_t interval, uint8_t number, sFont &f)
+{
+	uint8_t position = pos;
+	for (uint8_t i=0;i<8;++i, position+=interval)
+	{
+		if (number&(1<<(7-i))) character (line, position, '1',f);
+		else 	 character (line, position, '0',f);
+	}
+}
+
+/*
 
 void pcd8544::bin_number (uint8_t x , uint8_t y , uint8_t num)
 {
@@ -256,11 +287,6 @@ void pcd8544::draw_char(char ch)
 
 void draw_font_buffer(uint8_t * font, char ch)
 {
-	/*font = font + ((ch-32)*6);
-	for (uint8_t i=0;i<6;++i,++font)
-	{
-		*font);
-	}*/
 }
 
 void pcd8544::draw_char_buffer (uint8_t x , uint8_t y , char ch)
@@ -346,67 +372,12 @@ void pcd8544::string_screen (uint8_t x , uint8_t y , char *str)
 	
 }
 
-void pcd8544::send_comm (uint8_t comm)
-{
-	pin.clearPin (DC);
-	spi1.Clear_CS ();
-	spi1.put_data (comm);
-	while (spi1.flag_bsy ());
-	spi1.Set_CS ();
-}
-
-void pcd8544::gotoxy(uint8_t x, uint8_t y)
-{
-	if (x > 83|y > 5) return;
-  send_comm(lcd_setXaddr | x);
-  send_comm(lcd_setYaddr | y);
-}
 
 
-void pcd8544::clear_screen ()
-{
-	int i;
 
-  for (i=0 ;i<page*width ;++i ) 
-	{
-		while (!spi1.flag_txe());
-		spi1.put_data (0);	
-	}
-	while (spi1.flag_bsy ());
-	spi1.Set_CS ();
-	/*
-	gotoxy(0,0);
-	pin.setPin (DC);
-	spi1.Clear_CS ();
-	cmar = &null_val;
-	cmar non_inc;
-	cpar = spi;
-	cpar non_inc;
-	cnt = width*page;
-	dma_en;
-	
-	*/
-}
 
-void  pcd8544::clear_screen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
-{
-	
-}
 
-void pcd8544::fill_screen ()
-{
-	int i;
-  gotoxy(0,0);
-	pin.setPin (DC);
-	spi1.Clear_CS ();
-  for (i=0 ;i<page*width ;++i ) 
-	{
-		while (!spi1.flag_txe());
-		spi1.put_data (0xFF);	
-	}
-	while (spi1.flag_bsy ());
-	spi1.Set_CS ();
-}
+
 
 void pcd8544::refresh_buffer ()
 {
@@ -414,17 +385,7 @@ void pcd8544::refresh_buffer ()
 }
 
 void pcd8544::draw_picture (const char * pic, uint16_t l)
-{/*
-	gotoxy(0,0);
-	pin.setPin (DC);
-	spi1.Clear_CS ();
-  for (int i=0 ;i<l ;++i, ++pic ) 
-	{
-		while (!spi1.flag_txe());
-		spi1.put_data (*pic);	
-	}
-	while (spi1.flag_bsy ());
-	spi1.Set_CS ();*/
+{
 	gotoxy(0,0);
 	mem2spi1.set_mem ((uint32_t)pic);
 	mem2spi1.set_inc_mem (true);
@@ -456,13 +417,6 @@ uint32_t * pcd8544::buffer_adress ()
 
 void pcd8544::clear_buffer ()
 {
-	/*
-	mem2buff.set_mem ((uint32_t)&null_val);
-	mem2buff.set_inc_mem (false);
-	mem2buff.set_destination ((uint32_t)buffer);
-	mem2buff.set_inc_per (true);
-	mem2buff.set_length (width*page);
-	mem2buff.start ();*/
 	gotoxy(0,0);
 	pin.setPin (DC);
 	spi1.Clear_CS ();
@@ -490,12 +444,6 @@ void pcd8544::draw_buffer ()
 	while (spi1.flag_bsy ());
 	spi1.Set_CS ();
 
-	/*
-	mem2spi1.set_mem ((uint32_t)&buffer[0][0]);
-	mem2spi1.set_inc_mem (true);
-	mem2spi1.set_length (width*page);
-	assert_chip ();
-	mem2spi1.start();	*/
 	
 }
 
@@ -524,16 +472,6 @@ void pcd8544::big_number_buffer (uint8_t x , uint8_t y , uint8_t num)
 		}
 	}
 
-/*
-	for (uint8_t i=0, k=0;i<3;++i,k+=14)
-	{	
-		mem2buff.set_mem ((uint32_t)&Big_number [num][k]);
-		mem2buff.set_inc_mem (true);
-		mem2buff.set_destination ((uint32_t)&buffer [y+i][x]);
-		mem2buff.set_inc_per (true);
-		mem2buff.set_length (14);
-		mem2buff.start ();	
-	}*/
 	
 }
 
@@ -566,19 +504,7 @@ void pcd8544::string_numberM_buffer (uint8_t x , uint8_t y , uint8_t *arr, uint8
 }
 void pcd8544::clear_buffer (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
 {
-	/*
-	mem2mem
-	cmar = &null_val;
-	cmar non_inc;
-	cpar inc;
-	uint8_t *ptr = &buffer[y>>3][x];
-	for (ui i=0;i < dy;++i)
-	{
-		ptr = &buffer[y>>3+i][x];
-		cpar = ptr;
-		cnt = dx;
-	}
-	*/
+
 	mem2buff.set_mem ((uint32_t)&null_val);
 	mem2buff.set_inc_mem (false);
 	mem2buff.set_inc_per (true);
@@ -600,4 +526,4 @@ void pcd8544::desassert_chip ()
 void pcd8544::ver_line (uint8_t x , uint8_t y1,  uint8_t y2, uint8_t thick)
 {
 	
-}
+}*/
