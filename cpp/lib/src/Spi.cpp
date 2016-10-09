@@ -23,7 +23,7 @@ Spi::Spi (Role r, mode m)
 	(this->*(Spi::spi_mode[m]))();
 	
 	 //Turn on Spi1
-   //SPI1->CR1 |= SPI_CR1_SPE;
+   //
 }
 
 void Spi::hardwareMode ()
@@ -98,6 +98,17 @@ void Spi::set_baudrate (Division d)
 {
 	SPI1->CR1 &= ~SPI_CR1_BR;
 	SPI1->CR1 |= d << 3;
+}
+
+
+void Spi::start ()
+{
+	SPI1->CR1 |= SPI_CR1_SPE;
+}
+
+void Spi::stop ()
+{
+	SPI1->CR1 &= ~ SPI_CR1_SPE;
 }
 
 void Spi::assert_Cs (uint8_t p)

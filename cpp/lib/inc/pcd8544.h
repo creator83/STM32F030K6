@@ -23,11 +23,11 @@ const uint8_t MosiPin = 7;
 	
 //RESET
 const Gpio::Port RstPort = Gpio::A;
-const uint8_t RstPin = 7;	
+const uint8_t RstPin = 3;	
 	
 //DC
 const Gpio::Port DcPort = Gpio::A;
-const uint8_t DcPin = 7;
+const uint8_t DcPin = 2;
 }
 
 #ifndef PCD8544_H
@@ -108,8 +108,9 @@ public:
 	void fillScreen ();
 	void chipAssert ();
 	void chipDisassert ();
+  void character (const char ch, sFont & s);
 	void character (uint8_t line , uint8_t position , const char ch, sFont &);
-	void string (uint8_t line , uint8_t position, uint8_t interval, const char *str, sFont &);
+	void string (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
 
 	void parsingBin (uint8_t line , uint8_t position, uint8_t interval, uint8_t number, sFont &);
 

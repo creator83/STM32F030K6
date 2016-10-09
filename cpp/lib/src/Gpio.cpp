@@ -41,6 +41,12 @@ void Gpio::settingOut (uint8_t pin, Omode o)
 	GpioBase [prt]->OTYPER |= o << pin;
 }
 
+void Gpio::settingPP (uint8_t pin, PP p)
+{
+	GpioBase [prt]->PUPDR &= ~(0x03 << pin*2);
+	GpioBase [prt]->PUPDR |= p << pin*2;
+}
+
 void Gpio::setPin (uint8_t pin )
 {
 	GpioBase [prt]->BSRR |= 1 << pin;

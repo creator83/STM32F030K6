@@ -82,7 +82,7 @@ Pcd8544::Pcd8544 (Spi &module)
 	spimodule->set_cpol(Spi::neg);
 	spimodule->set_baudrate(Spi::div16);
 	spimodule->set_f_size(Spi::bit_8);
-	SPI1->CR1 |= SPI_CR1_SPE;
+	spimodule->start();
 	init ();
 }
 
@@ -162,8 +162,8 @@ void Pcd8544::setPosition(uint8_t x, uint8_t y)
 
 void Pcd8544::setLinePosition (uint8_t line, uint8_t position)
 {
-	command (lcd_setXaddr | line);
-  command (lcd_setYaddr | position);
+	command (lcd_setXaddr | position);
+  command (lcd_setYaddr | line);
 }
 
 void  Pcd8544::clearScreen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy)
@@ -194,28 +194,48 @@ void Pcd8544::chipDisassert ()
 void Pcd8544::character (uint8_t line , uint8_t position , const char ch, sFont & s)
 {
 	setLinePosition (line, position);
-	const uint8_t ** tempPtr = &s.font;
+	const uint8_t *tempPtr = s.font;
 	dc.setPin (Pcd8544Def::DcPin);
 	spimodule->assert_Cs(Pcd8544Def::CsPin);
-	array (*(tempPtr+(ch-s.shift)), s.width);
+	array ((tempPtr+((ch-s.shift)*s.width)), s.width);
 	while (spimodule->flag_bsy());
 	spimodule->disassert_Cs (Pcd8544Def::CsPin);
-/*	for (uint8_t i=0;i<s.width;++i)
-	{
-		
-	}*/
-	//uint8_t * ptr [][6] = &arr;
 }
 
-void Pcd8544::string (uint8_t line , uint8_t pos , uint8_t interval, const char *str, sFont &f)
+void Pcd8544::character (const char ch, sFont & s)
 {
-	uint8_t position = pos;
+	const uint8_t *tempPtr = s.font;
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	array ((tempPtr+((ch-s.shift)*s.width)), s.width);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+}
+
+void Pcd8544::string (uint8_t line , uint8_t pos , const char *str, sFont &f, uint8_t interval)
+{
+	setLinePosition (line, pos);
+	const uint8_t *tempPtr = f.font;
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
 	while (*str)
 	{	
-		character (line, position, *str++,f);
-		position += interval;
+		array ((tempPtr+((*str++-f.shift)*f.width)), f.width);
+		for (int8_t i=0;i<interval;++i) byte (0);
 	}
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
 }
+/*
+void Pcd8544::string (uint8_t line , uint8_t pos , const char *str, sFont &f, uint8_t interval)
+{
+	setLinePosition (line, pos);
+	while (*str)
+	{	
+		character (*str++,f);
+		for (int8_t i=0;i<interval;++i) byte (0);
+	}
+}*/
 
 void Pcd8544::parsingBin (uint8_t line , uint8_t pos, uint8_t interval, uint8_t number, sFont &f)
 {

@@ -13,7 +13,6 @@ Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChanne
 	pwmPin.settingAf (pin, af);
 	
 	//settings timer
-	ptrTimer->ARR = 1000;
 	ptrTimer->CCER |= 1 << (pwmChannel*4);
 	ptrTimer->CCER &= ~ (1 << ((pwmChannel*4)+1));
 	ptrTimer->CCER |=  (m << ((pwmChannel*4)+1));

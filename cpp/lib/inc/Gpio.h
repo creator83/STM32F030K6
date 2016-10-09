@@ -28,6 +28,7 @@ public:
 	void settingPinPort (Port p);
 	void settingAf (uint8_t pin, Afmode a);
 	void settingOut (uint8_t pin, Omode o);
+	void settingPP (uint8_t pin, PP);
   void setPin (uint8_t pin);
   void setPinBit (unsigned int pin);
   void clearPin (unsigned char pin);	
