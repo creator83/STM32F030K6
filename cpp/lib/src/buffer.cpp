@@ -61,5 +61,4 @@ bool Buffer::setElement (uint8_t el, uint8_t val)
 		arr [el] = val;
 		return true;
 	}
-
 }

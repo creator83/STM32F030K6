@@ -69,6 +69,7 @@ const uint8_t DcPin = 2;
 const char width = 84;
 const char height= 48;
 const char page  =  6;
+const uint16_t bufferSize = page*width;
 
 class Pcd8544
 {
@@ -82,11 +83,11 @@ public:
 	enum dmaMode {off, on};
 	//variable
 private:
+	static uint8_t screenBuffer [page][width];
 	Spi* spimodule;
 	Gpio reset, dc;
 	Dma mem2spi1;
 	Dma mem2buff;
-	static uint8_t buffer [page][width];
 	static char Big_number[10][42]; 
 	static char Med_number1[10][18]; 
 	static const char null_val;
@@ -102,7 +103,7 @@ public:
 	void byte (uint8_t dta);
 	void setPosition (uint8_t x, uint8_t y);
 	void setLinePosition (uint8_t line, uint8_t position);
-	
+
 	void clearScreen ();
 	void clearScreen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy);
 	void fillScreen ();
@@ -113,7 +114,11 @@ public:
 	void string (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
 
 	void parsingBin (uint8_t line , uint8_t position, uint8_t interval, uint8_t number, sFont &);
-
+	
+	
+	void characterToBuffer (uint8_t line , uint8_t position , const char ch, sFont &);
+	void stringToBuffer (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
+	void drawBuffer ();
 	void draw_font(char * font, char ch);
 	void draw_big_number(uint8_t x, uint8_t y, uint8_t ch);
 	void draw_char(uint8_t x , uint8_t y , char ch);

@@ -3,7 +3,10 @@
 DMA_Channel_TypeDef * Dma::dma_channel [5] = {DMA1_Channel1, DMA1_Channel2, DMA1_Channel3, DMA1_Channel4, DMA1_Channel5};
 
 
-
+Dma::Dma ()
+{
+	RCC->AHBENR |= RCC_AHBENR_DMAEN;
+}
 
 Dma::Dma (dmaChannel ch)
 {
@@ -13,26 +16,43 @@ Dma::Dma (dmaChannel ch)
 	//dma_channel [channel_]->CCR |= (mem << 10|per << 8|m << 4)|DMA_CCR_TCIE;
 }
 
-void Dma::setSources (uint32_t * mem, uint32_t * per)
+void Dma::setChannel (dmaChannel ch)
 {
-	dma_channel [channel_]->CMAR = (uint32_t)mem;
-	dma_channel [channel_]->CPAR = (uint32_t)per;
+	channel_ = ch;	
 }
 
-void Dma::setPtrMem (uint32_t * mem)
+void Dma::setSources (uint32_t  mem, uint32_t  per)
 {
-	dma_channel [channel_]->CMAR = (uint32_t)mem;
+	dma_channel [channel_]->CMAR = mem;
+	dma_channel [channel_]->CPAR = per;
+}
+
+void Dma::setPtrMem (uint32_t  mem)
+{
+	dma_channel [channel_]->CMAR = mem;
 
 }
 
-void Dma::setPtrPeriph (uint32_t * per)
+void Dma::setPtrPeriph (uint32_t  per)
 {
-	dma_channel [channel_]->CPAR = (uint32_t)per;
+	dma_channel [channel_]->CPAR =  per;
 }
 
 void Dma::setLength (uint16_t length)
 {
 	dma_channel [channel_]->CNDTR = length;
+}
+
+void Dma::setSize (size m, size p)
+{
+	dma_channel [channel_]->CCR &= ~(DMA_CCR_PSIZE|DMA_CCR_MSIZE);
+	dma_channel [channel_]->CCR |= (m << 10|p << 8);
+}
+
+void Dma::setDirection (direction d)
+{
+	dma_channel [channel_]->CCR &= ~DMA_CCR_DIR;
+	dma_channel [channel_]->CCR |= d << 4;
 }
 
 void Dma::setIncMem (bool state)
@@ -53,6 +73,11 @@ void Dma::setMemToMem (bool state)
 	dma_channel [channel_]->CCR |= state << 14;
 }
 
+void Dma::setInterrupt (bool state)
+{
+	//dma_channel [channel_]->CCR &= ~
+}
+
 void Dma::setPrioritet (prioritet p)
 {
 	dma_channel [channel_]->CCR &= ~ DMA_CCR_PL;
@@ -70,29 +95,29 @@ void Dma::stop ()
 	dma_channel [channel_]->CCR &= ~DMA_CCR_EN;
 }
 
+bool Dma::flagTcif ()
+{
+	return (DMA1->ISR&(tcif << (((channel_)*4))));
+}
+
 void Dma::clearTcif ()
 {
-	DMA1->IFCR |= 1 << (((channel_-1)*4)+1);
+	DMA1->IFCR |= tcif << (((channel_)*4));
 }
 
 void Dma::clearTeif ()
 {
-	DMA1->IFCR |= 1 << (((channel_-1)*4)+3);
+	DMA1->IFCR |= teif << (((channel_)*4));
 }
 
 void Dma::clearHtif ()
 {
-	DMA1->IFCR |= 1 << (((channel_-1)*4)+2);
-}
-
-void Dma::clearGif ()
-{
-	DMA1->IFCR |= 1 << (((channel_-1)*4));
+	DMA1->IFCR |= htif << (((channel_)*4));
 }
 
 void Dma::clearFlags ()
 {
-	DMA1->IFCR |= 1 << (((channel_-1)*4)+3);
+	DMA1->IFCR |= gif << (((channel_)*4));
 }
 
 

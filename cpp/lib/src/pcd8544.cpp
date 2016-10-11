@@ -1,6 +1,6 @@
 #include "pcd8544.h"
 
-uint8_t Pcd8544::buffer [page][width] = {0};
+uint8_t Pcd8544::screenBuffer [page][width] = {0};
 Pcd8544::dmaMode Pcd8544::dmaMode_ = Pcd8544::off;
 
 const char Pcd8544::null_val = 0;
@@ -100,9 +100,21 @@ void Pcd8544::init ()
 	clearScreen ();
 }
 
-void  Pcd8544::dma (dmaMode m)
+void Pcd8544::dma (dmaMode m)
 {
-	dmaMode_ = m;
+	
+}
+
+void Pcd8544::dmaSetting ()
+{
+	//setting spi dma
+	SPI1->CR2 |= SPI_CR2_TXDMAEN;
+	mem2spi1.setChannel (Dma::ch3);
+	mem2spi1.setPtrPeriph ((uint32_t) (&(SPI1->DR)));
+	mem2spi1.setSize (Dma::bit8, Dma::bit8);
+	mem2spi1.setDirection (Dma::mem2periph);
+	mem2spi1.setIncMem (true);
+	mem2spi1.setIncPer (false);
 }
 
 void Pcd8544::command (uint8_t comm)
@@ -226,16 +238,6 @@ void Pcd8544::string (uint8_t line , uint8_t pos , const char *str, sFont &f, ui
 	while (spimodule->flag_bsy());
 	spimodule->disassert_Cs (Pcd8544Def::CsPin);
 }
-/*
-void Pcd8544::string (uint8_t line , uint8_t pos , const char *str, sFont &f, uint8_t interval)
-{
-	setLinePosition (line, pos);
-	while (*str)
-	{	
-		character (*str++,f);
-		for (int8_t i=0;i<interval;++i) byte (0);
-	}
-}*/
 
 void Pcd8544::parsingBin (uint8_t line , uint8_t pos, uint8_t interval, uint8_t number, sFont &f)
 {
@@ -245,6 +247,42 @@ void Pcd8544::parsingBin (uint8_t line , uint8_t pos, uint8_t interval, uint8_t 
 		if (number&(1<<(7-i))) character (line, position, '1',f);
 		else 	 character (line, position, '0',f);
 	}
+}
+
+void Pcd8544::characterToBuffer (uint8_t line , uint8_t position , const char ch, sFont &s)
+{
+	const uint8_t *tempPtr = s.font+(ch-s.shift)*s.width;
+	for (uint8_t i=0;i<s.width;++i,position++)
+	{
+		screenBuffer [line][position] = *tempPtr++;
+	}
+	
+}
+
+void Pcd8544::stringToBuffer (uint8_t line , uint8_t position, const char *str, sFont &s, uint8_t interval)
+{
+	while (*str)
+	{
+		characterToBuffer (line, position, *str++, s);
+		position += s.width+interval;
+	}
+
+	
+}
+
+void Pcd8544::drawBuffer ()
+{
+	setLinePosition (0, 0);
+	mem2spi1.setPtrMem ((uint32_t)screenBuffer);
+	mem2spi1.setLength (bufferSize);
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	mem2spi1.start ();
+	while (!mem2spi1.flagTcif());
+	mem2spi1.stop();
+	mem2spi1.clearTcif();
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
 }
 
 /*

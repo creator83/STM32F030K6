@@ -30,13 +30,13 @@ public:
 		void setPsc (uint16_t);
 		void setArr (uint16_t);
 		void setChannelValue (uint16_t);
-		uint16_t getCnt ();
 		void start ();
 		void stop ();
 		void clearFlag();
 		TIM_TypeDef * getPtrTimer (){return timerBase [n_];}
-
-private:
+protected:
+	uint16_t getCnt ();
+private:		
 		void clockTimer3 ();
 		void clockTimer14 ();
 		void clockTimer15 ();

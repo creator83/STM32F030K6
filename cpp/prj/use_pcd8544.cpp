@@ -40,36 +40,52 @@ void SysTick_Handler (void)
 
 }
 void init_encoder ();
+void SetClockForADC();
+void  CalibrateADC();
+void EnableADC();
+void ConfigureADC();
+void DisableADC();
 
 int main()
 {
 	Gtimer timer14 (Gtimer::Timer14, 33);
 	timer14.setArr (100);
-	init_encoder ();
+	//init_encoder ();
+	Qenc encoder (100);
 	Pwm led_pwm (timer14, Gpio::B, 1, Gpio::AF0, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
 	led_pwm.start();
 	Spi spi1 (Spi::master, Spi::software);
 	Pcd8544 lcd (spi1);
 	Buffer val (4);
+	SetClockForADC();
+	CalibrateADC();
+	EnableADC();
+	ConfigureADC();
 	Pcd8544::sFont sLat;
 	sLat.font = fontLAT;
 	sLat.width = 6;
 	sLat.shift = 32;
-	lcd.setLinePosition (0, 10);
-	lcd.byte (0xFF);
-	
 	lcd.character (0, 10, 'A', sLat);
 	lcd.string (1, 5, "HELLO!!!", sLat);
-	lcd.string (2, 5 , "12345", sLat);
-	lcd.string (3, 0 , "PWM", sLat);
+	lcd.string (4, 5 , "ADC", sLat);
 	
+	lcd.dmaSetting ();
+	lcd.characterToBuffer (5, 20, 'A', sLat);
+	lcd.stringToBuffer (0,0, "HELLO FROM BUFFER", sLat);
+	lcd.drawBuffer ();
+	
+	lcd.string (3, 0 , "PWM", sLat);
 	
 	while (1)
 	{
-		led_pwm.setValue (TIM3->CNT>>2);
-		val.pars (TIM3->CNT>>2);
+		led_pwm.setValue (encoder.getValue());
+		val.pars (encoder.getValue());
 		lcd.string (3, 25 , val.getArray(), sLat);
 		delay_ms (1);
+		ADC1->CR |= ADC_CR_ADSTART; /* start the ADC conversion */
+    while ((ADC1->ISR & ADC_ISR_EOC) == 0); 
+		val.pars (ADC1->DR);
+		lcd.string (4, 25 , val.getArray(), sLat);
 			
 		/*;
 		val.pars (N)
@@ -88,6 +104,80 @@ int main()
 	
 	}
 }
+
+void SetClockForADC()
+{
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN; 
+  RCC->CR2 |= RCC_CR2_HSI14ON; 
+  while ((RCC->CR2 & RCC_CR2_HSI14RDY) == 0) 
+  {
+    /* For robust implementation, add here time-out management */
+  }  
+}
+
+void  CalibrateADC()
+{
+  /* (1) Ensure that ADEN = 0 */
+  /* (2) Clear ADEN */ 
+  /* (3) Launch the calibration by setting ADCAL */
+  /* (4) Wait until ADCAL=0 */
+  if ((ADC1->CR & ADC_CR_ADEN) != 0) /* (1) */
+  {
+    ADC1->CR &= (uint32_t)(~ADC_CR_ADEN);  /* (2) */  
+  }
+  ADC1->CR |= ADC_CR_ADCAL; /* (3) */
+  while ((ADC1->CR & ADC_CR_ADCAL) != 0) /* (4) */
+  {
+    /* For robust implementation, add here time-out management */
+  }  
+}
+
+void EnableADC()
+{
+  /* (1) Enable the ADC */
+  /* (2) Wait until ADC ready */
+  do 
+  {
+    /* For robust implementation, add here time-out management */
+		ADC1->CR |= ADC_CR_ADEN; /* (1) */
+  }while ((ADC1->ISR & ADC_ISR_ADRDY) == 0) /* (2) */;
+}
+void DisableADC()
+{
+  /* (1) Ensure that no conversion on going */
+  /* (2) Stop any ongoing conversion */
+  /* (3) Wait until ADSTP is reset by hardware i.e. conversion is stopped */
+  /* (4) Disable the ADC */
+  /* (5) Wait until the ADC is fully disabled */
+  if ((ADC1->CR & ADC_CR_ADSTART) != 0) /* (1) */
+  {
+    ADC1->CR |= ADC_CR_ADSTP; /* (2) */
+  }
+  while ((ADC1->CR & ADC_CR_ADSTP) != 0) /* (3) */
+  {
+     /* For robust implementation, add here time-out management */
+  }
+  ADC1->CR |= ADC_CR_ADDIS; /* (4) */
+  while ((ADC1->CR & ADC_CR_ADEN) != 0) /* (5) */
+  {
+    /* For robust implementation, add here time-out management */
+  }  
+}
+
+void ConfigureADC()
+{
+  /* (1) Select HSI14 by writing 00 in CKMODE (reset value) */ 
+  /* (2) Select the auto off mode */
+  /* (3) Select CHSEL17 for VRefInt */
+  /* (4) Select a sampling mode of 111 i.e. 239.5 ADC clk to be greater than 17.1us */
+  /* (5) Wake-up the VREFINT (only for VBAT, Temp sensor and VRefInt) */
+  //ADC1->CFGR2 &= ~ADC_CFGR2_CKMODE; /* (1) */   
+  ADC1->CFGR1 |= ADC_CFGR1_AUTOFF; /* (2) */
+  ADC1->CHSELR = ADC_CHSELR_CHSEL0; /* (3) */
+  ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (4) */
+  ADC->CCR |= ADC_CCR_VREFEN; /* (5) */
+}
+
 void init_encoder ()
 {
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;

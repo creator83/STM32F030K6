@@ -70,7 +70,7 @@ public:
 	void stop ();
 
 	mode & GetSpiMode (){return spi_m;}
-
+	//SPI_TypeDef * (){return spi_m;}
 	static void set_cpol (Spi &, Cpol c);
   static void set_cpha (Spi &, Cpha c);
   static void set_ctar (Spi &, uint8_t c);
