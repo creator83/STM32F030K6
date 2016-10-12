@@ -18,8 +18,8 @@ B: CS = 12 SCK = 13 MOSI = 15 MISO = 14
 
 */
 
-#ifndef Spi_H
-#define Spi_H
+#ifndef SPI_H
+#define SPI_H
 
 
 class Spi;

@@ -7,13 +7,15 @@
 class Buffer
 {
 public:
-	static const uint8_t Array_char [10];
+	static const uint8_t Array_char [11];
 private:
 	uint8_t n;
 	uint8_t count;
 	char * arr ;
+	char * real;
 public:
 	Buffer(uint8_t size);
+	Buffer();
 	~Buffer ();
 	void pars (const uint16_t &);
 	bool setElement (uint8_t el, uint8_t val);

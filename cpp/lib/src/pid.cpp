@@ -1,25 +1,3 @@
-/*This file has been prepared for Doxygen automatic documentation generation.*/
-/*! \file *********************************************************************
- *
- * \brief General PID implementation for AVR.
- *
- * Discrete PID controller implementation. Set up by giving P/I/D terms
- * to Init_PID(), and uses a struct PID_DATA to store internal values.
- *
- * - File:               pid.c
- * - Compiler:           IAR EWAAVR 4.11A
- * - Supported devices:  All AVR devices can be used.
- * - AppNote:            AVR221 - Discrete PID controller
- *
- * \author               Atmel Corporation: http://www.atmel.com \n
- *                       Support email: avr@atmel.com
- *
- * $Name$
- * $Revision: 456 $
- * $RCSfile$
- * $Date: 2006-02-16 12:46:13 +0100 (to, 16 feb 2006) $
- *****************************************************************************/
-
 #include "pid.h"
 
 
@@ -32,21 +10,17 @@
  *  \param d_factor  Derivate term.
  *  \param pid  Struct with PID status.
  */
-void pid_Init(int16_t p_factor, int16_t i_factor, int16_t d_factor, struct PID_DATA *pid)
-// Set up PID controller parameters
-{
-  // Start values for PID controller
-  pid->sumError = 0;
-  pid->lastProcessValue = 0;
-  // Tuning constants for PID loop
-  pid->P_Factor = p_factor;
-  pid->I_Factor = i_factor;
-  pid->D_Factor = d_factor;
-  // Limits to avoid overflow
-  pid->maxError = MAX_INT / (pid->P_Factor + 1);
-  pid->maxSumError = MAX_I_TERM / (pid->I_Factor + 1);
-}
-
+ 
+ Pid::Pid (double P, double I, double D, uint16_t setPoint_)
+ {
+	 p = (uint16_t) (P*100);
+	 i = (uint16_t) (I*100);
+	 d = (uint16_t) (D*100);
+	 sumError = lastProcessValue = 0;
+	 maxError = MAX_INT / (p + 1);
+	 maxSumError = MAX_I_TERM / (i + 1);
+	 setPoint = setPoint_;
+ }
 
 /*! \brief PID control algorithm.
  *
@@ -56,60 +30,48 @@ void pid_Init(int16_t p_factor, int16_t i_factor, int16_t d_factor, struct PID_D
  *  \param processValue  Measured value.
  *  \param pid_st  PID status struct.
  */
-int16_t pid_Controller(int16_t setPoint, int16_t processValue, struct PID_DATA *pid_st)
-{
-  int16_t error, p_term, d_term;
-  int32_t i_term, ret, temp;
-
-  error = setPoint - processValue;
-
+uint16_t Pid::compute (uint16_t processValue)
+ {
+	 int16_t error, p_term, d_term;
+	 int32_t i_term, ret, temp;
+	 error = setPoint - processValue;
   // Calculate Pterm and limit error overflow
-  if (error > pid_st->maxError){
-    p_term = MAX_INT;
-  }
-  else if (error < -pid_st->maxError){
-    p_term = -MAX_INT;
-  }
-  else{
-    p_term = pid_st->P_Factor * error;
-  }
+  if (error > maxError) p_term = MAX_INT;
+  else if (error < -maxError) p_term = -MAX_INT;
+  else p_term = p * error;
 
   // Calculate Iterm and limit integral runaway
-  temp = pid_st->sumError + error;
-  if(temp > pid_st->maxSumError){
+  temp = sumError + error;
+  if(temp > maxSumError)
+	{
     i_term = MAX_I_TERM;
-    pid_st->sumError = pid_st->maxSumError;
+    sumError = maxSumError;
   }
-  else if(temp < -pid_st->maxSumError){
+  else if(temp < -maxSumError)
+	{
     i_term = -MAX_I_TERM;
-    pid_st->sumError = -pid_st->maxSumError;
+    sumError = -maxSumError;
   }
-  else{
-    pid_st->sumError = temp;
-    i_term = pid_st->I_Factor * pid_st->sumError;
-  }
+  else
+	{
+    sumError = temp;
+    i_term = i * sumError;
+  }	 
+	
+	// Calculate Dterm
+  d_term = d * (lastProcessValue - processValue);
 
-  // Calculate Dterm
-  d_term = pid_st->D_Factor * (pid_st->lastProcessValue - processValue);
+  lastProcessValue = processValue;
 
-  pid_st->lastProcessValue = processValue;
+  ret = (p_term + i_term + d_term) / 100;
+  if(ret > MAX_UINT) ret = MAX_UINT;
+  else if(ret < 0)ret = 0;
+    
+  return (uint16_t) ret;
+ }
 
-  ret = (p_term + i_term + d_term) / SCALING_FACTOR;
-  if(ret > MAX_INT){
-    ret = MAX_INT;
-  }
-  else if(ret < -MAX_INT){
-    ret = -MAX_INT;
-  }
-
-  return((int16_t)ret);
-}
-
-/*! \brief Resets the integrator.
- *
- *  Calling this function will reset the integrator in the PID regulator.
- */
-void pid_Reset_Integrator(pidData_t *pid_st)
+ void Pid::reset ()
 {
-  pid_st->sumError = 0;
+	sumError = 0;
 }
+

@@ -107,7 +107,7 @@ void Pcd8544::dma (dmaMode m)
 
 void Pcd8544::dmaSetting ()
 {
-	//setting spi dma
+	//settings spi dma
 	SPI1->CR2 |= SPI_CR2_TXDMAEN;
 	mem2spi1.setChannel (Dma::ch3);
 	mem2spi1.setPtrPeriph ((uint32_t) (&(SPI1->DR)));
@@ -115,6 +115,16 @@ void Pcd8544::dmaSetting ()
 	mem2spi1.setDirection (Dma::mem2periph);
 	mem2spi1.setIncMem (true);
 	mem2spi1.setIncPer (false);
+	mem2spi1.start ();
+
+	//settings mem2mem dma
+	mem2buff.setChannel (Dma::ch2);
+	mem2buff.setSize (Dma::bit8, Dma::bit8);
+	mem2buff.setDirection (Dma::mem2periph);
+	mem2buff.setMemToMem (true);
+	mem2buff.setIncMem (true);
+	mem2buff.setIncPer (true);
+	mem2buff.start ();
 }
 
 void Pcd8544::command (uint8_t comm)
@@ -259,6 +269,14 @@ void Pcd8544::characterToBuffer (uint8_t line , uint8_t position , const char ch
 	
 }
 
+void Pcd8544::characterToBufferDma (uint8_t line , uint8_t position , const char ch, sFont &s)
+{
+	const uint8_t *tempPtr = s.font+(ch-s.shift)*s.width;
+	mem2buff.setSources ((uint32_t) tempPtr, (uint32_t) &screenBuffer[line][position]);
+	mem2buff.setLength (s.width);
+	while (!mem2buff.flagTcif());
+	mem2buff.clearTcif();
+}
 void Pcd8544::stringToBuffer (uint8_t line , uint8_t position, const char *str, sFont &s, uint8_t interval)
 {
 	while (*str)
@@ -266,20 +284,25 @@ void Pcd8544::stringToBuffer (uint8_t line , uint8_t position, const char *str, 
 		characterToBuffer (line, position, *str++, s);
 		position += s.width+interval;
 	}
-
-	
 }
 
-void Pcd8544::drawBuffer ()
+void Pcd8544::stringToBufferDma (uint8_t line , uint8_t position, const char *str, sFont &s, uint8_t interval)
+{
+	while (*str)
+	{
+		characterToBufferDma (line, position, *str++, s);
+		position += s.width+interval;
+	}
+}
+
+void Pcd8544::drawBufferDma ()
 {
 	setLinePosition (0, 0);
 	mem2spi1.setPtrMem ((uint32_t)screenBuffer);
-	mem2spi1.setLength (bufferSize);
 	dc.setPin (Pcd8544Def::DcPin);
 	spimodule->assert_Cs(Pcd8544Def::CsPin);
-	mem2spi1.start ();
+	mem2spi1.setLength (bufferSize);
 	while (!mem2spi1.flagTcif());
-	mem2spi1.stop();
 	mem2spi1.clearTcif();
 	while (spimodule->flag_bsy());
 	spimodule->disassert_Cs (Pcd8544Def::CsPin);

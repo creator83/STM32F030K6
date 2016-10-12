@@ -10,8 +10,8 @@
 #include "qenc.h"
 #include "pwm.h"
 #include "gtimer.h"
+#include "pid.h"
 
-typedef unsigned int* reg;
 
 extern "C"
 {
@@ -22,6 +22,9 @@ extern "C"
 
 Tact frq;
 Gpio A (Gpio::A);
+Pid regulator (4.0, 2.2, 1.3, 40);
+
+
 struct encdr
 {
 	uint8_t state;
@@ -39,9 +42,10 @@ void SysTick_Handler (void)
 {
 
 }
+
 void init_encoder ();
 void SetClockForADC();
-void  CalibrateADC();
+void CalibrateADC();
 void EnableADC();
 void ConfigureADC();
 void DisableADC();
@@ -56,7 +60,7 @@ int main()
 	led_pwm.start();
 	Spi spi1 (Spi::master, Spi::software);
 	Pcd8544 lcd (spi1);
-	Buffer val (4);
+	Buffer val;
 	SetClockForADC();
 	CalibrateADC();
 	EnableADC();
@@ -70,38 +74,27 @@ int main()
 	lcd.string (4, 5 , "ADC", sLat);
 	
 	lcd.dmaSetting ();
-	lcd.characterToBuffer (5, 20, 'A', sLat);
-	lcd.stringToBuffer (0,0, "HELLO FROM BUFFER", sLat);
-	lcd.drawBuffer ();
-	
-	lcd.string (3, 0 , "PWM", sLat);
+	lcd.stringToBuffer (0,0, "BUFF WITHOUT DMA", sLat);
+	lcd.stringToBufferDma (1, 0, "BUFF WITH DMA", sLat);
+	lcd.stringToBufferDma (2, 0, "TEMP SET:", sLat);
+	lcd.stringToBufferDma (3, 0, "ADC:", sLat);
+	lcd.stringToBufferDma (4, 0, "PID:", sLat);
+	lcd.drawBufferDma ();
 	
 	while (1)
 	{
 		led_pwm.setValue (encoder.getValue());
 		val.pars (encoder.getValue());
-		lcd.string (3, 25 , val.getArray(), sLat);
-		delay_ms (1);
+		lcd.string (2, 25 , val.getArray(), sLat);
+		
 		ADC1->CR |= ADC_CR_ADSTART; /* start the ADC conversion */
     while ((ADC1->ISR & ADC_ISR_EOC) == 0); 
 		val.pars (ADC1->DR);
+		lcd.string (3, 25 , val.getArray(), sLat);
+		ADC1->ISR |= ADC_ISR_EOC;
+		val.pars (regulator.compute (encoder.getValue()));
 		lcd.string (4, 25 , val.getArray(), sLat);
-			
-		/*;
-		val.pars (N)
-	
-		for (uint8_t i=0;i<10;++i)
-		{
-			number_[0] = i;
-			delay_ms (300);
-		}
-
-		for (uint8_t i=0;i<2;++i)
-		{
-			lcd.draw_picture (arr[i], length);
-			delay_ms (500);
-		}*/
-	
+		delay_ms (1);
 	}
 }
 
