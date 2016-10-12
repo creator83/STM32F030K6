@@ -52,15 +52,16 @@ void DisableADC();
 
 int main()
 {
-	Gtimer timer14 (Gtimer::Timer14, 33);
-	timer14.setArr (100);
+	Gtimer timer14 (Gtimer::Timer14, 48000);
+	timer14.setArr (2000);
 	//init_encoder ();
 	Qenc encoder (100);
 	Pwm led_pwm (timer14, Gpio::B, 1, Gpio::AF0, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
+	led_pwm.setValue (100);
 	led_pwm.start();
 	Spi spi1 (Spi::master, Spi::software);
 	Pcd8544 lcd (spi1);
-	Buffer val;
+	Buffer val (5);
 	SetClockForADC();
 	CalibrateADC();
 	EnableADC();
@@ -83,10 +84,11 @@ int main()
 	
 	while (1)
 	{
-		led_pwm.setValue (encoder.getValue());
-		val.pars (encoder.getValue());
-		lcd.string (2, 25 , val.getArray(), sLat);
 		
+		val.pars (encoder.getValue());
+		//lcd.string (2, 54 , val.getArray(), sLat);
+		lcd.stringToBufferDma (2, 54, val.getArray(), sLat);
+		lcd.drawBufferDma (2, 54, 83);
 		ADC1->CR |= ADC_CR_ADSTART; /* start the ADC conversion */
     while ((ADC1->ISR & ADC_ISR_EOC) == 0); 
 		val.pars (ADC1->DR);

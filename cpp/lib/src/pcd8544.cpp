@@ -115,8 +115,7 @@ void Pcd8544::dmaSetting ()
 	mem2spi1.setDirection (Dma::mem2periph);
 	mem2spi1.setIncMem (true);
 	mem2spi1.setIncPer (false);
-	mem2spi1.start ();
-
+	
 	//settings mem2mem dma
 	mem2buff.setChannel (Dma::ch2);
 	mem2buff.setSize (Dma::bit8, Dma::bit8);
@@ -124,7 +123,6 @@ void Pcd8544::dmaSetting ()
 	mem2buff.setMemToMem (true);
 	mem2buff.setIncMem (true);
 	mem2buff.setIncPer (true);
-	mem2buff.start ();
 }
 
 void Pcd8544::command (uint8_t comm)
@@ -274,8 +272,10 @@ void Pcd8544::characterToBufferDma (uint8_t line , uint8_t position , const char
 	const uint8_t *tempPtr = s.font+(ch-s.shift)*s.width;
 	mem2buff.setSources ((uint32_t) tempPtr, (uint32_t) &screenBuffer[line][position]);
 	mem2buff.setLength (s.width);
+	mem2buff.start ();
 	while (!mem2buff.flagTcif());
 	mem2buff.clearTcif();
+	mem2buff.stop ();
 }
 void Pcd8544::stringToBuffer (uint8_t line , uint8_t position, const char *str, sFont &s, uint8_t interval)
 {
@@ -299,11 +299,28 @@ void Pcd8544::drawBufferDma ()
 {
 	setLinePosition (0, 0);
 	mem2spi1.setPtrMem ((uint32_t)screenBuffer);
+	mem2spi1.setLength (bufferSize);
 	dc.setPin (Pcd8544Def::DcPin);
 	spimodule->assert_Cs(Pcd8544Def::CsPin);
-	mem2spi1.setLength (bufferSize);
+	mem2spi1.start ();
 	while (!mem2spi1.flagTcif());
 	mem2spi1.clearTcif();
+	mem2spi1.stop ();
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+}
+
+void Pcd8544::drawBufferDma (uint8_t line, uint8_t x1, uint8_t x2)
+{
+	setLinePosition (line, x1);
+	mem2spi1.setPtrMem ((uint32_t)&screenBuffer[line][x1]);
+	mem2spi1.setLength (x2-x1);
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	mem2spi1.start ();
+	while (!mem2spi1.flagTcif());
+	mem2spi1.clearTcif();
+	mem2spi1.stop ();
 	while (spimodule->flag_bsy());
 	spimodule->disassert_Cs (Pcd8544Def::CsPin);
 }

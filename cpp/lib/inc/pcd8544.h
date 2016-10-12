@@ -121,6 +121,8 @@ public:
 	void stringToBuffer (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
 	void stringToBufferDma (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
 	void drawBufferDma ();
+	void drawBufferDma (uint8_t line, uint8_t x1, uint8_t x2);
+	void drawDma ();
 	void draw_font(char * font, char ch);
 	void draw_big_number(uint8_t x, uint8_t y, uint8_t ch);
 	void draw_char(uint8_t x , uint8_t y , char ch);

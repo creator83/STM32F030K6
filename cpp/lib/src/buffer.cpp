@@ -32,10 +32,14 @@ void Buffer::pars (const uint16_t & val)
 	uint8_t tTous, tous, hundr, dec, ones;
 	uint16_t temp = val;
 	count = 1;
-	for (tTous=0;temp>=10000;++tTous, ++count) temp -= 10000;
+	for (tTous=0;temp>=10000;++tTous) temp -= 10000;
+	//if (tTous)++count;
 	for (tous=0;temp>=1000;++tous, ++count)temp-=1000;
+	//if (tous) ++count;
 	for (hundr=0;temp>=100;++hundr, ++count)temp -=100;
+	//if (hundr) ++count;
 	for (dec=0;temp>=10;++dec, ++count)temp -=10;
+	//if (dec) ++count;
 	ones = temp%10;
 	++count;
 			arr [0] = Array_char [tTous];
@@ -43,12 +47,12 @@ void Buffer::pars (const uint16_t & val)
 			arr [2] = Array_char [hundr];
 			arr [3] = Array_char [dec];
 			arr [4] = Array_char [ones];
-			real = &arr [n-1-count];
+			//real = &arr [n-1-count];
 }
 
 char * Buffer::getArray ()
 {
-	return real;
+	return arr;
 }
 
 char * Buffer::getElement (uint8_t n)

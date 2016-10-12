@@ -7,7 +7,7 @@
 
 // Maximum value of variables
 const int16_t MAX_INT = 32767;
-const int16_t MAX_UINT = 0xFFFF;
+const uint16_t MAX_UINT = 0xFFFF;
 const int32_t MAX_LONG = 2147483647;
 const int32_t MAX_I_TERM = MAX_LONG/2;
 
