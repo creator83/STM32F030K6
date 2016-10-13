@@ -90,6 +90,7 @@ int main()
 	lcd.stringToBufferDma (3, 0, "ADC:", sLat);
 	lcd.stringToBufferDma (4, 0, "PID:", sLat);
 	lcd.drawBufferDma ();
+	NVIC_SetPriority(SysTick_IRQn, 0);
 	
 	while (1)
 	{
