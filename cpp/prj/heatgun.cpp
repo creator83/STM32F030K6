@@ -23,7 +23,15 @@ extern "C"
 Tact frq;
 Gpio A (Gpio::A);
 Pid regulator (4.0, 2.2, 1.3, 40);
+Gtimer timer14 (Gtimer::Timer14, 48000);
+Qenc encoder (500);
+Spi spi1 (Spi::master, Spi::software);
+Pcd8544 lcd (spi1);
+Buffer val (5);
+Pcd8544::sFont sLat;
+systimer mainloop (systimer::ms, 1);
 
+void setFont();
 
 struct encdr
 {
@@ -31,6 +39,8 @@ struct encdr
 	uint16_t count;
 }encod;
 uint16_t N = 62;
+
+uint16_t adcresult [8];
 
 const uint8_t pha = 8;
 const uint8_t phb = 9;
@@ -40,7 +50,15 @@ void scan_enc ();
 
 void SysTick_Handler (void)
 {
-
+	uint16_t result;
+	//write to buffer encoder value
+	val.pars (encoder.getValue());
+	lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
+	for (uint8_t i=0;i<8;++i)result += adcresult [i];
+	result >>=3;
+	val.pars (result);
+	lcd.stringToBufferDma (3, 45, val.getArray(), sLat);
+	lcd.drawBufferDma ();
 }
 
 void init_encoder ();
@@ -48,36 +66,27 @@ void SetClockForADC();
 void CalibrateADC();
 void EnableADC();
 void ConfigureADC();
+void ConfigureADCdma();
 void DisableADC();
 
 int main()
 {
-	Gtimer timer14 (Gtimer::Timer14, 48000);
+	
 	timer14.setArr (2000);
 	//init_encoder ();
-	Qenc encoder (100);
-	Pwm led_pwm (timer14, Gpio::B, 1, Gpio::AF0, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
-	led_pwm.setValue (100);
-	led_pwm.start();
-	Spi spi1 (Spi::master, Spi::software);
-	Pcd8544 lcd (spi1);
-	Buffer val (5);
+	setFont();
+	Pwm heater (timer14, Gpio::B, 1, Gpio::AF0, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
+	heater.start();
+		
 	SetClockForADC();
 	CalibrateADC();
 	EnableADC();
-	ConfigureADC();
-	Pcd8544::sFont sLat;
-	sLat.font = fontLAT;
-	sLat.width = 6;
-	sLat.shift = 32;
-	lcd.character (0, 10, 'A', sLat);
-	lcd.string (1, 5, "HELLO!!!", sLat);
-	lcd.string (4, 5 , "ADC", sLat);
-	
-	lcd.dmaSetting ();
-	lcd.stringToBuffer (0,0, "BUFF WITHOUT DMA", sLat);
-	lcd.stringToBufferDma (1, 0, "BUFF WITH DMA", sLat);
-	lcd.stringToBufferDma (2, 0, "TEMP SET:", sLat);
+	//ConfigureADC();
+	ConfigureADCdma();
+	//main screen
+	lcd.stringToBufferDma (0,10, "HEATGUN AIR", sLat);
+	lcd.stringToBufferDma (1, 0, "TEMP S:", sLat);
+	lcd.stringToBufferDma (2, 0, "TEMP C:", sLat);
 	lcd.stringToBufferDma (3, 0, "ADC:", sLat);
 	lcd.stringToBufferDma (4, 0, "PID:", sLat);
 	lcd.drawBufferDma ();
@@ -85,10 +94,6 @@ int main()
 	while (1)
 	{
 		
-		val.pars (encoder.getValue());
-		//lcd.string (2, 54 , val.getArray(), sLat);
-		lcd.stringToBufferDma (2, 54, val.getArray(), sLat);
-		lcd.drawBufferDma (2, 54, 83);
 		ADC1->CR |= ADC_CR_ADSTART; /* start the ADC conversion */
     while ((ADC1->ISR & ADC_ISR_EOC) == 0); 
 		val.pars (ADC1->DR);
@@ -99,6 +104,15 @@ int main()
 		delay_ms (1);
 	}
 }
+
+void setFont()
+{
+	sLat.font = fontLAT;
+	sLat.width = 6;
+	sLat.shift = 32;
+}
+
+
 
 void SetClockForADC()
 {
@@ -171,6 +185,27 @@ void ConfigureADC()
   ADC1->CHSELR = ADC_CHSELR_CHSEL1; /* (3) */
   ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (4) */
   ADC->CCR |= ADC_CCR_VREFEN; /* (5) */
+}
+
+void ConfigureADCdma()
+{
+	/* (1) Enable the peripheral clock on DMA */
+	/* (2) Enable DMA transfer on ADC and circular mode */
+	/* (3) Configure the peripheral data register address */
+	/* (4) Configure the memory address */
+	/* (5) Configure the number of DMA tranfer to be performs
+	on DMA channel 1 */
+	/* (6) Configure increment, size, interrupts and circular mode */
+	/* (7) Enable DMA Channel 1 */
+	RCC->AHBENR |= RCC_AHBENR_DMA1EN; /* (1) */
+	ADC1->CHSELR = ADC_CHSELR_CHSEL1;
+	ADC1->CFGR1 |= ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG; /* (2) */
+	DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR)); /* (3) */
+	DMA1_Channel1->CMAR = (uint32_t)(adcresult); /* (4) */
+	DMA1_Channel1->CNDTR = 8; /* (5) */
+	DMA1_Channel1->CCR |= DMA_CCR_MINC | DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0
+	| DMA_CCR_TEIE | DMA_CCR_CIRC; /* (6) */
+	DMA1_Channel1->CCR |= DMA_CCR_EN; /* (7) */
 }
 
 void init_encoder ()
