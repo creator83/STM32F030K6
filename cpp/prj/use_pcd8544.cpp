@@ -168,7 +168,7 @@ void ConfigureADC()
   /* (5) Wake-up the VREFINT (only for VBAT, Temp sensor and VRefInt) */
   //ADC1->CFGR2 &= ~ADC_CFGR2_CKMODE; /* (1) */   
   ADC1->CFGR1 |= ADC_CFGR1_AUTOFF; /* (2) */
-  ADC1->CHSELR = ADC_CHSELR_CHSEL0; /* (3) */
+  ADC1->CHSELR = ADC_CHSELR_CHSEL1; /* (3) */
   ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (4) */
   ADC->CCR |= ADC_CCR_VREFEN; /* (5) */
 }

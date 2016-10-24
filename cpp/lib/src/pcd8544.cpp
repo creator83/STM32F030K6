@@ -84,6 +84,7 @@ Pcd8544::Pcd8544 (Spi &module)
 	spimodule->set_f_size(Spi::bit_8);
 	spimodule->start();
 	init ();
+	dmaSetting ();
 }
 
 void Pcd8544::init ()
