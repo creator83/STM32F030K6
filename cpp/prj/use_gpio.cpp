@@ -5,10 +5,10 @@
 #include "systimer.h"
 
 
-tact frq;
-Gpio B (Gpio::B);
+Tact frq;
 
-const char pin = 1;
+
+const char pin = 0;
 
 extern "C"
 {
@@ -30,25 +30,19 @@ void init_int ()
 
 void SysTick_Handler ()
 {
-	static uint16_t i=0;
-	if (i>=1000)
-	{
-		B.ChangePinState (pin);
-		i=0;
-	}
-	else ++i;
 }
 
 
 int main()
 {
-	systimer (systimer::ms, 1);
-	B.setOutPin (pin);
+	Gpio B (Gpio::B);
+	B.settingPin (pin);
 
 
 
   while (1)
   {
-
+		B.ChangePinState (pin);
+		delay_ms (1000);
   }
 }
