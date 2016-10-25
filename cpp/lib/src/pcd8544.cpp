@@ -296,6 +296,24 @@ void Pcd8544::stringToBufferDma (uint8_t line , uint8_t position, const char *st
 	}
 }
 
+void Pcd8544::drawBuffer ()
+{
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	array (&screenBuffer[0][0], page*width);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+}
+
+void Pcd8544::drawBuffer (uint8_t line, uint8_t x1, uint8_t x2)
+{
+	dc.setPin (Pcd8544Def::DcPin);
+	spimodule->assert_Cs(Pcd8544Def::CsPin);
+	array (&screenBuffer[line][0], x2-x1);
+	while (spimodule->flag_bsy());
+	spimodule->disassert_Cs (Pcd8544Def::CsPin);
+}
+
 void Pcd8544::drawBufferDma ()
 {
 	setLinePosition (0, 0);

@@ -29,7 +29,7 @@ Spi spi1 (Spi::master, Spi::software);
 Pcd8544 lcd (spi1);
 Buffer val (5);
 Pcd8544::sFont sLat;
-systimer mainloop (systimer::ms, 1);
+
 
 void setFont();
 
@@ -41,6 +41,8 @@ struct encdr
 uint16_t N = 62;
 
 uint16_t adcresult [8];
+uint16_t result;
+
 
 const uint8_t pha = 8;
 const uint8_t phb = 9;
@@ -50,15 +52,9 @@ void scan_enc ();
 
 void SysTick_Handler (void)
 {
-	uint16_t result;
+	
 	//write to buffer encoder value
-	val.pars (encoder.getValue());
-	lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
-	for (uint8_t i=0;i<8;++i)result += adcresult [i];
-	result >>=3;
-	val.pars (result);
-	lcd.stringToBufferDma (3, 45, val.getArray(), sLat);
-	lcd.drawBufferDma ();
+	
 }
 
 void init_encoder ();
@@ -68,6 +64,7 @@ void EnableADC();
 void ConfigureADC();
 void ConfigureADCdma();
 void DisableADC();
+uint16_t adcValue ();
 
 int main()
 {
@@ -77,32 +74,37 @@ int main()
 	setFont();
 	Pwm heater (timer14, Gpio::B, 1, Gpio::AF0, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
 	heater.start();
+	
 		
 	SetClockForADC();
 	CalibrateADC();
 	EnableADC();
-	//ConfigureADC();
-	ConfigureADCdma();
-	//main screen
+	ConfigureADC();
+	//ConfigureADCdma();
+	//===main screen===//
 	lcd.stringToBufferDma (0,10, "HEATGUN AIR", sLat);
 	lcd.stringToBufferDma (1, 0, "TEMP S:", sLat);
 	lcd.stringToBufferDma (2, 0, "TEMP C:", sLat);
 	lcd.stringToBufferDma (3, 0, "ADC:", sLat);
 	lcd.stringToBufferDma (4, 0, "PID:", sLat);
-	lcd.drawBufferDma ();
-	NVIC_SetPriority(SysTick_IRQn, 0);
+	//lcd.drawBuffer ();
+	/*lcd.drawBuffer (0, 0, 83);
+	lcd.drawBuffer (1, 0, 83);
+	lcd.drawBuffer (2, 0, 83);
+	lcd.drawBuffer (3, 0, 83);
+	lcd.drawBuffer (4, 0, 83);*/
+
 	
 	while (1)
 	{
-		
-		ADC1->CR |= ADC_CR_ADSTART; /* start the ADC conversion */
-    while ((ADC1->ISR & ADC_ISR_EOC) == 0); 
-		val.pars (ADC1->DR);
-		lcd.string (3, 25 , val.getArray(), sLat);
-		ADC1->ISR |= ADC_ISR_EOC;
+		heater.setValue (encoder.getValue());
+		val.pars (encoder.getValue());
+		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
+		val.pars (adcValue ());
+		lcd.stringToBufferDma (3, 45, val.getArray(), sLat);
+		lcd.drawBuffer ();
 		val.pars (regulator.compute (encoder.getValue()));
-		lcd.string (4, 25 , val.getArray(), sLat);
-		delay_ms (1);
+		delay_ms (100);
 	}
 }
 
@@ -126,7 +128,7 @@ void SetClockForADC()
 }
 
 void  CalibrateADC()
-{
+{	
   /* (1) Ensure that ADEN = 0 */
   /* (2) Clear ADEN */ 
   /* (3) Launch the calibration by setting ADCAL */
@@ -174,6 +176,13 @@ void DisableADC()
   }  
 }
 
+uint16_t adcValue ()
+{
+		ADC1->CR |= ADC_CR_ADSTART; /* start the ADC conversion */
+    while ((ADC1->ISR & ADC_ISR_EOC) == 0); 
+		return ADC1->DR;
+}
+
 void ConfigureADC()
 {
   /* (1) Select HSI14 by writing 00 in CKMODE (reset value) */ 
@@ -200,6 +209,7 @@ void ConfigureADCdma()
 	/* (7) Enable DMA Channel 1 */
 	RCC->AHBENR |= RCC_AHBENR_DMA1EN; /* (1) */
 	ADC1->CHSELR = ADC_CHSELR_CHSEL1;
+	ADC1->CFGR1 |= ADC_CFGR1_CONT;
 	ADC1->CFGR1 |= ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG; /* (2) */
 	DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR)); /* (3) */
 	DMA1_Channel1->CMAR = (uint32_t)(adcresult); /* (4) */
