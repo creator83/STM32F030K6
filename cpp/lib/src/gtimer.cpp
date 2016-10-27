@@ -11,6 +11,14 @@ Gtimer::Gtimer (nTimer n, uint16_t divider)
 	setPsc (divider);
 }
 
+Gtimer::Gtimer (nTimer n, uint16_t divider, uint16_t arr)
+{
+	n_ = n;
+	(this->*(Gtimer::iniTimer[n_]))();
+	setPsc (divider);
+	setArr (arr);
+}
+
 Gtimer::Gtimer (nTimer n)
 {
 	n_ = n;

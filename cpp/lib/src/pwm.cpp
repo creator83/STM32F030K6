@@ -17,7 +17,10 @@ Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChanne
 	ptrTimer->CCER &= ~ (1 << ((pwmChannel*4)+1));
 	ptrTimer->CCER |=  (m << ((pwmChannel*4)+1));
 	ptrTimer->CCMR1 &= ~ (7 << ((pwmChannel*8)+4));
-	ptrTimer->CCMR1 |= (i << ((pwmChannel*8)+4))|TIM_CCMR1_OC1PE;
+	ptrTimer->CCMR2 &= ~ (7 << ((pwmChannel*8)+4));
+	if (pwmChannel<2) ptrTimer->CCMR1 |= (i << ((pwmChannel*8)+4))|TIM_CCMR1_OC1PE;
+	else  ptrTimer->CCMR2 |= (i << (((pwmChannel-2)*8)+4))|TIM_CCMR2_OC3PE;
+	
 	ptrTimer->EGR |= TIM_EGR_UG;
 /*	TIM14->PSC = 47; 
   TIM14->ARR = 8; 

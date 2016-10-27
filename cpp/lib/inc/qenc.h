@@ -14,14 +14,14 @@ namespace QdDef
 {
 //===Defenitions===//
 //PHA
-const Gpio::Port PhaPort = Gpio::B;
-const Gpio::Afmode PhaAf = Gpio::AF1;
-const uint8_t PhaPin = 4;
+const Gpio::Port PhaPort = Gpio::A;
+const Gpio::Afmode PhaAf = Gpio::AF2;
+const uint8_t PhaPin = 8;
 
 //PHB
-const Gpio::Port PhbPort = Gpio::B;
-const Gpio::Afmode PhbAf = Gpio::AF1;
-const uint8_t PhbPin = 5;
+const Gpio::Port PhbPort = Gpio::A;
+const Gpio::Afmode PhbAf = Gpio::AF2;
+const uint8_t PhbPin = 9;
 }
 
 
@@ -31,7 +31,7 @@ const uint8_t PhbPin = 5;
 #define QENC_H
 
 
-class Qenc : public Gtimer
+class Qenc
 {
   //variables
 public:

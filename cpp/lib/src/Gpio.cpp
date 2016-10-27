@@ -32,7 +32,8 @@ void Gpio::settingPinPort (Port p)
 
 void Gpio::settingAf (uint8_t pin, Afmode a)
 {
-	GpioBase [prt]->AFR[0]|= a << (4*pin); 
+	if (pin <7)GpioBase [prt]->AFR[0]|= a << (4*pin); 
+	else GpioBase [prt]->AFR[1]|= a << (4*(pin-8)); 
 }
 
 void Gpio::settingOut (uint8_t pin, Omode o)
