@@ -25,6 +25,7 @@ protected:
 //functions
 public:
 		Gtimer (nTimer n, uint16_t divider);
+		Gtimer (nTimer n, uint16_t divider, uint16_t arr);
 		Gtimer (nTimer n);
 		void setCnt (uint16_t);
 		void setPsc (uint16_t);

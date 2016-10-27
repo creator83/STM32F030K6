@@ -11,7 +11,7 @@ namespace Pcd8544Def
 //===Defenitions===//
 //CS
 const Gpio::Port CsPort = Gpio::A;
-const uint8_t CsPin = 4;
+const uint8_t CsPin = 1;
 
 //SCK
 const Gpio::Port SckPort = Gpio::A;

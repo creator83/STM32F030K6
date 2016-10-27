@@ -4,9 +4,9 @@
 
 
 Qenc::Qenc (uint16_t range)
-:Gtimer (Gtimer::Timer3)
 {
 	high = range << 2;
+	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 	setMode ();
 }
 
@@ -27,20 +27,20 @@ void Qenc::setMode ()
 
 	//===Settings timer===//
 	
-	timerBase [n_]->CCMR1 |= TIM_CCMR1_CC1S_0 | TIM_CCMR1_CC2S_0;
-	timerBase [n_]->CCMR1 |= TIM_CCMR1_IC1F_1| TIM_CCMR1_IC2F_1;
-	timerBase [n_]->CCER &= ~(TIM_CCER_CC1P|TIM_CCER_CC2P);
-	timerBase [n_]->SMCR |= TIM_SMCR_SMS_0 | TIM_SMCR_SMS_1;
-	start ();
+	TIM1->CCMR1 |= TIM_CCMR1_CC1S_0 | TIM_CCMR1_CC2S_0;
+	TIM1->CCMR1 |= TIM_CCMR1_IC1F_1| TIM_CCMR1_IC2F_1;
+	TIM1->CCER &= ~(TIM_CCER_CC1P|TIM_CCER_CC2P);
+	TIM1->SMCR |= TIM_SMCR_SMS_0 | TIM_SMCR_SMS_1;
+	TIM1->CR1 |= TIM_CR1_CEN;
 }
 
 uint16_t Qenc::getValue ()
 {
-	value = timerBase [n_]->CNT;
+	value = TIM1->CNT;
 	if (value>high)
 	{
 		value = high;
-		timerBase [n_]->CNT = high;
+		TIM1->CNT = high;
 		return value >> 2;
 	}		
 	return value >> 2;
