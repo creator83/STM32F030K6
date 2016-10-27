@@ -4,9 +4,9 @@ GPIO_TypeDef* Gpio::GpioBase [6] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF};
 
 Gpio::Gpio (Port p)
 {
-  prt = p;
+  prt = (uint8_t) p;
 //takt port
-  RCC->AHBENR |= (0x20000 << p);
+  RCC->AHBENR |= (0x20000 << prt);
 }
 
 Gpio::Gpio(uint8_t p )

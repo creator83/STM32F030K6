@@ -5,7 +5,7 @@
 #define SYSTIMER_H
 
 
-class systimer
+class Systimer
 {
 	//variables
 public:
@@ -15,7 +15,9 @@ private:
 	
 //functions
 public:
-	systimer (mode m, uint16_t val);
+	Systimer (mode m, uint16_t val);
+	void interruptEnable ();
+	void interruptDisable ();
 
 private:
 	

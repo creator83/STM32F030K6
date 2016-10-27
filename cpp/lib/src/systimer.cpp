@@ -1,7 +1,7 @@
 #include "systimer.h"
 
 
-systimer::systimer(mode m, uint16_t val)
+Systimer::Systimer(mode m, uint16_t val)
 {
 	switch (static_cast <uint8_t> (m))
 	{
@@ -17,3 +17,11 @@ systimer::systimer(mode m, uint16_t val)
 	}
 }
 
+void Systimer::interruptEnable ()
+{
+	
+}
+
+void Systimer::interruptDisable ()
+{
+}

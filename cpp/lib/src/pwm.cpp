@@ -1,7 +1,9 @@
 #include "pwm.h"
 
+Pwm::PtrPwm Pwm::funcMode [3] ={&Pwm::setEdgePwm};
+uint8_t Pwm::ccrPtr [4] = {0x34, 0x38, 0x3C, 0x40};
 
-Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode m, inverse i)
+Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
 {
 	timer = &t;
 	ptrTimer = timer->getPtrTimer();
@@ -12,16 +14,8 @@ Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChanne
 	pwmPin.settingPin (pin, Gpio::AltFunc);
 	pwmPin.settingAf (pin, af);
 	
-	//settings timer
-	ptrTimer->CCER |= 1 << (pwmChannel*4);
-	ptrTimer->CCER &= ~ (1 << ((pwmChannel*4)+1));
-	ptrTimer->CCER |=  (m << ((pwmChannel*4)+1));
-	ptrTimer->CCMR1 &= ~ (7 << ((pwmChannel*8)+4));
-	ptrTimer->CCMR2 &= ~ (7 << ((pwmChannel*8)+4));
-	if (pwmChannel<2) ptrTimer->CCMR1 |= (i << ((pwmChannel*8)+4))|TIM_CCMR1_OC1PE;
-	else  ptrTimer->CCMR2 |= (i << (((pwmChannel-2)*8)+4))|TIM_CCMR2_OC3PE;
+	(this->*(Pwm::funcMode[mode_]))(m);
 	
-	ptrTimer->EGR |= TIM_EGR_UG;
 /*	TIM14->PSC = 47; 
   TIM14->ARR = 8; 
   TIM14->CCR1 = 4; 
@@ -32,9 +26,23 @@ Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChanne
 	
 }
 
+void Pwm::setEdgePwm (pulseMode m)
+{
+	//settings timer
+	ptrTimer->CCER &= ~ (1 << ((pwmChannel*4)+1));
+	ptrTimer->CCER |=  (m << ((pwmChannel*4)+1))|(1 << (pwmChannel*4));
+	
+	ptrTimer->CCMR1 &= ~ (7 << ((pwmChannel*8)+4));
+	ptrTimer->CCMR2 &= ~ (7 << ((pwmChannel*8)+4));
+	if (pwmChannel<2) ptrTimer->CCMR1 |= (0x06 << ((pwmChannel*8)+4))|1 << ((pwmChannel*8)+3);
+	else  ptrTimer->CCMR2 |= (0x06 << (((pwmChannel-2)*8)+4))|1 << ((pwmChannel*8)+3);
+	
+	ptrTimer->EGR |= TIM_EGR_UG;
+}
+
 void Pwm::setValue (uint16_t val)
 {
-	ptrTimer->CCR1 = val;
+	*(uint32_t*)(timer->getadressBase()+ccrPtr [pwmChannel]) = val;
 }
 
 void Pwm::start ()

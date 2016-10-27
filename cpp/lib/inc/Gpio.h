@@ -8,7 +8,7 @@ class Gpio
 {
 //variables
 public:
-  enum Port {A , B , C , F=5};
+  enum Port : uint8_t {A , B , C , F=5};
   enum Mode {Input , Output , AltFunc , Analog};
 	enum Afmode {AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7};
 	enum Omode {PushPull , OpenDrain};

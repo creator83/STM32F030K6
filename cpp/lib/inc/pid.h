@@ -29,6 +29,10 @@ class Pid
 public:
 	Pid (double P, double I, double D, uint16_t setPoint_);
 	uint16_t compute (uint16_t processValue);
+	
+	uint16_t & getP (){return p;}
+	uint16_t & getI (){return i;}
+	uint16_t & getD (){return d;}
 	void reset ();
 };
 

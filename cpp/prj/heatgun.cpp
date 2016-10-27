@@ -21,11 +21,12 @@ extern "C"
 }
 
 Tact frq;
-Pid regulator (4.0, 2.2, 1.3, 40);
+Pid regulator (4.0, 2.2, 1.3, 50);
 Gtimer timer14 (Gtimer::Timer14, 60, 100);
 Gtimer timer3 (Gtimer::Timer3, 100, 4800);
 Qenc encoder (100);
 Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
+Systimer mainLoop (Systimer::ms, 1);
 
 
 Spi spi1 (Spi::master, Spi::software);
@@ -33,24 +34,64 @@ Pcd8544 lcd (spi1);
 Buffer val (5);
 Pcd8544::sFont sLat;
 
+uint16_t valArray [4];
+uint8_t menuPosition;
 
 void setFont();
 
-struct encdr
+struct tasks
 {
-	uint8_t state;
-	uint16_t count;
-}encod;
-uint16_t N = 62;
+	unsigned counter : 6;
+	unsigned limit : 6;
+	unsigned flag : 1;
+}display, button, pid, adc;
 
-uint16_t adcresult [8];
-uint16_t result;
+struct data
+{
+	uint8_t strPos;
+	uint8_t linePos;
+	uint16_t data;
+}dataSpeed, dataTemp, dataP, dataI, dataD;
+
+data * dataArray [5] = {&dataSpeed, &dataTemp, &dataP, &dataI, &dataD};
+
+uint16_t adcValue ();
 
 void SysTick_Handler (void)
 {
+	static uint16_t adcArray [4];
+	uint16_t result=0;
 	
-	//write to buffer encoder value
+	if (adc.counter>adc.limit) adc.flag = 1;
+	if (display.counter > display.limit) display.flag = 1;
+	if (pid.counter > pid.limit) pid.flag = 1;
 	
+	if (adc.flag)
+	{
+		for (uint8_t i=0;i<4;++i) result += adcArray [i];
+		result >>= 2;
+		adc.flag = 0;
+		adc.counter = 0;
+		val.pars (result);
+		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
+	}
+	else adcArray [adc.counter] = adcValue ();
+	if (display.flag) 
+	{
+		lcd.drawBuffer ();
+		display.flag = 0;
+		display.counter = 0;
+	}
+	if (pid.flag) 
+	{
+		val.pars (regulator.compute (encoder.getValue()));
+		pid.flag = 0;
+		pid.counter = 0;
+	}	
+	
+	display.counter++;
+	pid.counter++;
+	adc.counter++;
 }
 
 void init_encoder ();
@@ -60,12 +101,38 @@ void EnableADC();
 void ConfigureADC();
 void ConfigureADCdma();
 void DisableADC();
-uint16_t adcValue ();
+
 
 int main()
 {
+	//temperature
+	dataTemp.strPos = 15;
+	dataTemp.linePos = 1;
+	
+	//speed
+	dataSpeed.strPos = 55;
+	dataSpeed.linePos = 1;
+	
+	//P
+	dataP.strPos = 10;
+	dataP.linePos = 4;
+	dataP.data = regulator.getP();
+	
+	//I
+	dataI.strPos = 40;
+	dataI.linePos = 4;	
+	dataI.data = regulator.getI();
+	//D
+	dataD.strPos = 60;
+	dataD.linePos = 4;		
+	dataD.data = regulator.getD();
+	
+	adc.limit = 3;
+	display.limit = 10;
+	
+	pid.limit = 9;
+	
 	Pwm airHeater (timer3, Gpio::B, 0, Gpio::AF1,  Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
-	//init_encoder ();
 	setFont();
 	fun.start();
 	airHeater.setValue (3000);
@@ -79,11 +146,14 @@ int main()
 	//ConfigureADCdma();
 	//===main screen===//
 	lcd.stringToBufferDma (0,10, "HEATGUN AIR", sLat);
-	lcd.stringToBufferDma (1, 0, "TEMP S:", sLat);
+	lcd.stringToBufferDma (1, 0, "TS:", sLat);
+	lcd.stringToBufferDma (1, 40, "SPEED:", sLat);
 	lcd.stringToBufferDma (2, 0, "TEMP C:", sLat);
 	lcd.stringToBufferDma (3, 0, "ADC:", sLat);
-	lcd.stringToBufferDma (4, 0, "PID:", sLat);
-	lcd.drawBuffer ();
+	lcd.stringToBufferDma (4, 0, "P:", sLat);
+	lcd.stringToBufferDma (4, 30, "I:", sLat);
+	lcd.stringToBufferDma (4, 60, "D:", sLat);
+	lcd.stringToBufferDma (5, 0, "PID:", sLat);
 	/*lcd.drawBuffer (0, 0, 83);
 	lcd.drawBuffer (1, 0, 83);
 	lcd.drawBuffer (2, 0, 83);
@@ -209,7 +279,7 @@ void ConfigureADCdma()
 	ADC1->CFGR1 |= ADC_CFGR1_CONT;
 	ADC1->CFGR1 |= ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG; /* (2) */
 	DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR)); /* (3) */
-	DMA1_Channel1->CMAR = (uint32_t)(adcresult); /* (4) */
+	//DMA1_Channel1->CMAR = (uint32_t)(adcresult); /* (4) */
 	DMA1_Channel1->CNDTR = 8; /* (5) */
 	DMA1_Channel1->CCR |= DMA_CCR_MINC | DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0
 	| DMA_CCR_TEIE | DMA_CCR_CIRC; /* (6) */
