@@ -1,7 +1,7 @@
 #include "pwm.h"
 
 Pwm::PtrPwm Pwm::funcMode [3] ={&Pwm::setEdgePwm};
-uint8_t Pwm::ccrPtr [4] = {0x34, 0x38, 0x3C, 0x40};
+uint8_t Pwm::ccrPtr [4] = {13, 14, 15, 16};
 
 Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
 {
@@ -42,7 +42,7 @@ void Pwm::setEdgePwm (pulseMode m)
 
 void Pwm::setValue (uint16_t val)
 {
-	*(uint32_t*)(timer->getadressBase()+ccrPtr [pwmChannel]) = val;
+	*(uint32_t*)((uint32_t*)timer->getPtrTimer()+ccrPtr[pwmChannel])= val; 
 }
 
 void Pwm::start ()

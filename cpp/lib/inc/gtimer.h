@@ -35,7 +35,7 @@ public:
 		void stop ();
 		void clearFlag();
 		TIM_TypeDef * getPtrTimer (){return timerBase [n_];}
-		uint32_t  getadressBase (){return (uint32_t)&timerBase [n_];}
+	//	uint32_t*  getadressBase (){return timerBase [n_];}
 protected:
 	uint16_t getCnt ();
 private:		

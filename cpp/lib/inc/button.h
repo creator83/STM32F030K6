@@ -10,11 +10,11 @@ class Button
 //variables
 public:
 private:
-	uint8_t counter;
+	uint16_t counter;
 	bool shortPress;
 	bool longPress;
 	bool lastState;
-	bool pushState;
+	//bool pushState;
 	bool currentState;
 	uint8_t state;
 	uint16_t shortLimit;

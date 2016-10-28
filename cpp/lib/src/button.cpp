@@ -7,11 +7,14 @@ Button::Button (Gpio::Port p_, uint8_t pin_)
 	longFunction = nullptr;	
 	pin.settingPin (pin_, Gpio::Input);
 	p = pin_;
+	shortPress = longPress = lastState = currentState = false;
+	counter = 0;
+	longLimit = 0xFFFF;
 }
 
 void Button::scan ()
 {
-	if (!shortPress||!longPress||!pushState||shortFunction == nullptr||longFunction||nullptr)
+	if (!pin.pinState (p)&&!shortPress&&!longPress&&shortFunction != nullptr)
 	{
 		currentState = !pin.pinState (p);
 		state = lastState << 1| currentState;
@@ -42,7 +45,9 @@ void Button::scan ()
 	if (longPress) 
 	{
 		longFunction();
-		longPress = 0;
+		do
+			longPress = 0;
+		while (!pin.pinState (p));
 	}
 	if (shortPress)
 	{

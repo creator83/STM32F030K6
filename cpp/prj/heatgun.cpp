@@ -15,12 +15,6 @@
 #include "button.h"
 
 
-extern "C"
-{
-	void DMA1_Channel2_3_IRQHandler(void);
-	void DMA1_Channel4_5_IRQHandler(void);
-	void SysTick_Handler (void);
-}
 
 Tact frq;
 Pid regulator (4.0, 2.2, 1.3, 50);
@@ -28,13 +22,19 @@ Gtimer timer14 (Gtimer::Timer14, 60, 100);
 Gtimer timer3 (Gtimer::Timer3, 100, 4800);
 Qenc encoder (100);
 Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
-Systimer mainLoop (Systimer::ms, 1);
+
 Button buttMenu (Gpio::A, 15);
 
+extern "C"
+{
+	void DMA1_Channel2_3_IRQHandler(void);
+	void DMA1_Channel4_5_IRQHandler(void);
+	void SysTick_Handler (void);
+}
 Gpio A (Gpio::A);
 Gpio B (Gpio::B);
 const uint8_t b= 15;
-const uint8_t led = 4;
+const uint8_t led = 0;
 Spi spi1 (Spi::master, Spi::software);
 Pcd8544 lcd (spi1);
 Buffer val (5);
@@ -59,16 +59,6 @@ struct data
 	uint16_t data;
 }dataSpeed, dataTemp, dataP, dataI, dataD;
 
-struct button_
-{
-	unsigned limit :6;
-	unsigned counter : 6;
-	unsigned currentState : 1;
-	unsigned lastState : 1;
-	unsigned state : 2;
-	unsigned flag : 1;
-	unsigned pushState : 1;
-}butt;
 
 data * dataArray [5] = {&dataSpeed, &dataTemp, &dataP, &dataI, &dataD};
 
@@ -79,48 +69,16 @@ void SysTick_Handler (void)
 	static uint16_t adcArray [4];
 	uint16_t result=0;
 	
+	fun.setValue (encoder.getValue());
+		val.pars (encoder.getValue());
+		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
+	
 	buttMenu.scan();
 
-	if (!butt.flag || !butt.pushState)
-	{
-		butt.currentState = !A.pinState(b);
-		butt.state = butt.lastState << 1| butt.currentState;
-		switch (butt.state)
-		{
-			case 1:
-				butt.counter++;
-			break;
-			case 2:
-				butt.counter = 0;
-			break;
-			case 3:
-				butt.counter++;
-			break;
-		}
-		butt.lastState = butt.currentState;
-	}
-	
-	if (butt.counter > butt.limit) 
-	{
-		butt.pushState = 1;
-		butt.counter = 0;
-	}
-	
-	if (butt.pushState && A.pinState(b)) 
-	{
-		butt.flag = 1;
-		butt.pushState = 0;
-	}
-	
 	
 	if (adc.counter>adc.limit) adc.flag = 1;
 	if (display.counter > display.limit) display.flag = 1;
 	if (pid.counter > pid.limit) pid.flag = 1;
-	
-	if (butt.flag)
-	{
-		//some function
-	}
 	
 	if (adc.flag)
 	{
@@ -168,13 +126,12 @@ void shortAction ()
 
 int main()
 {
-	B.settingPin (led);
 	
+	B.settingPin (led);
 	buttMenu.setShortLimit (10);
 	buttMenu.setLongLimit (2000);
 	buttMenu.setlongPressAction (shortAction);
 	
-	butt.limit = 10;
 	A.settingPin (b, Gpio::Input);
 	//temperature
 	dataTemp.strPos = 15;
@@ -206,7 +163,7 @@ int main()
 	Pwm airHeater (timer3, Gpio::B, 0, Gpio::AF1,  Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
 	setFont();
 	fun.start();
-	airHeater.setValue (3000);
+	airHeater.setValue (100);
 	airHeater.start();
 
 	lcd.dmaSetting ();
@@ -229,20 +186,21 @@ int main()
 	lcd.drawBuffer (1, 0, 83);
 	lcd.drawBuffer (2, 0, 83);
 	lcd.drawBuffer (3, 0, 83);
-	lcd.drawBuffer (4, 0, 83);*/
+	lcd.drawBuffer (4, 0, 83);
+	NVIC_EnableIRQ(SysTick_IRQn);*/
+	Systimer sys (Systimer::ms, 1);
 
 	
 	while (1)
 	{
-		fun.setValue (encoder.getValue());
-		val.pars (encoder.getValue());
-		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
-		lcd.drawBuffer ();
+		B.ChangePinState (led);
+		delay_ms (1000);
+
 	/*	val.pars (adcValue ());
 		lcd.stringToBufferDma (3, 45, val.getArray(), sLat);
 		
 		val.pars (regulator.compute (encoder.getValue()));*/
-		delay_ms (100);
+
 	}
 }
 
