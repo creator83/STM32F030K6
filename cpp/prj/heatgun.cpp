@@ -11,6 +11,8 @@
 #include "pwm.h"
 #include "gtimer.h"
 #include "pid.h"
+#include "adc.h"
+#include "button.h"
 
 
 extern "C"
@@ -27,8 +29,12 @@ Gtimer timer3 (Gtimer::Timer3, 100, 4800);
 Qenc encoder (100);
 Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
 Systimer mainLoop (Systimer::ms, 1);
+Button buttMenu (Gpio::A, 15);
 
-
+Gpio A (Gpio::A);
+Gpio B (Gpio::B);
+const uint8_t b= 15;
+const uint8_t led = 4;
 Spi spi1 (Spi::master, Spi::software);
 Pcd8544 lcd (spi1);
 Buffer val (5);
@@ -53,6 +59,17 @@ struct data
 	uint16_t data;
 }dataSpeed, dataTemp, dataP, dataI, dataD;
 
+struct button_
+{
+	unsigned limit :6;
+	unsigned counter : 6;
+	unsigned currentState : 1;
+	unsigned lastState : 1;
+	unsigned state : 2;
+	unsigned flag : 1;
+	unsigned pushState : 1;
+}butt;
+
 data * dataArray [5] = {&dataSpeed, &dataTemp, &dataP, &dataI, &dataD};
 
 uint16_t adcValue ();
@@ -62,9 +79,48 @@ void SysTick_Handler (void)
 	static uint16_t adcArray [4];
 	uint16_t result=0;
 	
+	buttMenu.scan();
+
+	if (!butt.flag || !butt.pushState)
+	{
+		butt.currentState = !A.pinState(b);
+		butt.state = butt.lastState << 1| butt.currentState;
+		switch (butt.state)
+		{
+			case 1:
+				butt.counter++;
+			break;
+			case 2:
+				butt.counter = 0;
+			break;
+			case 3:
+				butt.counter++;
+			break;
+		}
+		butt.lastState = butt.currentState;
+	}
+	
+	if (butt.counter > butt.limit) 
+	{
+		butt.pushState = 1;
+		butt.counter = 0;
+	}
+	
+	if (butt.pushState && A.pinState(b)) 
+	{
+		butt.flag = 1;
+		butt.pushState = 0;
+	}
+	
+	
 	if (adc.counter>adc.limit) adc.flag = 1;
 	if (display.counter > display.limit) display.flag = 1;
 	if (pid.counter > pid.limit) pid.flag = 1;
+	
+	if (butt.flag)
+	{
+		//some function
+	}
 	
 	if (adc.flag)
 	{
@@ -102,9 +158,24 @@ void ConfigureADC();
 void ConfigureADCdma();
 void DisableADC();
 
+void shortAction ()
+{
+	B.setPin (led);
+	delay_ms (500);
+	B.clearPin (led);
+}
+
 
 int main()
 {
+	B.settingPin (led);
+	
+	buttMenu.setShortLimit (10);
+	buttMenu.setLongLimit (2000);
+	buttMenu.setlongPressAction (shortAction);
+	
+	butt.limit = 10;
+	A.settingPin (b, Gpio::Input);
 	//temperature
 	dataTemp.strPos = 15;
 	dataTemp.linePos = 1;

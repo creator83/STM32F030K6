@@ -1,47 +1,72 @@
 #include "button.h"
 
-button::button (PORT p_, uint8_t pin_)
+Button::Button (Gpio::Port p_, uint8_t pin_)
 :pin (p_)
 {
-	pin.setInPin (pin_);
-	p = p_;
-	sh_press_lmt = 2;
+	shortFunction = nullptr;
+	longFunction = nullptr;	
+	pin.settingPin (pin_, Gpio::Input);
+	p = pin_;
 }
 
-void button::scan_short ()
+void Button::scan ()
 {
-	if (!debouncer)
+	if (!shortPress||!longPress||!pushState||shortFunction == nullptr||longFunction||nullptr)
 	{
-		if (push_state)
+		currentState = !pin.pinState (p);
+		state = lastState << 1| currentState;
+		switch (state)
 		{
-			if (!pin.PinState(p)) count ++;
-			if (pin.PinState(p)&&count>sh_press_lmt)
-			{
-				count = 0;
-				push_state = false;
-				short_press = true;
-			}
+			case 1:
+				counter++;
+			break;
+			case 2:
+				counter = 0;
+			break;
+			case 3:
+				counter++;
+			break;
 		}
-		else
-		{
-			if (!pin.PinState(p)) push_state = true;
-		}
+		lastState = currentState;
 	}
-	else count ++;
-	if (debouncer&&count>5)
+	if (counter>shortLimit && counter<longLimit && pin.pinState(p))
 	{
-		debouncer = false;
-		count = 0;
-	}		
+		shortPress = 1;
+		counter = 0;
+	}
+	if (counter>longLimit)
+	{
+		longPress = 1;
+		counter = 0;
+	}
+	if (longPress) 
+	{
+		longFunction();
+		longPress = 0;
+	}
+	if (shortPress)
+	{
+		shortFunction ();
+		shortPress = 0;
+	}
 }
 
-void button::action_short (void (*func)())
+void Button::setShortLimit (uint16_t val)
 {
-	short_press = false;	
-	func();
+	shortLimit = val;	
+}
+void Button::setLongLimit (uint16_t val)
+{
+	longLimit = val;
+}
+		
+void Button::setshortPressAction (void (*f)())
+{
+	shortFunction = f;
 }
 
-void button::action_long (void (*func)())
+void Button::setlongPressAction (void (*f)())
 {
-	
+	longFunction = f;
 }
+

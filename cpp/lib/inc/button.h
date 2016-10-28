@@ -5,27 +5,34 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-class button
+class Button
 {
 //variables
 public:
-	enum PORT {A, B, C, D};
-	uint16_t count;
-	bool short_press;
-	bool long_press;
-	bool push_l_state;
-	bool push_state;
-	bool act_state;
-	bool debouncer;
-	uint8_t sh_press_lmt;
-	uint8_t long_press_lmt;
+private:
+	uint8_t counter;
+	bool shortPress;
+	bool longPress;
+	bool lastState;
+	bool pushState;
+	bool currentState;
+	uint8_t state;
+	uint16_t shortLimit;
+	uint16_t longLimit;
+	void (*shortFunction)();
+	void (*longFunction)();
 	uint8_t p;
 	Gpio pin;
 //func
-	button (PORT p_, uint8_t pin_);
-	void scan_short ();
-	void action_short (void (*func)());
-	void action_long (void (*func)());
+public:
+Button (Gpio::Port, uint8_t pin_);
+	void scan ();
+	void setShortLimit (uint16_t);
+	void setLongLimit (uint16_t);
+	bool & getShortPress (){return shortPress;}
+	bool & getLongPress (){return longPress;}
+	void setshortPressAction (void (*f)());
+	void setlongPressAction (void (*f)());
 };
 
 #endif
