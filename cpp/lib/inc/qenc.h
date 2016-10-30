@@ -44,6 +44,7 @@ private:
 public:
 	Qenc (uint16_t range);
 	uint16_t getValue ();
+	void setValue  (uint16_t);
 
 private:
 	void setMode ();

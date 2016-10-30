@@ -120,6 +120,7 @@ public:
 	void characterToBufferDma (uint8_t line , uint8_t position , const char ch, sFont &);
 	void stringToBuffer (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
 	void stringToBufferDma (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
+	void stringToBufferDma (uint8_t line , uint8_t position, const char *str, uint8_t size, sFont &s, uint8_t interval = 0);
 	void drawBuffer ();
 	void drawBuffer (uint8_t line, uint8_t x1, uint8_t x2);
 	void drawBufferDma ();

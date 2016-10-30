@@ -24,6 +24,11 @@ Qenc encoder (100);
 Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
 
 Button buttMenu (Gpio::A, 15);
+Spi spi1 (Spi::master, Spi::software);
+Pcd8544 lcd (spi1);
+Buffer val;
+Pcd8544::sFont sLat;
+
 
 extern "C"
 {
@@ -31,14 +36,8 @@ extern "C"
 	void DMA1_Channel4_5_IRQHandler(void);
 	void SysTick_Handler (void);
 }
-Gpio A (Gpio::A);
-Gpio B (Gpio::B);
-const uint8_t b= 15;
-const uint8_t led = 0;
-Spi spi1 (Spi::master, Spi::software);
-Pcd8544 lcd (spi1);
-Buffer val (5);
-Pcd8544::sFont sLat;
+
+
 
 uint16_t valArray [4];
 uint8_t menuPosition;
@@ -71,8 +70,7 @@ void SysTick_Handler (void)
 	
 	fun.setValue (encoder.getValue());
 		val.pars (encoder.getValue());
-		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
-	
+		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);	
 	buttMenu.scan();
 
 	
@@ -116,23 +114,16 @@ void ConfigureADC();
 void ConfigureADCdma();
 void DisableADC();
 
-void shortAction ()
-{
-	B.setPin (led);
-	delay_ms (500);
-	B.clearPin (led);
-}
 
 
 int main()
 {
 	
-	B.settingPin (led);
+
 	buttMenu.setShortLimit (10);
 	buttMenu.setLongLimit (2000);
-	buttMenu.setlongPressAction (shortAction);
-	
-	A.settingPin (b, Gpio::Input);
+
+
 	//temperature
 	dataTemp.strPos = 15;
 	dataTemp.linePos = 1;
@@ -193,8 +184,6 @@ int main()
 	
 	while (1)
 	{
-		B.ChangePinState (led);
-		delay_ms (1000);
 
 	/*	val.pars (adcValue ());
 		lcd.stringToBufferDma (3, 45, val.getArray(), sLat);

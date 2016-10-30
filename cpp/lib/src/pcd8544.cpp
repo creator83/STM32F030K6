@@ -296,6 +296,14 @@ void Pcd8544::stringToBufferDma (uint8_t line , uint8_t position, const char *st
 	}
 }
 
+void Pcd8544::stringToBufferDma (uint8_t line , uint8_t position, const char *str, uint8_t size, sFont &s, uint8_t interval)
+{
+	while (size--)
+	{
+		characterToBufferDma (line, position, *str++, s);
+		position += s.width+interval;
+	}
+}
 void Pcd8544::drawBuffer ()
 {
 	dc.setPin (Pcd8544Def::DcPin);

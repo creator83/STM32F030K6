@@ -37,12 +37,12 @@ void Qenc::setMode ()
 uint16_t Qenc::getValue ()
 {
 	value = TIM1->CNT;
-	if (value>high)
-	{
-		value = high;
-		TIM1->CNT = high;
-		return value >> 2;
-	}		
 	return value >> 2;
+}
+
+void Qenc::setValue  (uint16_t val)
+{
+	value = val << 2;
+	TIM1->CNT = value;
 }
 

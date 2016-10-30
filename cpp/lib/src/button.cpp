@@ -3,8 +3,8 @@
 Button::Button (Gpio::Port p_, uint8_t pin_)
 :pin (p_)
 {
-	shortFunction = nullptr;
-	longFunction = nullptr;	
+	/*shortFunction = nullptr;
+	longFunction = nullptr;	*/
 	pin.settingPin (pin_, Gpio::Input);
 	p = pin_;
 	shortPress = longPress = lastState = currentState = false;
@@ -14,7 +14,7 @@ Button::Button (Gpio::Port p_, uint8_t pin_)
 
 void Button::scan ()
 {
-	if (!pin.pinState (p)&&!shortPress&&!longPress&&shortFunction != nullptr)
+	if (!pin.pinState (p)&&!shortPress&&!longPress)
 	{
 		currentState = !pin.pinState (p);
 		state = lastState << 1| currentState;
