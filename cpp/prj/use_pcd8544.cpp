@@ -22,6 +22,9 @@ Gtimer timer14 (Gtimer::Timer14, 60, 100);
 Gtimer timer3 (Gtimer::Timer3, 100, 4800);
 Qenc encoder (6000);
 Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
+Pwm airHeater (timer3, Gpio::B, 0, Gpio::AF1,  Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
+
+Adc thermocouple (Adc::scmsw, Adc::ch0, Adc::bit12);
 
 Button buttMenu (Gpio::A, 15);
 Spi spi1 (Spi::master, Spi::software);
@@ -72,6 +75,25 @@ uint16_t adcValue ();
 
 void SysTick_Handler (void)
 {
+	buttMenu.scan();
+	if (flag)
+	{
+		heaterVal.val = encoder.getValue ();
+		val.pars (heaterVal.val);
+		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
+		airHeater.setValue (heaterVal.val);
+	}
+	else
+	{
+		funVal.val = encoder.getValue ();
+		val.pars (funVal.val);
+		lcd.stringToBufferDma (2, 45, val.getArray(), sLat);
+		fun.setValue (funVal.val);
+	}
+				
+	val.pars (thermocouple.getMesure());
+	lcd.stringToBufferDma (3, 45, val.getArray(), sLat);
+	lcd.drawBuffer ();
 }
 
 void init_encoder ();
@@ -88,7 +110,7 @@ void buttonact();
 int main()
 {
 	
-	Pwm airHeater (timer3, Gpio::B, 0, Gpio::AF1,  Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
+	
 	setFont();
 	encoder.setValue (85);
 	funVal.val = 85;
@@ -107,38 +129,26 @@ int main()
 	lcd.stringToBufferDma (0,10, "HEATGUN AIR", sLat);
 	lcd.stringToBufferDma (1, 0, "HEATER:", sLat);
 	lcd.stringToBufferDma (2, 0, "SPEED:", sLat);
+	lcd.stringToBufferDma (3, 0, "ADC:", sLat);
+	lcd.stringToBufferDma (4, 0, "P:", sLat);
+	lcd.stringToBufferDma (4, 25, "I:", sLat);
+	lcd.stringToBufferDma (4, 50, "D:", sLat);
+	
+	lcd.stringToBufferDma (5, 0, "PID:", sLat);
+	
+	val.pars (269);
+	lcd.stringToBufferDma (3, 15, val.getArray(), sLat);
+	lcd.stringToBufferDma (4, 15, val.getContent(), sLat);
 	lcd.drawBuffer ();
-	/*lcd.drawBuffer (0, 0, 83);
-	lcd.drawBuffer (1, 0, 83);
-	lcd.drawBuffer (2, 0, 83);
-	lcd.drawBuffer (3, 0, 83);
-	lcd.drawBuffer (4, 0, 83);
-	NVIC_EnableIRQ(SysTick_IRQn);
-	Systimer sys (Systimer::ms, 1);*/
+
+	//NVIC_EnableIRQ(SysTick_IRQn);
+	
 	buttMenu.setShortLimit (10);
 	buttMenu.setshortPressAction (buttonact);
-
+	Systimer sys (Systimer::ms, 1);
 	
 	while (1)
 	{
-		buttMenu.scan();
-		if (flag)
-		{
-			heaterVal.val = encoder.getValue ();
-			val.pars (heaterVal.val);
-			lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
-		}
-		else
-		{
-			funVal.val = encoder.getValue ();
-			val.pars (funVal.val);
-			lcd.stringToBufferDma (2, 45, val.getArray(), sLat);
-		}
-		
-		fun.setValue (funVal.val);
-		airHeater.setValue (heaterVal.val);
-		lcd.drawBuffer ();
-		delay_ms (10);
 	}
 }
 

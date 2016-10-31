@@ -1,5 +1,8 @@
 #include "adc.h"
 
+Gpio::Port Adc::adcPort [18] = {Gpio::A, Gpio::A, Gpio::A, Gpio::A, Gpio::A, Gpio::A, Gpio::A};
+uint8_t Adc::adcPin [18] = {0,1,2,3,4,5,6,7};
+Adc::ModeFptr Adc::modeFunction [6] = {&Adc::scmswMode, &Adc::ccmswMode};
 
 
 Adc::Adc()
@@ -7,11 +10,29 @@ Adc::Adc()
 	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
 }
 
-Adc::Adc(Gpio::Port p, uint8_t pin_)
+Adc::Adc(Gpio::Port p, uint8_t pin_, clockSource s)
 {
 	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
 	pin.settingPinPort (p);
 	pin.settingPin (pin_, Gpio::Analog);
+	setClock (s);
+	calibrate ();
+	enable ();
+}
+
+Adc::Adc(mode m, channel ch, resolution r, clockSource s)
+{
+	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
+	adcChannel = ch;
+	setChannel (ch);
+	pin.settingPinPort (adcPort [adcChannel]);
+	pin.settingPin (adcPin [adcChannel], Gpio::Analog);
+	setClock (s);
+	(this->*(Adc::modeFunction [m]))();
+	calibrate ();
+	setResolution (r);
+	enable ();
+	
 }
 
 void Adc::settingsPin (Gpio::Port p, uint8_t pin_)
@@ -22,6 +43,13 @@ void Adc::settingsPin (Gpio::Port p, uint8_t pin_)
 
 uint16_t Adc::getValue ()
 {
+	return ADC1->DR;
+}
+
+uint16_t Adc::getMesure ()
+{
+	start ();
+	while (!flagEoc ());
 	return ADC1->DR;
 }
 
@@ -105,20 +133,31 @@ void Adc::config (mode m,  resolution r)
   ADC->CCR |= ADC_CCR_VREFEN; /* (5) */
 	
 }
-
-void scmswMode ()
+void Adc::setResolution (resolution r)
 {
-	
-}
-
-void ccmswMode ()
-{
-	ADC1->CFGR1 |= ADC_CFGR1_CONT | ADC_CFGR1_SCANDIR; 
+	ADC1->CFGR1 &= ~ADC_CFGR1_RES;
+	ADC1->CFGR1 |= r << 3;
 }
 
 void Adc::setChannel (channel ch)
 {
-	ADC1->CHSELR |= ch;
+	ADC1->CHSELR |= 1 << ch;
+}
+
+void Adc::scmswMode ()
+{
+	ADC1->CFGR1 |= ADC_CFGR1_AUTOFF;
+	ADC1->CFGR1 |= ADC_CFGR1_SCANDIR;
+	ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (4) */
+  ADC->CCR |= ADC_CCR_VREFEN;
+}
+
+void Adc::ccmswMode ()
+{
+	ADC1->CFGR1 &=  ~ADC_CFGR1_AUTOFF;
+	ADC1->CFGR1 |= ADC_CFGR1_CONT | ADC_CFGR1_SCANDIR; 
+	ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (4) */
+  ADC->CCR |= ADC_CCR_VREFEN;
 }
 
 void Adc::EocInterrupt (bool state)
