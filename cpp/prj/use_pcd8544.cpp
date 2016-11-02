@@ -24,7 +24,7 @@ Qenc encoder (6000);
 Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
 Pwm airHeater (timer3, Gpio::B, 0, Gpio::AF1,  Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
 
-Adc thermocouple (Adc::scmsw, Adc::ch0, Adc::bit12);
+
 
 Button buttMenu (Gpio::A, 15);
 Spi spi1 (Spi::master, Spi::software);
@@ -81,18 +81,19 @@ void SysTick_Handler (void)
 		heaterVal.val = encoder.getValue ();
 		val.pars (heaterVal.val);
 		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
-		airHeater.setValue (heaterVal.val);
+		
 	}
 	else
 	{
 		funVal.val = encoder.getValue ();
 		val.pars (funVal.val);
 		lcd.stringToBufferDma (2, 45, val.getArray(), sLat);
-		fun.setValue (funVal.val);
+		
 	}
-				
-	val.pars (thermocouple.getMesure());
-	lcd.stringToBufferDma (3, 45, val.getArray(), sLat);
+	airHeater.setValue (heaterVal.val);
+	fun.setValue (funVal.val);
+	/*val.pars (thermocouple.getMesure());
+	lcd.stringToBufferDma (3, 45, val.getArray(), sLat);*/
 	lcd.drawBuffer ();
 }
 
@@ -110,7 +111,7 @@ void buttonact();
 int main()
 {
 	
-	
+	//Adc thermocouple (Adc::scmsw, Adc::ch0, Adc::bit12);
 	setFont();
 	encoder.setValue (85);
 	funVal.val = 85;
@@ -141,14 +142,15 @@ int main()
 	lcd.stringToBufferDma (4, 15, val.getContent(), sLat);
 	lcd.drawBuffer ();
 
-	//NVIC_EnableIRQ(SysTick_IRQn);
+
 	
 	buttMenu.setShortLimit (10);
 	buttMenu.setshortPressAction (buttonact);
-	Systimer sys (Systimer::ms, 1);
-	
+	Systimer sys (Systimer::us, 100);
+	//NVIC_EnableIRQ(SysTick_IRQn);
 	while (1)
 	{
+		
 	}
 }
 
