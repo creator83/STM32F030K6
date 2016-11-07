@@ -80,14 +80,14 @@ void SysTick_Handler (void)
 	{
 		heaterVal.val = encoder.getValue ();
 		val.pars (heaterVal.val);
-		lcd.stringToBufferDma (1, 45, val.getArray(), sLat);
+		lcd.stringToBufferDma (1, 45, val.getContent (), sLat);
 		
 	}
 	else
 	{
 		funVal.val = encoder.getValue ();
 		val.pars (funVal.val);
-		lcd.stringToBufferDma (2, 45, val.getArray(), sLat);
+		lcd.stringToBufferDma (2, 45, val.getContent (), sLat);
 		
 	}
 	airHeater.setValue (heaterVal.val);
