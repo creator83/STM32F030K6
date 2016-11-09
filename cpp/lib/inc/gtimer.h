@@ -34,10 +34,12 @@ public:
 		void start ();
 		void stop ();
 		void clearFlag();
+		uint16_t getCnt ();
 		TIM_TypeDef * getPtrTimer (){return timerBase [n_];}
 	//	uint32_t*  getadressBase (){return timerBase [n_];}
+		
 protected:
-	uint16_t getCnt ();
+	
 private:		
 		void clockTimer3 ();
 		void clockTimer14 ();

@@ -20,6 +20,7 @@ Tact frq;
 Pid regulator (4.0, 2.2, 1.3, 50);
 Gtimer timer14 (Gtimer::Timer14, 60, 100);
 Gtimer timer3 (Gtimer::Timer3, 100, 4800);
+Gtimer timer17 (Gtimer::Timer17,48);
 Qenc encoder (6000);
 Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
 Pwm airHeater (timer3, Gpio::B, 0, Gpio::AF1,  Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
@@ -33,6 +34,13 @@ Buffer val;
 Pcd8544::sFont sLat;
 
 bool flag;
+struct str
+{
+	unsigned pid :1;
+	unsigned peak :1;
+}flags;
+
+uint16_t pidTime [20];
 
 
 extern "C"
@@ -46,6 +54,8 @@ extern "C"
 
 uint16_t valArray [4];
 uint8_t menuPosition;
+
+void pidSet ();
 
 struct pwm_s
 {
@@ -75,20 +85,19 @@ uint16_t adcValue ();
 
 void SysTick_Handler (void)
 {
+	pidSet ();
 	buttMenu.scan();
 	if (flag)
 	{
 		heaterVal.val = encoder.getValue ();
 		val.pars (heaterVal.val);
-		lcd.stringToBufferDma (1, 45, val.getContent (), sLat);
-		
+		lcd.stringToBufferDma (1, 45, val.getContent (), sLat);		
 	}
 	else
 	{
 		funVal.val = encoder.getValue ();
 		val.pars (funVal.val);
 		lcd.stringToBufferDma (2, 45, val.getContent (), sLat);
-		
 	}
 	airHeater.setValue (heaterVal.val);
 	fun.setValue (funVal.val);
@@ -106,6 +115,7 @@ void ConfigureADCdma();
 void DisableADC();
 
 void buttonact();
+
 
 
 int main()
@@ -278,4 +288,55 @@ void ConfigureADCdma()
 	DMA1_Channel1->CCR |= DMA_CCR_MINC | DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0
 	| DMA_CCR_TEIE | DMA_CCR_CIRC; /* (6) */
 	DMA1_Channel1->CCR |= DMA_CCR_EN; /* (7) */
+}
+
+void pidSet ()
+{
+	static uint16_t prev=0;
+	uint16_t curr;
+	static int8_t counter=0;
+	//curr = adcValue;
+	if (counter<20)
+	{
+	if (!flags.pid)
+	{
+		if (prev<curr)
+		{
+			prev = curr;
+		}
+		else 
+		{
+			flags.peak = 1;
+		}
+		if (flags.peak)
+		{
+			timer17.stop ();
+			pidTime [counter] = timer17.getCnt();
+			timer17.setCnt (0);
+			timer17.start ();
+			flags.pid = 1;
+			counter++;
+		}
+	}
+		if (flags.pid)
+		{		
+			if (prev>curr)
+			{
+				prev = curr;
+			}
+			else 
+			{
+				flags.peak = 0;
+			}
+			if (!flags.peak)
+				
+			{
+				timer17.stop ();
+				pidTime [counter] = timer17.getCnt();
+				timer17.setCnt (0);
+				timer17.start ();
+				counter++;
+			}
+		}
+	}
 }
