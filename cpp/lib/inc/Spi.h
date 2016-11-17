@@ -1,6 +1,6 @@
 #include "stm32f0xx.h"                  // Device header
 #include "gpio.h"
-
+#include "gpio.h"
 /*********************************
 Spi driver for 
 
