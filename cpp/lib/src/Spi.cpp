@@ -9,6 +9,9 @@ ptr_ex Spi::ptr_exchange[2] =  {&Spi::exchange_8, &Spi::exchange_16};
 PtrF1 Spi::spi_mode [2] = {&Spi::hardwareMode, &Spi::softwareMode};
 
 Spi::Spi (Role r, mode m)
+:sck (spiDef::sckPort, spiDef::sckPin, spiDef::sckAf),
+mosi (spiDef::mosiPort, spiDef::mosiPin, spiDef::mosiAf),
+miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)
 {
   //tact Spi1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -38,63 +41,26 @@ void Spi::softwareMode ()
   SPI1->CR1 |= SPI_CR1_SSI;
 }
 
-void Spi::set_CS (Gpio::Port p, const uint8_t & pin, Gpio::Afmode af)
-{
-	Cs.settingPinPort (p);
-	if (spi_m == hardware)
-	{
-		Cs.settingPin (pin, Gpio::AltFunc);
-		Cs.settingAf (pin, af);
-	}
-	else 
-	{
-		Cs.settingPin (pin, Gpio::Output);
-		Cs.settingOut (pin, Gpio::PushPull);
-		Cs.setPin (pin);
-	}
-}
-
-void Spi::set_SCK (Gpio::Port p, const uint8_t & pin, Gpio::Afmode af)
-{
-	Sck.settingPinPort (p);
-	Sck.settingPin (pin, Gpio::AltFunc);
-	Sck.settingAf (pin, af);
-}
-
-void Spi::set_MOSI (Gpio::Port p, const uint8_t & pin, Gpio::Afmode af)
-{
-	Mosi.settingPinPort (p);
-	Mosi.settingPin (pin, Gpio::AltFunc);
-	Mosi.settingAf (pin, af);	
-}
-
-void Spi::set_MISO (Gpio::Port p, const uint8_t & pin, Gpio::Afmode af)
-{
-	Miso.settingPinPort (p);
-	Miso.settingPin (pin, Gpio::AltFunc);
-	Miso.settingAf (pin, af);		
-}
-
-void Spi::set_cpol (Cpol c)
+void Spi::setCpol (Cpol c)
 {
 	SPI1->CR1 &= ~ SPI_CR1_CPOL;
 	SPI1->CR1 |=  c << 1;
 }
 
-void Spi::set_cpha (Cpha c)
+void Spi::setCpha (Cpha c)
 {
 	SPI1->CR1 &= ~ SPI_CR1_CPHA ;
 	SPI1->CR1 |=  c << 0;	
 }
 
-void Spi::set_f_size (Fsize f)
+void Spi::setFsize (Fsize f)
 {
 	SPI1->CR2 &= ~ SPI_CR2_DS;
 	SPI1->CR2 |= f << 8;
 	if (f <= bit_8) SPI1->CR2 |= SPI_CR2_FRXTH;
 }
 
-void Spi::set_baudrate (Division d)
+void Spi::setBaudrate (Division d)
 {
 	SPI1->CR1 &= ~SPI_CR1_BR;
 	SPI1->CR1 |= d << 3;
@@ -109,16 +75,6 @@ void Spi::start ()
 void Spi::stop ()
 {
 	SPI1->CR1 &= ~ SPI_CR1_SPE;
-}
-
-void Spi::assert_Cs (uint8_t p)
-{
-	Cs.clearPin (p);
-}
-
-void Spi::disassert_Cs (uint8_t p)
-{
-	Cs.setPin (p);
 }
 
 void Spi::transmit_8 (uint16_t data)

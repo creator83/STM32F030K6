@@ -39,10 +39,10 @@ bool Max6675::readCelsius()
 
 bool Max6675::readCelsius_hardware()
 {
-	while (!mod->flag_txe());
-	mod->put_data(0);
-	while (!mod->flag_rxne());
-	temp = mod->get_data();
+	while (!mod->flagTxe());
+	mod->putData(0);
+	while (!mod->flagRxne());
+	temp = mod->getData();
 	  if (temp & 0x4) {
     // uh oh, no thermocouple attached!
     return false; 
@@ -56,10 +56,10 @@ bool Max6675::readCelsius_software()
 {
 	mod->assert_Cs(Max6675Def::CsPin);
 	//delay_ms (200);
-	while (!mod->flag_txe());
-	mod->put_data(0);
-	while (!mod->flag_rxne());
-	temp = mod->get_data();
+	while (!mod->flagTxe());
+	mod->putData(0);
+	while (!mod->flagRxne());
+	temp = mod->getData();
 	mod->disassert_Cs (Max6675Def::CsPin);
 	if (temp & 0x4) {
     // uh oh, no thermocouple attached!

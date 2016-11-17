@@ -1,5 +1,5 @@
 #include "stm32f0xx.h"
-#include "gpio.h"
+#include "pin.h"
 #include "gtimer.h"
 /*
 namespace PwmDef
@@ -33,7 +33,7 @@ public:
 
 private:
 	typedef void(Pwm::*PtrPwm)(Pwm::pulseMode);
-	Gpio pwmPin;
+	Pin pwmPin;
 	Gtimer * timer;
 	Gtimer::nChannel pwmChannel;
 	TIM_TypeDef * ptrTimer;

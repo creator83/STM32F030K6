@@ -1,5 +1,5 @@
 #include "stm32f0xx.h"   
-#include "gpio.h"
+#include "pin.h"
 #include "gtimer.h"
 
 /*
@@ -37,7 +37,7 @@ class Qenc
 public:
 
 private:
-	Gpio pha, phb;
+	Pin pha, phb;
 	uint16_t high;
 	uint16_t value;
 

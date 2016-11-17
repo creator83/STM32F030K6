@@ -29,7 +29,7 @@ Pin::Pin(Port port_, uint8_t p, Omode o)
 {
   pin_=p;
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
-	GpioBase [prt]->MODER|= (0x01 << (2*pin_));
+	GpioBase [prt]->MODER|= (Gpio::Output << (2*pin_));
 	GpioBase [prt]->OTYPER &= ~(1 << pin_);
 	GpioBase [prt]->OTYPER |= o << pin_;
 }
@@ -42,6 +42,23 @@ Pin::Pin(Port port_, uint8_t p, PP p_)
 	GpioBase [prt]->PUPDR &= ~(0x03 << pin_*2);
 	GpioBase [prt]->PUPDR |= p << pin_*2;
 }
+
+void Pin::setInputMode (PP p)
+{
+	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
+	GpioBase [prt]->PUPDR &= ~(0x03 << pin_*2);
+	GpioBase [prt]->PUPDR |= p << pin_*2;
+}
+	
+void Pin::setOutputMode (Omode o)
+{
+	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
+	GpioBase [prt]->MODER|= (0x01 << (2*pin_));
+	GpioBase [prt]->OTYPER &= ~(1 << pin_);
+	GpioBase [prt]->OTYPER |= o << pin_;
+}
+
+
 void Pin::set ()
 {
 	GpioBase [prt]->BSRR |= 1 << pin_;

@@ -5,11 +5,11 @@ uint8_t Nrf24l01::self_addr[5] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
 uint8_t Nrf24l01::remote_addr[5] = {0xC2, 0xC2, 0xC2, 0xC2, 0xC2};
 
 Nrf24l01::Nrf24l01 (Spi &s)
-:cs (nrf24Def::csPort, nrf24Def::csPin, Gpio::Low) , ce (nrf24Def::cePort, nrf24Def::cePin, Gpio::Low), irq (intrpt::A , nrf24Def::irqPin, intrpt::falling)
+:cs (nrf24Def::csPort, nrf24Def::csPin, Gpio::PushPull) , ce (nrf24Def::cePort, nrf24Def::cePin, Gpio::PushPull)//, irq (intrpt::A , nrf24Def::irqPin, intrpt::falling)
 {
   cs.set ();
   chan = 3;
-  
+  mod = &s;
   //===Standby-1 mode===//
   delay_ms (15);
   changeBit (CONFIG, PWR_UP, 1);
@@ -48,35 +48,35 @@ void Nrf24l01::txState ()
 void Nrf24l01::command (uint8_t com)
 {
   cs.clear ();
-  spi1.putData(com);
-  while (!spi1.flagRxne());
-  uint8_t status = spi1.getData();
+  mod->putData(com);
+  while (!mod->flagRxne());
+  uint8_t status = mod->getData();
 }
 
 uint8_t Nrf24l01::readRegister (uint8_t reg)
 {
   cs.clear ();
-  spi1.putData(R_REGISTER|reg);
-  while (!spi1.flagRxne());
-  uint8_t status = spi1.getData();
-  while (!spi1.flagTxe());
-  spi1.putData (NOP); 
-  while (!spi1.flagRxne());
-  uint8_t reg_val = spi1.getData();
-  while (spi1.flagBsy ());
+  mod->putData(R_REGISTER|reg);
+  while (!mod->flagRxne());
+  uint8_t status = mod->getData();
+  while (!mod->flagTxe());
+  mod->putData (NOP); 
+  while (!mod->flagRxne());
+  uint8_t reg_val = mod->getData();
+  while (mod->flagBsy ());
   cs.set ();
-  return reg_val;   
+  return reg_val;
 }
 
 void Nrf24l01::writeRegister (uint8_t reg , uint8_t val)
 {
   cs.clear();
-  spi1.putData (W_REGISTER|reg);
-  while (!spi1.flagRxne());
-  uint8_t status = spi1.getData();
-  while (!spi1.flagTxe());
-  spi1.putData (val); 
-  while (spi1.flagBsy ());
+  mod->putData (W_REGISTER|reg);
+  while (!mod->flagRxne());
+  uint8_t status = mod->getData();
+  while (!mod->flagTxe());
+  mod->putData (val); 
+  while (mod->flagBsy ());
   cs.set ();
 }
 
@@ -93,8 +93,8 @@ void Nrf24l01::sendByte (uint8_t val)
 {
   command (W_TX_PAYLOAD);
   //while (!spi1.flagTxe());
-  spi1.putData (val); 
-  while (spi1.flagBsy ());
+  mod->putData (val); 
+  while (mod->flagBsy ());
   cs.set ();
   txState ();
   uint8_t temp = readRegister (STATUS);
@@ -122,14 +122,11 @@ bool Nrf24l01::init ()
 
 uint8_t Nrf24l01::receiveByte ()
 {
-  cs.clear();
-  spi1.putData (R_RX_PAYLOAD);
-  while (!spi1.flagRxne());
-  uint8_t status = spi1.getData();
-  while (!spi1.flagTxe());
-  spi1.putData (NOP); 
-  while (!spi1.flagRxne());
-  uint8_t value = spi1.getData();
+  command (R_RX_PAYLOAD);
+  while (!mod->flagTxe());
+	mod->putData (NOP); 
+  while (!mod->flagRxne());
+  uint8_t value = mod->getData();
   cs.set ();
   return value;
 }

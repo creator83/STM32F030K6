@@ -1,5 +1,5 @@
 #include "stm32f0xx.h"                  // Device header
-#include "gpio.h"
+#include "pin.h"
 
 
 #ifndef BUTTON_H
@@ -21,11 +21,10 @@ private:
 	uint16_t longLimit;
 	void (*shortFunction)();
 	void (*longFunction)();
-	uint8_t p;
-	Gpio pin;
+	Pin pin;
 //func
 public:
-Button (Gpio::Port, uint8_t pin_);
+	Button (Gpio::Port, uint8_t pin_);
 	void scan ();
 	void setShortLimit (uint16_t);
 	void setLongLimit (uint16_t);

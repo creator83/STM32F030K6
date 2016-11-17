@@ -68,8 +68,8 @@ public:
 protected:
 private:
 	uint8_t position;
-        Gpio d4, d5, d6, d7, e, rs, rw;
-        Gpio * d[4];
+        Pin d4, d5, d6, d7, e, rs, rw;
+        Pin * d[4];
         uint8_t pins [4];
 	unsigned int x_start, x_end, y_start, y_end;
 

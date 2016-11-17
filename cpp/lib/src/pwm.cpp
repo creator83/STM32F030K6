@@ -4,15 +4,12 @@ Pwm::PtrPwm Pwm::funcMode [3] ={&Pwm::setEdgePwm};
 uint8_t Pwm::ccrPtr [4] = {13, 14, 15, 16};
 
 Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
+:pwmPin (p, pin, af)
 {
 	timer = &t;
 	ptrTimer = timer->getPtrTimer();
 	pwmChannel = ch;
 	timer->stop ();
-	//Settings pins
-	pwmPin.settingPinPort(p);
-	pwmPin.settingPin (pin, Gpio::AltFunc);
-	pwmPin.settingAf (pin, af);
 	
 	(this->*(Pwm::funcMode[mode_]))(m);
 	

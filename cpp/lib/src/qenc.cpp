@@ -4,6 +4,8 @@
 
 
 Qenc::Qenc (uint16_t range)
+:pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
 {
 	high = range << 2;
 	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
@@ -13,18 +15,6 @@ Qenc::Qenc (uint16_t range)
 
 void Qenc::setMode ()
 {
-	//===Setings pin===//
-	//pha
-	pha.settingPinPort(QdDef::PhaPort);
-	pha.settingPin(QdDef::PhaPin, Gpio::AltFunc);
-	pha.settingAf (QdDef::PhaPin, QdDef::PhaAf);
-	pha.settingPP (QdDef::PhaPin, Gpio::PullUp);
-	//phb
-	pha.settingPinPort(QdDef::PhbPort);
-	pha.settingPin(QdDef::PhbPin, Gpio::AltFunc);
-	pha.settingAf (QdDef::PhbPin, QdDef::PhbAf);
-	pha.settingPP (QdDef::PhbPin, Gpio::PullUp);
-
 	//===Settings timer===//
 	
 	TIM1->CCMR1 |= TIM_CCMR1_CC1S_0 | TIM_CCMR1_CC2S_0;

@@ -2,16 +2,14 @@
 
 
 Hd44780::Hd44780()
-:d4 (hd44780Def::d4port), d5 (hd44780Def::d5port), d6 (hd44780Def::d6port), d7 (hd44780Def::d7port), 
-e (hd44780Def::eport), rs (hd44780Def::rsport), rw (hd44780Def::rwport)
+:d4 (hd44780Def::d4port, hd44780Def::d4pin, Gpio::PushPull),
+d5 (hd44780Def::d5port, hd44780Def::d5pin, Gpio::PushPull), 
+d6 (hd44780Def::d6port, hd44780Def::d6pin, Gpio::PushPull), 
+d7 (hd44780Def::d7port, hd44780Def::d7pin, Gpio::PushPull), 
+e (hd44780Def::eport, hd44780Def::epin, Gpio::PushPull), 
+rs (hd44780Def::rsport, hd44780Def::rspin, Gpio::PushPull), 
+rw (hd44780Def::rwport, hd44780Def::rwpin, Gpio::PushPull)
 {
-  d4.settingPin (hd44780Def::d4pin);
-  d5.settingPin (hd44780Def::d5pin);
-  d6.settingPin (hd44780Def::d6pin);
-  d7.settingPin (hd44780Def::d7pin);
-  e.settingPin (hd44780Def::epin);
-  rs.settingPin (hd44780Def::rspin);
-  rw.settingPin (hd44780Def::rwpin);
   d[0] = &d4;
   d[1] = &d5;
   d[2] = &d6;
@@ -120,8 +118,7 @@ void Hd44780::newChar (const char *ch, uint8_t addr)
 
 void Hd44780::checkBusy ()
 {
-  d7.settingPin(hd44780Def::d7pin, Gpio::Input);
-	d7.settingPP (hd44780Def::d7pin, Gpio::PullUp);
+  d7.setInputMode (Gpio::PullUp);
   rwAssert ();
   rsDisassert();
   uint8_t state;
@@ -129,7 +126,7 @@ void Hd44780::checkBusy ()
   {
     eAssert();
     delay_us(2);
-    state = d7.pinState(hd44780Def::d7pin);
+    state = d7.state();
     eDisassert();
     delay_us(1);
     eAssert();
@@ -137,7 +134,7 @@ void Hd44780::checkBusy ()
     eDisassert();
   }
   while (state);
-  d7.settingPin (hd44780Def::d7pin);
+  d7.setOutputMode ();
   rwDisassert();
 }
 
@@ -181,46 +178,47 @@ uint8_t Hd44780::get_Shift_position ()
 
 void Hd44780::rsAssert ()
 {
-  rs.setPin(hd44780Def::rspin);
+  rs.set();
 }
 
 void Hd44780::rsDisassert ()
 {
-  rs.clearPin(hd44780Def::rspin);
+  rs.clear();
 }
 
 void Hd44780::eAssert ()
 {
-  e.setPin(hd44780Def::epin);
+  e.set();
 }
 
 void Hd44780::eDisassert ()
 {
-  e.clearPin(hd44780Def::epin);
+  e.clear();
 }
 
 void Hd44780::rwAssert ()
 {
-  rw.setPin(hd44780Def::rwpin);
+  rw.set();
 }
 
 void Hd44780::rwDisassert ()
 {
-  rw.clearPin(hd44780Def::rwpin);
+  rw.clear();
 }
 
 void Hd44780::clearData ()
 {
-  d4.clearPin (hd44780Def::d4pin);
-  d5.clearPin (hd44780Def::d5pin);
-  d6.clearPin (hd44780Def::d6pin);
-  d7.clearPin (hd44780Def::d7pin);
+  d4.clear();
+  d5.clear();
+  d6.clear();
+  d7.clear();
 }
 
 void Hd44780::setData (uint8_t value)
 {
   for (uint8_t i =0;i<4;++i)
   {
-    d[i]->SetPinState (pins[i], value & 1 << i);
+		if (value & 1 << i)  d[i]->set();
+    else d[i]->clear();
   }
 }

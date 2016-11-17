@@ -18,8 +18,11 @@ public:
   Pin(Port prt, uint8_t p_);
 	Pin(Port prt, uint8_t p_, Mode);
 	Pin(Port prt, uint8_t p_, Afmode);
-	Pin(Port prt, uint8_t p_, Omode = PushPull);
-  Pin(Port prt, uint8_t p_, PP);
+	Pin(Port prt, uint8_t p_, Omode);
+	Pin(Port prt, uint8_t p_, PP);
+
+	void setInputMode (PP);
+	void setOutputMode (Omode = PushPull);
   
   void set ();
   void clear ();

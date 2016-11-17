@@ -1,6 +1,6 @@
 #include "stm32f0xx.h"                  // Device header
 #include "tact.h"
-#include "Gpio.h"
+#include "pin.h"
 
 /*
 Usart1
@@ -30,16 +30,16 @@ const Gpio::Afmode RxAf = Gpio::AF1;
 
 typedef unsigned int* reg;
 
-class uart
+class Uart
 {
 //variables
 public:
   enum baud {baud9600 = 9600 , baud57600 = 57600 , baud115200 = 115200};
 private:
-  Gpio Tx, Rx;
+  Pin tx, rx;
 //functions
 public:
-  uart (baud b);
+  Uart (baud b);
   void transmit (uint8_t data);
   void transmit (char * str);  
   uint8_t receive ();
