@@ -10,6 +10,13 @@ Nrf24l01::Nrf24l01 (Spi &s)
   cs.set ();
   chan = 3;
   mod = &s;
+	SPI1->CR1 &= ~ SPI_CR1_SPE;
+	//settings SPI
+	mod->setCpha(Spi::first);
+	mod->setCpol(Spi::neg);
+	mod->setBaudrate(Spi::div32);
+	mod->setFsize(Spi::bit_8);
+	SPI1->CR1 |= SPI_CR1_SPE;
   //===Standby-1 mode===//
   delay_ms (15);
   changeBit (CONFIG, PWR_UP, 1);

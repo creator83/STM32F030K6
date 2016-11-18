@@ -15,8 +15,7 @@ miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)
 {
   //tact Spi1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-  
-  
+    
   //Mode Master/Slave
 	SPI1->CR1 &= ~ SPI_CR1_MSTR;
 	SPI1->CR1 |= r << 2;
@@ -27,6 +26,21 @@ miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)
 	
 	 //Turn on Spi1
    //
+}
+
+Spi::Spi (Role r)
+:sck (spiDef::sckPort, spiDef::sckPin, spiDef::sckAf),
+mosi (spiDef::mosiPort, spiDef::mosiPin, spiDef::mosiAf),
+miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)
+{
+	 //tact Spi1
+  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+    
+  //Mode Master/Slave
+	SPI1->CR1 &= ~ SPI_CR1_MSTR;
+	SPI1->CR1 |= r << 2;
+	spi_m = software;
+	softwareMode ();
 }
 
 void Spi::hardwareMode ()

@@ -18,6 +18,10 @@ B: CS = 12 SCK = 13 MOSI = 15 MISO = 14
 
 */
 
+
+
+#ifndef SPI_H
+#define SPI_H
 namespace spiDef
 {
 //===Defenitions===//
@@ -37,10 +41,6 @@ const Gpio::Afmode misoAf = Gpio::AF0;
 const uint8_t misoPin = 6;	
 	
 }
-
-#ifndef SPI_H
-#define SPI_H
-
 
 class Spi;
 
@@ -73,6 +73,7 @@ private:
 //functions
 public:
   Spi(Role r, mode m);
+	Spi(Role r= master);
 
 	void hardwareMode ();
 	void softwareMode ();
