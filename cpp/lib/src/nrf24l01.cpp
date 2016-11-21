@@ -19,7 +19,7 @@ Nrf24l01::Nrf24l01 (Spi &s)
 	SPI1->CR1 |= SPI_CR1_SPE;
   //===Standby-1 mode===//
   delay_ms (15);
-  changeBit (CONFIG, PWR_UP, 1);
+  writeRegister (CONFIG, (1 <<PWR_UP | 1 << EN_CRC));
   delay_ms (2);
   writeRegister (RX_PW_P0, 1);
   rxState ();
@@ -37,7 +37,7 @@ Nrf24l01::Nrf24l01 (Spi &s)
 void Nrf24l01::rxState ()
 {
   //переключение в RX Mode
-  changeBit (CONFIG, PRIM_RX, 1);
+  writeRegister (CONFIG, (1 <<PWR_UP | 1 << EN_CRC| 1 << PRIM_RX));
   ce.set();
   delay_us(140);
 }
@@ -45,7 +45,7 @@ void Nrf24l01::rxState ()
 void Nrf24l01::txState ()
 {
   ce.clear ();
-  changeBit (CONFIG, PRIM_RX, 0);
+  writeRegister (CONFIG, (1 <<PWR_UP | 1 << EN_CRC));
   ce.set ();
   delay_us(15);
   ce.clear ();
@@ -62,10 +62,7 @@ void Nrf24l01::command (uint8_t com)
 
 uint8_t Nrf24l01::readRegister (uint8_t reg)
 {
-  cs.clear ();
-  mod->putData(R_REGISTER|reg);
-  while (!mod->flagRxne());
-  uint8_t status = mod->getData();
+  command (R_REGISTER|reg);
   while (!mod->flagTxe());
   mod->putData (NOP); 
   while (!mod->flagRxne());
@@ -77,10 +74,7 @@ uint8_t Nrf24l01::readRegister (uint8_t reg)
 
 void Nrf24l01::writeRegister (uint8_t reg , uint8_t val)
 {
-  cs.clear();
-  mod->putData (W_REGISTER|reg);
-  while (!mod->flagRxne());
-  uint8_t status = mod->getData();
+  command (W_REGISTER|reg);
   while (!mod->flagTxe());
   mod->putData (val); 
   while (mod->flagBsy ());
