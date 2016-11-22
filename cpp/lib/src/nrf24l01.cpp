@@ -149,6 +149,7 @@ uint8_t Nrf24l01::receiveByte ()
 	mod->putData (NOP); 
   while (!mod->flagRxne());
   uint8_t value = mod->getData();
+	while (mod->flagBsy ());
   cs.set ();
   return value;
 }

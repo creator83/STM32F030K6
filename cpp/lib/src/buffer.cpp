@@ -43,9 +43,9 @@ uint8_t arrVal[5] = {0};
   if (count<2)count = 2;
   for (uint8_t i=count-1;i<5;++i)
   {
-    arr [i] = ArraySegChar [arrVal[i]];
+    arr [i] = Array_char [arrVal[i]];
   }
-  arr [2] = ArraySegDpChar [arrVal[2]];
+  //arr [2] = ArraySegDpChar [arrVal[2]];
 	real = &arr [(size-1)-count];
 
 }

@@ -15,13 +15,13 @@ namespace QdDef
 //===Defenitions===//
 //PHA
 const Gpio::Port PhaPort = Gpio::A;
-const Gpio::Afmode PhaAf = Gpio::AF2;
-const uint8_t PhaPin = 8;
+const Gpio::Afmode PhaAf = Gpio::AF1;
+const uint8_t PhaPin = 6;
 
 //PHB
 const Gpio::Port PhbPort = Gpio::A;
-const Gpio::Afmode PhbAf = Gpio::AF2;
-const uint8_t PhbPin = 9;
+const Gpio::Afmode PhbAf = Gpio::AF1;
+const uint8_t PhbPin = 7;
 }
 
 
@@ -40,9 +40,12 @@ private:
 	Pin pha, phb;
 	uint16_t high;
 	uint16_t value;
+	TIM_TypeDef * ptrTimer;
+	Gtimer * timer;
 
 public:
 	Qenc (uint16_t range);
+	Qenc (Gtimer &, uint16_t range);
 	uint16_t getValue ();
 	void setValue  (uint16_t);
 
