@@ -11,7 +11,7 @@ class Intrpt
 {
   //variables
 public:
-	enum sense {Rising_edge = 1, Falling_edge, RiseFall};
+	enum sense {Rising_edge = 0x10, Falling_edge = 0x01, RiseFall = 0x11};
 
 
 

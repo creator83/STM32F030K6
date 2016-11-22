@@ -22,6 +22,11 @@ Nrf24l01::Nrf24l01 (Spi &s)
   writeRegister (CONFIG, (1 <<PWR_UP | 1 << EN_CRC));
   delay_ms (2);
   writeRegister (RX_PW_P0, 1);
+	writeRegister (RX_PW_P1, 1);
+	writeRegister (RX_PW_P2, 1);
+	writeRegister (RX_PW_P3, 1);
+	
+	
   rxState ();
   /*
   if (init ())

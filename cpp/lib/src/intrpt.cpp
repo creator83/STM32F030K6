@@ -7,19 +7,8 @@ Intrpt::Intrpt(Gpio::Port p , uint8_t pi, sense s)
 {
 	EXTI->IMR |= 1 << pi;
 	SYSCFG->EXTICR[0] |= p << (4*pi);
-	switch (static_cast <uint8_t> (s))
-	{
-		case 1:
-			EXTI->RTSR |= 1 << pi;
-		break;
-		case 2:
-			EXTI->FTSR |= 1 << pi;
-		break;
-		case 3:
-			EXTI->RTSR |= 1 << pi;
-			EXTI->FTSR |= 1 << pi;
-		break;
-	}
+	EXTI->RTSR |= (((s&0xF0)>>4) << pi);
+	EXTI->FTSR |= ((s&0x0F) << pi);
 	NVIC_EnableIRQ (EXTI0_1_IRQn);
 }
 
