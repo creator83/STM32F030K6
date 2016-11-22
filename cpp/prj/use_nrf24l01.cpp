@@ -24,11 +24,18 @@ int main()
 {
 	Nrf24l01 radio (spi0);
 	radio.readRegister (CONFIG);
-
-	//radio.sendByte (1);
+	radio.comm (FLUSH_TX);
+	radio.readStatus ();
+	radio.sendByte (1);
 	
   while (1)
   {
+		/*for (uint8_t i=0;i<0xFF;++i)
+		{
+			radio.sendByte (i);
+			
+			delay_ms (500);
+		}*/
 	
   }
 }

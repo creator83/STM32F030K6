@@ -12,13 +12,13 @@ namespace nrf24Def
 {
   //CE
   const Gpio::Port cePort = Gpio::A;
-  const uint8_t cePin = 1;
+  const uint8_t cePin = 3;
   //CS
   const Gpio::Port csPort = Gpio::A;
-  const uint8_t csPin = 2;
+  const uint8_t csPin = 4;
   //IRQ
   const Gpio::Port irqPort = Gpio::A;
-  const uint8_t irqPin = 3;
+  const uint8_t irqPin = 0;
 }
 
 /* Register Map (регистры) стр 53-58 */
@@ -110,7 +110,7 @@ public:
 private:
   mode m;
   Pin cs, ce;
-  //Intrpt irq;
+  Intrpt irq;
   static uint8_t self_addr[5] ;
   static uint8_t remote_addr[5];
   uint8_t chan;
@@ -124,7 +124,9 @@ public:
   void rxState ();
   void txState ();
   void command (uint8_t com);
+	void comm (uint8_t com);
   uint8_t readRegister (uint8_t reg);
+	uint8_t readStatus ();
   void writeRegister (uint8_t reg , uint8_t val);
   void changeBit (uint8_t reg, uint8_t bit, bool state_);
   void sendByte (uint8_t val);
