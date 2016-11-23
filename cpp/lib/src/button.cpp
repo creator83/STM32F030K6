@@ -1,7 +1,7 @@
 #include "button.h"
 
 Button::Button (Gpio::Port p_, uint8_t pin_)
-:pin (p_, pin_, Gpio::PullUp)
+:pin (p_, pin_, Gpio::NoPP)
 {
 	/*shortFunction = nullptr;
 	longFunction = nullptr;	*/
@@ -10,7 +10,7 @@ Button::Button (Gpio::Port p_, uint8_t pin_)
 	longLimit = 0xFFFF;
 }
 
-void Button::scan ()
+void Button::scanButton ()
 {
 	if (!pin.state ()&&!shortPress&&!longPress)
 	{
@@ -30,7 +30,8 @@ void Button::scan ()
 		}
 		lastState = currentState;
 	}
-	if (counter>shortLimit && counter<longLimit && pin.state())
+	//if (counter>shortLimit && counter<longLimit && pin.state())
+	if (counter>shortLimit && counter<longLimit)
 	{
 		shortPress = 1;
 		counter = 0;
@@ -51,6 +52,24 @@ void Button::scan ()
 	{
 		shortFunction ();
 		shortPress = 0;
+	}
+}
+
+void Button::scanAction ()
+{
+	if (longPress) 
+	{
+		longFunction();
+		do
+			longPress = 0;
+		while (!pin.state ());
+	}
+	if (shortPress)
+	{
+		shortFunction ();
+		do
+		shortPress = 0;
+		while (!pin.state ());
 	}
 }
 

@@ -9,6 +9,7 @@ class Button
 {
 //variables
 public:
+	enum mode {fallingEdge, risingEdge};
 private:
 	uint16_t counter;
 	bool shortPress;
@@ -25,7 +26,8 @@ private:
 //func
 public:
 	Button (Gpio::Port, uint8_t pin_);
-	void scan ();
+	void scanButton ();
+	void scanAction ();
 	void setShortLimit (uint16_t);
 	void setLongLimit (uint16_t);
 	bool & getShortPress (){return shortPress;}

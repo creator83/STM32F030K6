@@ -48,6 +48,8 @@ public:
 	Qenc (Gtimer &, uint16_t range);
 	uint16_t getValue ();
 	void setValue  (uint16_t);
+	void start ();
+	void stop ();
 
 private:
 	void setMode ();

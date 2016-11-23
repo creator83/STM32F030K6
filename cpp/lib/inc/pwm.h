@@ -1,6 +1,7 @@
 #include "stm32f0xx.h"
 #include "pin.h"
 #include "gtimer.h"
+#include "atimer.h"
 /*
 namespace PwmDef
 {
@@ -35,6 +36,7 @@ private:
 	typedef void(Pwm::*PtrPwm)(Pwm::pulseMode);
 	Pin pwmPin;
 	Gtimer * timer;
+	Atimer * timer1;
 	Gtimer::nChannel pwmChannel;
 	TIM_TypeDef * ptrTimer;
 	static uint8_t ccrPtr [4];
@@ -42,6 +44,7 @@ private:
 
 public:
 	Pwm (Gtimer &, Gpio::Port, uint8_t pin_, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = off);
+	Pwm (Atimer &, Gpio::Port, uint8_t pin_, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = off);
 	void setValue (uint16_t);
 	void start ();
 	void stop ();

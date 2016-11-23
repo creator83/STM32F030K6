@@ -46,3 +46,13 @@ void Qenc::setValue  (uint16_t val)
 	ptrTimer->CNT = value;
 }
 
+void Qenc::start ()
+{
+	ptrTimer->CR1 |= TIM_CR1_CEN;
+}
+
+void Qenc::stop ()
+{
+	ptrTimer->CR1 &= ~TIM_CR1_CEN;
+}
+
