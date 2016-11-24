@@ -1,8 +1,9 @@
 #include "nrf24l01.h"
 
-uint8_t Nrf24l01::self_addr[5] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
+uint8_t Nrf24l01::selfAddress[5] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
 
-uint8_t Nrf24l01::remote_addr[5] = {0xC2, 0xC2, 0xC2, 0xC2, 0xC2};
+uint8_t Nrf24l01::remoteAddress[5] = {0xC2, 0xC2, 0xC2, 0xC2, 0xC2};
+
 
 Nrf24l01::Nrf24l01 (Spi &s)
 :cs (nrf24Def::csPort, nrf24Def::csPin, Gpio::PushPull) , ce (nrf24Def::cePort, nrf24Def::cePin, Gpio::PushPull), irq (nrf24Def::irqPort , nrf24Def::irqPin, Intrpt::Falling_edge)
@@ -17,26 +18,35 @@ Nrf24l01::Nrf24l01 (Spi &s)
 	mod->setBaudrate(Spi::div32);
 	mod->setFsize(Spi::bit_8);
 	SPI1->CR1 |= SPI_CR1_SPE;
+	
+	//checking
+  startup = init ();
+  
+  //settings register
+	
+	writeRegister(EN_AA, (1 << ENAA_P1)); // ????????? ????????????????? ?????? ?? ?????? 1
+  writeRegister(EN_RXADDR, (1 << ERX_P0) | (1 << ERX_P1)); // ????????? ??????? 0 ? 1
+  writeRegister(SETUP_AW, SETUP_AW_5BYTES_ADDRESS); // ????? ????? ?????? 5 ????
+  writeRegister(SETUP_RETR, SETUP_RETR_UP_TO_2_RETRANSMIT); 
+  writeRegister(RF_CH, chan); // ????? ?????????? ??????
+  writeRegister(RF_SETUP, RF_SETUP_0DBM); // ????? ???????? 1 ????/? ? ???????? 0dBm
+  
+  writeRegister(RX_ADDR_P0, remoteAddress, 5); // ????????????? ???????? ?? ????? 0 
+  writeRegister(TX_ADDR, remoteAddress, 5);
+
+  writeRegister(RX_ADDR_P1, selfAddress, 5);
+  
+  writeRegister(RX_PW_P0, 0);
+  writeRegister(RX_PW_P1, 32); 
+  writeRegister(DYNPD, (1 << DPL_P0) | (1 << DPL_P1)); // ????????? ???????????? ????? ??? ??????? 0 ? 1
+  writeRegister(FEATURE, 0x04); // ?????????? ???????????? ????? ?????? ??????
+  
   //===Standby-1 mode===//
   delay_ms (15);
   writeRegister (CONFIG, (1 <<PWR_UP | 1 << EN_CRC));
   delay_ms (2);
-  writeRegister (RX_PW_P0, 1);
-	writeRegister (RX_PW_P1, 1);
-	writeRegister (RX_PW_P2, 1);
-	writeRegister (RX_PW_P3, 1);
-	
 	
   rxState ();
-  /*
-  if (init ())
-  {
-    delay_ms (15);
-    change_bit (CONFIG, PWR_UP, 1);
-    delay_ms (3);
-    startup = true;
-  }
-  else startup = false;*/
 }
 
 void Nrf24l01::rxState ()
@@ -102,6 +112,18 @@ void Nrf24l01::writeRegister (uint8_t reg , uint8_t val)
   mod->putData (val); 
   while (mod->flagBsy ());
   cs.set ();
+}
+
+void Nrf24l01::writeRegister (uint8_t reg , uint8_t * val, uint8_t count)
+{
+  command (W_REGISTER|reg);
+  while (count--)
+  {
+    while (!mod->flagTxe());
+    mod->putData (*val++); 
+    while (mod->flagBsy ());
+    cs.set ();
+  }
 }
 
 void Nrf24l01::changeBit (uint8_t reg, uint8_t bit, bool state)

@@ -30,7 +30,7 @@ void Button::scanButton ()
 		}
 		lastState = currentState;
 	}
-	//if (counter>shortLimit && counter<longLimit && pin.state())
+	
 	if (counter>shortLimit && counter<longLimit)
 	{
 		shortPress = 1;
@@ -40,18 +40,6 @@ void Button::scanButton ()
 	{
 		longPress = 1;
 		counter = 0;
-	}
-	if (longPress) 
-	{
-		longFunction();
-		do
-			longPress = 0;
-		while (!pin.state ());
-	}
-	if (shortPress)
-	{
-		shortFunction ();
-		shortPress = 0;
 	}
 }
 
