@@ -17,8 +17,10 @@ extern "C"
 
 
 
-const uint8_t buttEncPin = 0;
-const uint8_t heaterPin = 0;
+const uint8_t buttEncPin = 8;
+const uint8_t heaterPin = 4;
+const uint8_t fanPin = 10;
+const uint8_t beeperPin = 9;
 const uint16_t TsetVal=250;
 const uint16_t TcurrVal=0;
 const uint16_t speedVal=60;
@@ -53,9 +55,9 @@ Hd44780 lcd;
 Gtimer timer3 (Gtimer::Timer3);
 Gtimer timer14 (Gtimer::Timer14, 100, 4800);
 Atimer timer1 (60,100);
-Pwm heater (timer14, Gpio::A, heaterPin, Gpio::AF1, Gtimer::channel2, Pwm::EdgePwm, Pwm::highPulse);
-Pwm fun (timer1, Gpio::A, heaterPin, Gpio::AF1, Gtimer::channel2, Pwm::EdgePwm, Pwm::highPulse);
-Pwm beeper (timer1, Gpio::A, heaterPin, Gpio::AF1, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
+Pwm heater (timer14, Gpio::A, heaterPin, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
+Pwm fun (timer1, Gpio::A, fanPin, Gpio::AF2, Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
+Pwm beeper (timer1, Gpio::A, beeperPin, Gpio::AF2, Gtimer::channel2, Pwm::EdgePwm, Pwm::highPulse);
 
 Button buttonEncoder (Gpio::A, buttEncPin);
 Buffer value;
@@ -130,15 +132,14 @@ int main()
 	pidScreen ();
 	buttonEncoder.setLongLimit (1500);
 	buttonEncoder.setlongPressAction (changeLpFlag);
-	Systimer sys (Systimer::ms, 1);
+	//Systimer sys (Systimer::ms, 1);
 	
 	while (1)
 	{
-		value.pars (encoder.getValue());
-		lcd.setPosition (0, 12);
-		lcd.sendString (value.getContent());
-		delay_ms (1);
-		
+		lcd.Shift (Hd44780::Window, Hd44780::Left, 16);
+		delay_ms (1000);
+		lcd.command (clear_counter);
+		delay_ms (1000);
 	}
 }
 
@@ -147,21 +148,24 @@ void mainScreen ()
 {
 	lcd.newChar (celsiusChar, celsius);
 	lcd.newChar (cursorChar, cursor);
-	lcd.setPosition (0, 1);
+	lcd.setPosition (0, 0);
 	lcd.sendString ("HeatGun");
-	lcd.setPosition (0, 10);
+	lcd.setPosition (0, 9);
 	lcd.sendString ("F=");
 	lcd.setPosition (0, 14);
 	lcd.data ('%');
-	lcd.setPosition (1, 1);
+	lcd.setPosition (1, 0);
 	lcd.sendString ("Tc=");
-	lcd.setPosition (1, 7);
+	lcd.setPosition (1, 6);
 	lcd.data (0);	
 	lcd.setPosition (1, 9);
 	lcd.sendString ("Ts=");
 	lcd.setPosition (1, 15);
 	lcd.data (0);	
-	
+	lcd.setPosition (1, 7);
+	lcd.data (0xFF);	
+	lcd.setPosition (0, 7);
+	lcd.data (0xFF);
 	speedCursor.row = 0;
 	speedCursor.coloumn = 9;
 	tempCursor.row = 1;
