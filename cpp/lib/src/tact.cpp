@@ -5,7 +5,7 @@ uint8_t Tact::f_cpu;
 Tact::Tact ()
 {
   f_cpu = 48;
-  init_hsi ();
+  setHsi ();
   RCC->CFGR &= ~(RCC_CFGR_PLLSRC|RCC_CFGR_PLLXTPRE|RCC_CFGR_PLLMUL);
     
   RCC->CFGR |= RCC_CFGR_PLLMULL12;
@@ -24,11 +24,15 @@ Tact::Tact ()
 Tact::Tact (src_tact s)
 {
   src = s;
-  f_cpu = 48;
-  if (s) init_hse();
-  else init_hsi();
+  //f_cpu = 48;
+  if (s) init_hse ();
+  else 
+	{
+		hsiEnable ();
+		setHsi ();
+	}
   
-  init_pll();
+  //init_pll();
 }
 
 Tact::Tact (uint8_t frq, src_tact s )
@@ -37,7 +41,7 @@ Tact::Tact (uint8_t frq, src_tact s )
   src = s;
   
   if (s) init_hse();
-  else init_hsi();
+  else setHsi ();
 
   init_pll(f_cpu);
 }
@@ -50,24 +54,44 @@ void Tact::init_hse ()
   RCC->CFGR |= RCC_CFGR_SW_HSE;
 }
 
-void Tact::init_hsi ()
+void Tact::setHsi ()
 {
-	/*
-  RCC->CR |= RCC_CR_HSION;
-  while (!((RCC->CR)&RCC_CR_HSIRDY));
-  RCC->CFGR &= ~RCC_CFGR_SW;
-  RCC->CFGR |= RCC_CFGR_SW_HSI;*/
-			/* (1) Test if PLL is used as System clock */
-	if ((RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) 
-	{
-		/* (2) Select HSI as system clock */
 		RCC->CFGR &= ~RCC_CFGR_SW; 
-		
-		/* (3) Wait for HSI switched */
-		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI) ;
-	
-	}
+		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI) ;	
 }
+
+void Tact::hsiEnable ()
+{
+	RCC->CR |= RCC_CR_HSION;
+	while (!RCC->CR&RCC_CR_HSIRDY);
+}
+
+void Tact::hsiDissable ()
+{
+	RCC->CR &= ~RCC_CR_HSION;
+}
+
+void Tact::hseEnable ()
+{
+	RCC->CR |= RCC_CR_HSEON;
+	while (!RCC->CR&RCC_CR_HSERDY);
+}
+
+void Tact::hseDissable ()
+{
+	RCC->CR &= ~ RCC_CR_HSEON;
+}
+
+void Tact::pllEnable ()
+{
+	RCC->CR |= RCC_CR_PLLON;
+	while (!RCC->CR&RCC_CR_PLLRDY);
+}
+void Tact::pllDissable ()
+{
+	RCC->CR &= ~ RCC_CR_PLLON;
+}
+
 void Tact::setFrq (uint8_t frq)
 {
   if (frq>48) f_cpu = 48;
@@ -178,5 +202,17 @@ void Tact::init_pll (uint8_t i)
   RCC->CFGR &= RCC_CFGR_SW;
   RCC->CFGR |= RCC_CFGR_SW_PLL;
   while (!((RCC->CFGR)&RCC_CFGR_SWS_PLL ));
+}
+
+void Tact::setAPBdiv (apbDivider div)
+{
+	RCC->CFGR &= ~RCC_CFGR_PPRE;
+	RCC->CFGR |= static_cast <uint8_t> (div) << 8;
+}
+
+void Tact::setAHBdiv (ahbDivider div)
+{
+	RCC->CFGR &= ~RCC_CFGR_HPRE;
+	RCC->CFGR |= static_cast <uint8_t> (div) << 4;
 }
 

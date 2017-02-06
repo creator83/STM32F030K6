@@ -10,7 +10,9 @@ class Tact
 {
   //variables
 public:
-  enum src_tact {HSI,HSE};
+  enum src_tact {HSI,HSE, PLL};
+	enum class ahbDivider {div0 = 0, div2 = 8, di4, div8, div16, div64, div128, div256, div512};
+	enum class apbDivider : uint8_t {div0 = 0, div2=4, div4, div8, div16};
   //enum frq_tact {frq4, frq8, frq12 , frq16, frq20, frq24 ,frq28 , frq32 , frq36,frq40, frq44 , frq48};
 private:
   static uint8_t f_cpu;
@@ -21,13 +23,22 @@ public:
   Tact ();
   Tact (src_tact s);
   static uint8_t & get_frq (){return f_cpu;};
-private:
+
   void init_pll (uint8_t i);
   void init_pll ();  
   void init_hse ();
-  void init_hsi ();  
+	void setHsi ();
+  void setSorce ();  
+	void hsiEnable ();
+	void hsiDissable ();
+	void hseEnable ();
+	void hseDissable ();
+	void pllEnable ();
+	void pllDissable ();
   void setFrq (uint8_t frq);
-
+	void setAPBdiv (apbDivider);
+	void setAHBdiv (ahbDivider);
+private:
 };
 
  

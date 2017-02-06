@@ -2,9 +2,10 @@
 #include "tact.h"
 
 
+
 int main()
 {
-	__WFI();
+	//__WFI();
 
 	while (1)
 	{
