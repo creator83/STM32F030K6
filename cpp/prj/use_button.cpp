@@ -26,8 +26,7 @@ extern "C"
 
 void SysTick_Handler ()
 {
-		btn1.scan ();	
-}
+		
   
 
 
@@ -51,23 +50,3 @@ int main()
 
   }
 }
-
-void shortPressac()
-{
-	B.setPin (led);
-	delay_ms (1000);
-	B.clearPin (led);
-}
-
-void longPressac()
-{
-	B.setPin (led);
-	delay_ms (400);
-	B.clearPin (led);
-	delay_ms (400);
-	B.setPin (led);
-	delay_ms (400);	
-	B.clearPin (led);
-	delay_ms (400);		
-}
-
