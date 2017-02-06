@@ -5,7 +5,12 @@
 
 int main()
 {
-	//__WFI();
+	Tact frq (Tact::srcTact::HSI);
+	frq.hseDissable ();
+	frq.pllDissable ();
+	frq.setAHBdiv (Tact::ahbDivider::div8);
+	frq.setAPBdiv (Tact::apbDivider::div4);
+	__WFI();
 
 	while (1)
 	{

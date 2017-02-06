@@ -21,11 +21,11 @@ Tact::Tact ()
   
 }
 
-Tact::Tact (src_tact s)
+Tact::Tact (srcTact s)
 {
-  src = s;
+  src = static_cast <uint8_t> (s);
   //f_cpu = 48;
-  if (s) init_hse ();
+  if (src) init_hse ();
   else 
 	{
 		hsiEnable ();
@@ -35,12 +35,12 @@ Tact::Tact (src_tact s)
   //init_pll();
 }
 
-Tact::Tact (uint8_t frq, src_tact s )
+Tact::Tact (uint8_t frq, srcTact s )
 {
   setFrq(frq);
-  src = s;
+  src = static_cast <uint8_t> (s);
   
-  if (s) init_hse();
+  if (src) init_hse();
   else setHsi ();
 
   init_pll(f_cpu);

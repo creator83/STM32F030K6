@@ -10,18 +10,17 @@ class Tact
 {
   //variables
 public:
-  enum src_tact {HSI,HSE, PLL};
+  enum class srcTact {HSI,HSE, PLL};
 	enum class ahbDivider {div0 = 0, div2 = 8, di4, div8, div16, div64, div128, div256, div512};
 	enum class apbDivider : uint8_t {div0 = 0, div2=4, div4, div8, div16};
-  //enum frq_tact {frq4, frq8, frq12 , frq16, frq20, frq24 ,frq28 , frq32 , frq36,frq40, frq44 , frq48};
 private:
   static uint8_t f_cpu;
   uint8_t src;
   //functions
 public:
-  Tact (uint8_t frq , src_tact s );
+  Tact (uint8_t frq , srcTact s );
   Tact ();
-  Tact (src_tact s);
+  Tact (srcTact s);
   static uint8_t & get_frq (){return f_cpu;};
 
   void init_pll (uint8_t i);
