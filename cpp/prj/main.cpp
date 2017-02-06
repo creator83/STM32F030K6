@@ -5,11 +5,27 @@
 
 int main()
 {
-	Tact frq (Tact::srcTact::HSI);
-	frq.hseDissable ();
-	frq.pllDissable ();
-	frq.setAHBdiv (Tact::ahbDivider::div8);
-	frq.setAPBdiv (Tact::apbDivider::div4);
+	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+	GPIOA->MODER &= ~GPIO_MODER_MODER8 ;
+	GPIOA->MODER |= GPIO_MODER_MODER8_1;
+	RCC->CFGR &= ~ RCC_CFGR_MCO_PRE ;
+	RCC->CFGR |= RCC_CFGR_MCO_PRE_8;
+	RCC->CFGR &= ~ RCC_CFGR_MCO ;
+	RCC->CFGR |= RCC_CFGR_MCO_SYSCLK ;
+	RCC->CR |= RCC_CR_HSION;
+	while (!RCC->CR&RCC_CR_HSIRDY);
+  RCC->CFGR &= ~RCC_CFGR_SW;
+  RCC->CFGR |= RCC_CFGR_SW_HSI ;
+	RCC->CFGR |= RCC_CFGR_HPRE_DIV2;
+	RCC->CFGR |= RCC_CFGR_PPRE_DIV4;
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+	//RCC->APB1ENR |=RCC_APB1ENR_CRSEN;
+	SCB->SCR |= SCB_SCR_SLEEPDEEP_Pos;
+	
+	PWR->CR |= 1 << 8;
+	//PWR->CR |= PWR_CR_LPDS;
+	PWR->CR |= PWR_CR_PDDS;
+
 	__WFI();
 
 	while (1)

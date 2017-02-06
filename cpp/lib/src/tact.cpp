@@ -23,7 +23,7 @@ Tact::Tact ()
 
 Tact::Tact (srcTact s)
 {
-  src = static_cast <uint8_t> (s);
+  src = s;
   //f_cpu = 48;
   if (src) init_hse ();
   else 
@@ -38,7 +38,7 @@ Tact::Tact (srcTact s)
 Tact::Tact (uint8_t frq, srcTact s )
 {
   setFrq(frq);
-  src = static_cast <uint8_t> (s);
+  src = s;
   
   if (src) init_hse();
   else setHsi ();
