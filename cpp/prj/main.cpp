@@ -7,9 +7,10 @@ int main()
 {
 
 	Tact frq (Tact::srcTact::HSI);
- Spi spi1;
+	Spi spi1;
 
 	while (1)
 	{
+		
 	}
 }
