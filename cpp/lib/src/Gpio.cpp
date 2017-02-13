@@ -42,6 +42,6 @@ void Gpio::clearPort (unsigned int value)
 void Gpio::PuPd (unsigned char pin , PP p)
 {
 	GpioBase [prt]->PUPDR &= ~(0x03 << (2*pin));
-	GpioBase [prt]->PUPDR |= (p << (2*pin));
+	GpioBase [prt]->PUPDR |= (static_cast <uint8_t> (p) << (2*pin));
 }
 

@@ -1,10 +1,10 @@
 #include "tact.h"
 
-uint8_t Tact::f_cpu;
+uint16_t Tact::f_cpu;
 
 Tact::Tact ()
 {
-  f_cpu = 48;
+  f_cpu = 48000;
   setHsi ();
   RCC->CFGR &= ~(RCC_CFGR_PLLSRC|RCC_CFGR_PLLXTPRE|RCC_CFGR_PLLMUL);
     

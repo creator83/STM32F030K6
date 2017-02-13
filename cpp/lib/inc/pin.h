@@ -22,7 +22,7 @@ public:
 	Pin(Port prt, uint8_t p_, PP);
 
 	void setInputMode (PP);
-	void setOutputMode (Omode = PushPull);
+void setOutputMode (Omode = Omode::PushPull);
   
   void set ();
   void clear ();

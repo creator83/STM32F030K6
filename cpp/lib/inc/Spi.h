@@ -22,25 +22,25 @@ B: CS = 12 SCK = 13 MOSI = 15 MISO = 14
 
 #ifndef SPI_H
 #define SPI_H
-namespace spiDef
+/*namespace spiDef
 {
 //===Defenitions===//
 //SCK
-const Gpio::Port sckPort = Gpio::A;
-const Gpio::Afmode sckAf = Gpio::AF0;
+ const Gpio::Port sckPort = Gpio::Port::A;
+ const Gpio::Afmode sckAf = Gpio::Afmode::AF0;
 const uint8_t sckPin = 5;
 
 //MOSI
-const Gpio::Port mosiPort = Gpio::A;
-const Gpio::Afmode mosiAf = Gpio::AF0;
+const Gpio::Port mosiPort = Gpio::Port::A;
+const Gpio::Afmode mosiAf = Gpio::Afmode::AF0;
 const uint8_t mosiPin = 7;
 	
 //MISO
-const Gpio::Port misoPort = Gpio::A;
-const Gpio::Afmode misoAf = Gpio::AF0;
+const Gpio::Port misoPort = Gpio::Port::A;
+const Gpio::Afmode misoAf = Gpio::Afmode::AF0;
 const uint8_t misoPin = 6;	
 	
-}
+}*/
 
 class Spi;
 
@@ -53,53 +53,57 @@ class Spi
 {
 //variables
 public:
-	enum mode {hardware, software};
-	enum Division {div2 , div4 , div8 , div16 , div32 , div64 , div128 , div256};
-	enum Role {slave , master};
-  enum Cpol {neg, pos};
-  enum Cpha {first, second};
-	enum Fsize {bit_4=3, bit_5, bit_6, bit_7, bit_8, bit_9, bit_10, bit_11, bit_12, bit_13, bit_14, bit_15, bit_16};
+ enum class nSpi {spi1, spi2};
+	enum class mode {hardware, software};
+	enum class division {div2 , div4 , div8 , div16 , div32 , div64 , div128 , div256};
+	enum class role {slave , master};
+ enum class cpol {neg, pos};
+ enum class cpha {first, second};
+	enum class fsize {bit_4=3, bit_5, bit_6, bit_7, bit_8, bit_9, bit_10, bit_11, bit_12, bit_13, bit_14, bit_15, bit_16};
 
 private:
-  Pin sck, mosi, miso;
+// Pin sck, mosi, miso;
 	static SPI_TypeDef * SpiBase [2];
 	static PotMemFn ptr_receive[2];
 	static PotMemF ptr_transmite[2];
-  static ptr_ex ptr_exchange[2];
+ static ptr_ex ptr_exchange[2];
 	static PtrF1 spi_mode [2];
 	uint8_t size_;
-	mode spi_m;
+	uint8_t spi_m;
 
 //functions
 public:
-  Spi(Role r, mode m);
-	Spi(Role r= master);
+ //for spi1
+ Spi(role r, mode m);
+ Spi(role r= role::master);
+ // for spi1, spi2
+ Spi(nSpi, role r= role::master);
 
 	void hardwareMode ();
 	void softwareMode ();
 
 	
-	void setCpol (Cpol c = neg);
-  void setCpha (Cpha c = first);
-  void setFsize (Fsize f = bit_8);
-  void setBaudrate (Division d);
+ void setCpol (cpol c = cpol::neg);
+ void setCpha (cpha c = cpha::first);
+ void setFsize (fsize f = fsize::bit_8);
+ void setBaudrate (division d);
 	void start ();
 	void stop ();
 
-	mode & GetSpiMode (){return spi_m;}
+	uint8_t & GetSpiMode (){return spi_m;}
 	//SPI_TypeDef * (){return spi_m;}
-	static void setCpol (Spi &, Cpol c);
-  static void setCpha (Spi &, Cpha c);
-  static void setBaudrate (Spi &, Division d);
-  static void setFsize (Spi &, Fsize f = bit_8);
+	static void setCpol (Spi &, cpol c);
+ static void setCpha (Spi &, cpha c);
+ static void setBaudrate (Spi &, division d);
+ static void setFsize (Spi &, fsize f = fsize::bit_8);
 
 
 	void assert_Cs (uint8_t p);
-  void disassert_Cs (uint8_t p);
+ void disassert_Cs (uint8_t p);
 	uint16_t getData ();
 	void putData (uint16_t data);
-  void transmit_8 (uint16_t data);
-  void transmit_16 (uint16_t data);
+ void transmit_8 (uint16_t data);
+ void transmit_16 (uint16_t data);
 	void transmit (uint16_t data);
 	uint16_t receive_8 ();
 	uint16_t receive_16 ();

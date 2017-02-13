@@ -8,39 +8,44 @@ PotMemF Spi::ptr_transmite[2] = {&Spi::transmit_8, &Spi::transmit_16};
 ptr_ex Spi::ptr_exchange[2] =  {&Spi::exchange_8, &Spi::exchange_16};
 PtrF1 Spi::spi_mode [2] = {&Spi::hardwareMode, &Spi::softwareMode};
 
-Spi::Spi (Role r, mode m)
-:sck (spiDef::sckPort, spiDef::sckPin, spiDef::sckAf),
+Spi::Spi (role r, mode m)
+/*:sck (spiDef::sckPort, spiDef::sckPin, spiDef::sckAf),
 mosi (spiDef::mosiPort, spiDef::mosiPin, spiDef::mosiAf),
-miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)
+miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)*/
 {
   //tact Spi1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
     
   //Mode Master/Slave
 	SPI1->CR1 &= ~ SPI_CR1_MSTR;
-	SPI1->CR1 |= r << 2;
+	SPI1->CR1 |= static_cast <uint8_t> (r) << 2;
     
   //Soft mode 
-	spi_m = m;
-	(this->*(Spi::spi_mode[m]))();
+	spi_m = static_cast <uint8_t> (m);
+	(this->*(Spi::spi_mode[spi_m]))();
 	
 	 //Turn on Spi1
    //
 }
 
-Spi::Spi (Role r)
-:sck (spiDef::sckPort, spiDef::sckPin, spiDef::sckAf),
+Spi::Spi (role r)
+/*:sck (spiDef::sckPort, spiDef::sckPin, spiDef::sckAf),
 mosi (spiDef::mosiPort, spiDef::mosiPin, spiDef::mosiAf),
-miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)
+miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)*/
 {
 	 //tact Spi1
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
     
   //Mode Master/Slave
 	SPI1->CR1 &= ~ SPI_CR1_MSTR;
-	SPI1->CR1 |= r << 2;
-	spi_m = software;
+	SPI1->CR1 |= static_cast <uint8_t> (r) << 2;
+	spi_m = static_cast <uint8_t> (mode::software);
 	softwareMode ();
+}
+
+Spi::Spi(nSpi, role r)
+{
+  
 }
 
 void Spi::hardwareMode ()
@@ -55,29 +60,29 @@ void Spi::softwareMode ()
   SPI1->CR1 |= SPI_CR1_SSI;
 }
 
-void Spi::setCpol (Cpol c)
+void Spi::setCpol (cpol c)
 {
 	SPI1->CR1 &= ~ SPI_CR1_CPOL;
-	SPI1->CR1 |=  c << 1;
+	SPI1->CR1 |=  static_cast <uint8_t> (c) << 1;
 }
 
-void Spi::setCpha (Cpha c)
+void Spi::setCpha (cpha c)
 {
 	SPI1->CR1 &= ~ SPI_CR1_CPHA ;
-	SPI1->CR1 |=  c << 0;	
+	SPI1->CR1 |=  static_cast <uint8_t> (c) << 0;	
 }
 
-void Spi::setFsize (Fsize f)
+void Spi::setFsize (fsize f)
 {
 	SPI1->CR2 &= ~ SPI_CR2_DS;
-	SPI1->CR2 |= f << 8;
-	if (f <= bit_8) SPI1->CR2 |= SPI_CR2_FRXTH;
+	SPI1->CR2 |= static_cast <uint8_t> (f) << 8;
+	if (static_cast <uint8_t> (f) <= static_cast <uint8_t> (fsize::bit_8)) SPI1->CR2 |= SPI_CR2_FRXTH;
 }
 
-void Spi::setBaudrate (Division d)
+void Spi::setBaudrate (division d)
 {
 	SPI1->CR1 &= ~SPI_CR1_BR;
-	SPI1->CR1 |= d << 3;
+	SPI1->CR1 |= static_cast <uint8_t> (d) << 3;
 }
 
 

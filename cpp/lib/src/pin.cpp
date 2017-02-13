@@ -11,7 +11,7 @@ Pin::Pin(Port p_, uint8_t p, Mode m)
 {
   pin_=p;
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
-	GpioBase [prt]->MODER|= (m << (2*pin_));
+	GpioBase [prt]->MODER|= (static_cast <uint8_t> (m) << (2*pin_));
 }
 
 Pin::Pin(Port port_, uint8_t p, Afmode af)
@@ -20,8 +20,8 @@ Pin::Pin(Port port_, uint8_t p, Afmode af)
   pin_=p;
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
 	GpioBase [prt]->MODER|= (0x02 << (2*pin_));
-	if (pin_ <7)GpioBase [prt]->AFR[0]|= af << (4*pin_); 
-	else GpioBase [prt]->AFR[1]|= af << (4*(pin_-8));
+	if (pin_ <7)GpioBase [prt]->AFR[0]|= static_cast <uint8_t> (af) << (4*pin_); 
+	else GpioBase [prt]->AFR[1]|= static_cast <uint8_t> (af) << (4*(pin_-8));
 }
 
 Pin::Pin(Port port_, uint8_t p, Omode o)
@@ -29,9 +29,9 @@ Pin::Pin(Port port_, uint8_t p, Omode o)
 {
   pin_=p;
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
-	GpioBase [prt]->MODER|= (Gpio::Output << (2*pin_));
+	GpioBase [prt]->MODER|= (static_cast <uint8_t> (Gpio::Mode::Output) << (2*pin_));
 	GpioBase [prt]->OTYPER &= ~(1 << pin_);
-	GpioBase [prt]->OTYPER |= o << pin_;
+	GpioBase [prt]->OTYPER |= static_cast <uint8_t> (o) << pin_;
 }
 
 Pin::Pin(Port port_, uint8_t p, PP p_)
@@ -40,14 +40,14 @@ Pin::Pin(Port port_, uint8_t p, PP p_)
   pin_=p;
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
 	GpioBase [prt]->PUPDR &= ~(0x03 << pin_*2);
-	GpioBase [prt]->PUPDR |= p << pin_*2;
+	GpioBase [prt]->PUPDR |= static_cast <uint8_t> (p) << pin_*2;
 }
 
 void Pin::setInputMode (PP p)
 {
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
 	GpioBase [prt]->PUPDR &= ~(0x03 << pin_*2);
-	GpioBase [prt]->PUPDR |= p << pin_*2;
+	GpioBase [prt]->PUPDR |= static_cast <uint8_t> (p) << pin_*2;
 }
 	
 void Pin::setOutputMode (Omode o)
@@ -55,7 +55,7 @@ void Pin::setOutputMode (Omode o)
 	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
 	GpioBase [prt]->MODER|= (0x01 << (2*pin_));
 	GpioBase [prt]->OTYPER &= ~(1 << pin_);
-	GpioBase [prt]->OTYPER |= o << pin_;
+	GpioBase [prt]->OTYPER |= static_cast <uint8_t> (o) << pin_;
 }
 
 

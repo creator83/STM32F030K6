@@ -1,16 +1,12 @@
 #include "stm32f0xx.h"
 #include "tact.h"
-
+#include "spi.h"
 
 
 int main()
 {
 	Tact frq (Tact::srcTact::HSI);
-	frq.hseDissable ();
-	frq.pllDissable ();
-	frq.setAHBdiv (Tact::ahbDivider::div8);
-	frq.setAPBdiv (Tact::apbDivider::div4);
-	__WFI();
+ Spi spi1;
 
 	while (1)
 	{
