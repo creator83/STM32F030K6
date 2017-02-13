@@ -10,9 +10,11 @@ class Tact
 {
   //variables
 public:
+
   enum class srcTact {HSI,HSE, PLL};
 	enum class ahbDivider {div0 = 0, div2 = 8, div4, div8, div16, div64, div128, div256, div512};
 	enum class apbDivider : uint8_t {div0 = 0, div2=4, div4, div8, div16};
+
 private:
   static uint16_t f_cpu;
   uint8_t src;
