@@ -12,15 +12,15 @@ class Gtimer
 {
 	//variables
 public:
-		enum nTimer {Timer3, Timer14, Timer15, Timer16, Timer17};
-		enum nChannel {channel1, channel2, channel3, channel4};
+		enum class nTimer {Timer3, Timer14, Timer15, Timer16, Timer17};
+		enum class nChannel {channel1, channel2, channel3, channel4};
 		
 private:
 		
 protected:
 		static PtrTimer iniTimer [5];
 		static TIM_TypeDef* timerBase [5];
-		nTimer n_;
+		uint8_t n_;
 		nChannel ch_;
 //functions
 public:

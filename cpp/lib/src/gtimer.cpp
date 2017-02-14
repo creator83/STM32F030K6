@@ -6,14 +6,14 @@ TIM_TypeDef * Gtimer::timerBase [5] = {TIM3, TIM14, TIM15, TIM16, TIM17};
 
 Gtimer::Gtimer (nTimer n, uint16_t divider)
 {
-	n_ = n;
+	n_ = static_cast <uint8_t> (n);
 	(this->*(Gtimer::iniTimer[n_]))();
 	setPsc (divider);
 }
 
 Gtimer::Gtimer (nTimer n, uint16_t divider, uint16_t arr)
 {
-	n_ = n;
+	n_ = static_cast <uint8_t> (n);
 	(this->*(Gtimer::iniTimer[n_]))();
 	setPsc (divider);
 	setArr (arr);
@@ -21,7 +21,7 @@ Gtimer::Gtimer (nTimer n, uint16_t divider, uint16_t arr)
 
 Gtimer::Gtimer (nTimer n)
 {
-	n_ = n;
+	n_ = static_cast <uint8_t> (n);
 	(this->*(Gtimer::iniTimer[n_]))();
 }
 
@@ -42,7 +42,7 @@ void Gtimer::setArr (uint16_t a)
 
 void Gtimer::setChannelValue (uint16_t val)
 {
-	timerBase [n_]->CCR1 |= val << (ch_*16);
+	timerBase [n_]->CCR1 |= val << (static_cast<uint8_t>(ch_)*16);
 }
 
 uint16_t Gtimer::getCnt ()
