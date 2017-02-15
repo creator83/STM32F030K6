@@ -12,36 +12,18 @@
 #include "gtimer.h"
 #include "pid.h"
 #include "adc.h"
-#include "button.h"
+#include "pcd8544font.h"
+#include "font.h"
 
 
 
 Tact frq;
-Pid regulator (4.0, 2.2, 1.3, 50);
-Gtimer timer14 (Gtimer::Timer14, 60, 100);
-Gtimer timer3 (Gtimer::Timer3, 100, 4800);
-Gtimer timer17 (Gtimer::Timer17,48);
-Qenc encoder (6000);
-Pwm fun (timer14, Gpio::A, 4, Gpio::AF4, Gtimer::channel1, Pwm::EdgePwm, Pwm::highPulse);
-Pwm airHeater (timer3, Gpio::B, 0, Gpio::AF1,  Gtimer::channel3, Pwm::EdgePwm, Pwm::highPulse);
 
-
-
-Button buttMenu (Gpio::A, 15);
-Spi spi1 (Spi::master, Spi::software);
-Pcd8544 lcd (spi1);
+Spi spi1 (Spi::role::master);
+Pcd8544 lcd (spi1, Gpio::Port::A, 3, Gpio::Port::A, 4, Gpio::Port::A, 2);
 Buffer val;
-Pcd8544::sFont sLat;
-
-bool flag;
-struct str
-{
-	unsigned pid :1;
-	unsigned peak :1;
-}flags;
-
-uint16_t pidTime [20];
-
+//Font bNumber (10, 3, 21, numbers::bigNumber);
+//Font bNumber;
 
 extern "C"
 {
@@ -51,139 +33,16 @@ extern "C"
 }
 
 
-
-uint16_t valArray [4];
-uint8_t menuPosition;
-
-void pidSet ();
-
-struct pwm_s
-{
-	uint16_t val;
-}funVal, heaterVal;
-
-void setFont();
-
-struct tasks
-{
-	unsigned counter : 6;
-	unsigned limit : 6;
-	unsigned flag : 1;
-}display, button, pid, adc;
-
-struct data
-{
-	uint8_t strPos;
-	uint8_t linePos;
-	uint16_t data;
-}dataSpeed, dataTemp, dataP, dataI, dataD;
-
-
-data * dataArray [5] = {&dataSpeed, &dataTemp, &dataP, &dataI, &dataD};
-
-uint16_t adcValue ();
-
 void SysTick_Handler (void)
 {
-	pidSet ();
-	buttMenu.scan();
-	if (flag)
-	{
-		heaterVal.val = encoder.getValue ();
-		val.pars (heaterVal.val);
-		lcd.stringToBufferDma (1, 45, val.getContent (), sLat);		
-	}
-	else
-	{
-		funVal.val = encoder.getValue ();
-		val.pars (funVal.val);
-		lcd.stringToBufferDma (2, 45, val.getContent (), sLat);
-	}
-	airHeater.setValue (heaterVal.val);
-	fun.setValue (funVal.val);
-	/*val.pars (thermocouple.getMesure());
-	lcd.stringToBufferDma (3, 45, val.getArray(), sLat);*/
-	lcd.drawBuffer ();
+
 }
-
-void init_encoder ();
-void SetClockForADC();
-void CalibrateADC();
-void EnableADC();
-void ConfigureADC();
-void ConfigureADCdma();
-void DisableADC();
-
-void buttonact();
-
-
 
 int main()
 {
-	
-	//Adc thermocouple (Adc::scmsw, Adc::ch0, Adc::bit12);
-	setFont();
-	encoder.setValue (85);
-	funVal.val = 85;
-	heaterVal.val = 500;	
-	
-	fun.setValue (funVal.val);
-	fun.start();
-	
-	airHeater.setValue (heaterVal.val);
-	airHeater.start();
-	
-	lcd.dmaSetting ();
-
-	//ConfigureADCdma();
-	//===main screen===//
-	lcd.stringToBufferDma (0,10, "HEATGUN AIR", sLat);
-	lcd.stringToBufferDma (1, 0, "HEATER:", sLat);
-	lcd.stringToBufferDma (2, 0, "SPEED:", sLat);
-	lcd.stringToBufferDma (3, 0, "ADC:", sLat);
-	lcd.stringToBufferDma (4, 0, "P:", sLat);
-	lcd.stringToBufferDma (4, 25, "I:", sLat);
-	lcd.stringToBufferDma (4, 50, "D:", sLat);
-	
-	lcd.stringToBufferDma (5, 0, "PID:", sLat);
-	
-	val.pars (269);
-	lcd.stringToBufferDma (3, 15, val.getArray(), sLat);
-	lcd.stringToBufferDma (4, 15, val.getContent(), sLat);
-	lcd.drawBuffer ();
-
-
-	
-	buttMenu.setShortLimit (10);
-	buttMenu.setshortPressAction (buttonact);
-	Systimer sys (Systimer::us, 100);
-	//NVIC_EnableIRQ(SysTick_IRQn);
 	while (1)
-	{
-		
+	{	
 	}
-}
-
-void buttonact()
-{
-	if (flag) 
-	{
-		flag = false;
-		encoder.setValue (funVal.val);
-	}
-		else 
-		{
-			flag = true;
-			encoder.setValue (heaterVal.val);
-		}
-}
-
-
-void setFont()
-{
-	sLat.font = fontLAT;
-	sLat.width = 6;
-	sLat.shift = 32;
 }
 
 
@@ -290,53 +149,3 @@ void ConfigureADCdma()
 	DMA1_Channel1->CCR |= DMA_CCR_EN; /* (7) */
 }
 
-void pidSet ()
-{
-	static uint16_t prev=0;
-	uint16_t curr;
-	static int8_t counter=0;
-	//curr = adcValue;
-	if (counter<20)
-	{
-	if (!flags.pid)
-	{
-		if (prev<curr)
-		{
-			prev = curr;
-		}
-		else 
-		{
-			flags.peak = 1;
-		}
-		if (flags.peak)
-		{
-			timer17.stop ();
-			pidTime [counter] = timer17.getCnt();
-			timer17.setCnt (0);
-			timer17.start ();
-			flags.pid = 1;
-			counter++;
-		}
-	}
-		if (flags.pid)
-		{		
-			if (prev>curr)
-			{
-				prev = curr;
-			}
-			else 
-			{
-				flags.peak = 0;
-			}
-			if (!flags.peak)
-				
-			{
-				timer17.stop ();
-				pidTime [counter] = timer17.getCnt();
-				timer17.setCnt (0);
-				timer17.start ();
-				counter++;
-			}
-		}
-	}
-}

@@ -1,5 +1,5 @@
 #include "stm32f0xx.h"                  // Device header
-#include "gpio.h"
+#include "pin.h"
 
 #ifndef ADC_H
 #define ADC_H
@@ -18,14 +18,13 @@ public:
 	
 private:
 	typedef void (Adc::*ModeFptr)();
-	Gpio pin;
+	Pin pin;
 	static Gpio::Port adcPort [18];
 	static uint8_t adcPin [18];
 	static ModeFptr modeFunction [6];
 	uint8_t adcChannel;
 
 public:	
-	Adc();
 	Adc(Gpio::Port p, uint8_t pin_, clockSource);
 	Adc(mode m, channel ch, resolution r, clockSource = hsi);
 	void settingsPin (Gpio::Port p, uint8_t pin);

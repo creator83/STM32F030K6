@@ -14,7 +14,7 @@ mosi (spiDef::mosiPort, spiDef::mosiPin, spiDef::mosiAf),
 miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)*/
 {
   //tact Spi1
-  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+ RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
     
   //Mode Master/Slave
 	SPI1->CR1 &= ~ SPI_CR1_MSTR;
@@ -34,7 +34,7 @@ mosi (spiDef::mosiPort, spiDef::mosiPin, spiDef::mosiAf),
 miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)*/
 {
 	 //tact Spi1
-  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+ RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
     
   //Mode Master/Slave
 	SPI1->CR1 &= ~ SPI_CR1_MSTR;
@@ -45,7 +45,8 @@ miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)*/
 
 Spi::Spi(nSpi, role r)
 {
-  
+  //tact Spi
+  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
 }
 
 void Spi::hardwareMode ()

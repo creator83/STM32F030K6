@@ -1,44 +1,17 @@
 #include "adc.h"
 
-Gpio::Port Adc::adcPort [18] = {Gpio::A, Gpio::A, Gpio::A, Gpio::A, Gpio::A, Gpio::A, Gpio::A};
+Gpio::Port Adc::adcPort [18] = {Gpio::Port::A, Gpio::Port::A, Gpio::Port::A, Gpio::Port::A, Gpio::Port::A, Gpio::Port::A, Gpio::Port::A};
 uint8_t Adc::adcPin [18] = {0,1,2,3,4,5,6,7};
 Adc::ModeFptr Adc::modeFunction [6] = {&Adc::scmswMode, &Adc::ccmswMode};
 
 
-Adc::Adc()
-{
-	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
-}
-
 Adc::Adc(Gpio::Port p, uint8_t pin_, clockSource s)
+:pin (p, pin_, Gpio::Mode::Analog)
 {
 	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
-	pin.settingPinPort (p);
-	pin.settingPin (pin_, Gpio::Analog);
 	setClock (s);
 	calibrate ();
 	enable ();
-}
-
-Adc::Adc(mode m, channel ch, resolution r, clockSource s)
-{
-	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
-	adcChannel = ch;
-	setChannel (ch);
-	pin.settingPinPort (adcPort [adcChannel]);
-	pin.settingPin (adcPin [adcChannel], Gpio::Analog);
-	setClock (s);
-	(this->*(Adc::modeFunction [m]))();
-	calibrate ();
-	setResolution (r);
-	enable ();
-	
-}
-
-void Adc::settingsPin (Gpio::Port p, uint8_t pin_)
-{
-	pin.settingPinPort (p);
-	pin.settingPin (pin_, Gpio::Analog);
 }
 
 uint16_t Adc::getValue ()

@@ -8,10 +8,10 @@ Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChanne
 {
 	timer = &t;
 	ptrTimer = timer->getPtrTimer();
-	pwmChannel = ch;
+	pwmChannel = static_cast <uint8_t>(ch);
 	timer->stop ();
 	
-	(this->*(Pwm::funcMode[mode_]))(m);
+	(this->*(Pwm::funcMode[static_cast <uint8_t>(mode_)]))(m);
 }
 
 Pwm::Pwm (Atimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
@@ -19,16 +19,16 @@ Pwm::Pwm (Atimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChanne
 {
 	timer1 = &t;
 	ptrTimer = TIM1;
-	pwmChannel = ch;
+	pwmChannel = static_cast <uint8_t>(ch);
 	timer->stop ();
 	
-	(this->*(Pwm::funcMode[mode_]))(m);
+	(this->*(Pwm::funcMode[static_cast <uint8_t>(mode_)]))(m);
 }
 void Pwm::setEdgePwm (pulseMode m)
 {
 	//settings timer
 	ptrTimer->CCER &= ~ (1 << ((pwmChannel*4)+1));
-	ptrTimer->CCER |=  (m << ((pwmChannel*4)+1))|(1 << (pwmChannel*4));
+	ptrTimer->CCER |=  (static_cast <uint8_t>(m) << ((pwmChannel*4)+1))|(1 << (pwmChannel*4));
 	
 	ptrTimer->CCMR1 &= ~ (7 << ((pwmChannel*8)+4));
 	ptrTimer->CCMR2 &= ~ (7 << ((pwmChannel*8)+4));

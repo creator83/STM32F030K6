@@ -12,17 +12,16 @@ class Dma
 {
 	//variables
 public:
-	enum dmaChannel {ch1, ch2, ch3 , ch4, ch5};
-	enum direction {periph2mem, mem2periph};
-	enum size {bit8, bit16, bit32};
-	enum flags_ {gif = 1, tcif = 2, htif = 4, teif = 8};
-	enum prioritet {Low, Medium, High, VHigh};
-	enum periph {SPI1_RX, SPI1_TX};
-	dmaChannel channel_;
+	enum class dmaChannel {ch1, ch2, ch3 , ch4, ch5};
+	enum class direction {periph2mem, mem2periph};
+	enum class size {bit8, bit16, bit32};
+	enum class prioritet {Low, Medium, High, VHigh};
+	enum class periph {SPI1_RX, SPI1_TX};
 	size memory_;
 	size periph_;
 	static DMA_Channel_TypeDef * dma_channel [5];
-
+private:
+ uint8_t channel_;
 	//functions
 public:	
 	Dma ();

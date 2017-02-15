@@ -14,13 +14,13 @@ namespace QdDef
 {
 //===Defenitions===//
 //PHA
-const Gpio::Port PhaPort = Gpio::A;
-const Gpio::Afmode PhaAf = Gpio::AF1;
+ const Gpio::Port PhaPort = Gpio::Port::A;
+ const Gpio::Afmode PhaAf = Gpio::Afmode::AF1;
 const uint8_t PhaPin = 6;
 
 //PHB
-const Gpio::Port PhbPort = Gpio::A;
-const Gpio::Afmode PhbAf = Gpio::AF1;
+ const Gpio::Port PhbPort = Gpio::Port::A;
+const Gpio::Afmode PhbAf = Gpio::Afmode::AF1;
 const uint8_t PhbPin = 7;
 }
 

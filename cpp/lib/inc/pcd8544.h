@@ -1,34 +1,9 @@
 #include "stm32f0xx.h"                  // Device header
-#include "gpio.h"
+#include "pin.h"
 #include "Spi.h"
 #include "delay.h"
 #include "dma.h"
-#include "font6x8.h"
-
-
-namespace Pcd8544Def
-{
-//===Defenitions===//
-//CS
-const Gpio::Port CsPort = Gpio::A;
-const uint8_t CsPin = 1;
-
-//SCK
-const Gpio::Port SckPort = Gpio::A;
-const uint8_t SckPin = 5;
-
-//MOSI
-const Gpio::Port MosiPort = Gpio::A;
-const uint8_t MosiPin = 7;
-	
-//RESET
-const Gpio::Port RstPort = Gpio::A;
-const uint8_t RstPin = 3;	
-	
-//DC
-const Gpio::Port DcPort = Gpio::A;
-const uint8_t DcPin = 2;
-}
+#include "font.h"
 
 #ifndef PCD8544_H
 #define PCD8544_H
@@ -74,18 +49,13 @@ const uint16_t bufferSize = page*width;
 class Pcd8544
 {
 public:
-	struct sFont
-	{
-		const uint8_t * font;
-		uint8_t width;
-		uint8_t shift;
-	};		
+
 	enum dmaMode {off, on};
 	//variable
 private:
 	static uint8_t screenBuffer [page][width];
 	Spi* spimodule;
-	Gpio reset, dc;
+	Pin rst, dc, cs;
 	Dma mem2spi1;
 	Dma mem2buff;
 	static char Big_number[10][42]; 
@@ -93,34 +63,32 @@ private:
 	static const char null_val;
 	static dmaMode dmaMode_;
 public:
-	Pcd8544 (Spi &);
+	Pcd8544 (Spi &, Gpio::Port csPort, uint8_t csPin, Gpio::Port dcPort, uint8_t dcPin, Gpio::Port rstPort, uint8_t rstPin);
 	void init ();
 	void dma (dmaMode );
-	void dmaSetting ();
+ void setDma (Dma::dmaChannel spi, Dma::dmaChannel mem);
+ void setSpiDma (Dma::dmaChannel spi);
+ void setMemDma (Dma::dmaChannel mem);
 	void command (uint8_t comm);
 	void data (uint8_t dta, uint16_t n);
 	void array (const uint8_t *dta, uint16_t n);
 	void byte (uint8_t dta);
 	void setPosition (uint8_t x, uint8_t y);
 	void setLinePosition (uint8_t line, uint8_t position);
-
+  
 	void clearScreen ();
 	void clearScreen (uint8_t x,uint8_t y,uint8_t dx,uint8_t dy);
 	void fillScreen ();
 	void chipAssert ();
 	void chipDisassert ();
-  void character (const char ch, sFont & s);
-	void character (uint8_t line , uint8_t position , const char ch, sFont &);
-	void string (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
-
-	void parsingBin (uint8_t line , uint8_t position, uint8_t interval, uint8_t number, sFont &);
+	void character (uint8_t line , uint8_t position , uint8_t ch, Font &);
+	void string (uint8_t line , uint8_t position, const char *str, Font &, uint8_t interval=0);
 	
-	
-	void characterToBuffer (uint8_t line , uint8_t position , const char ch, sFont &);
-	void characterToBufferDma (uint8_t line , uint8_t position , const char ch, sFont &);
-	void stringToBuffer (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
-	void stringToBufferDma (uint8_t line , uint8_t position, const char *str, sFont &, uint8_t interval=0);
-	void stringToBufferDma (uint8_t line , uint8_t position, const char *str, uint8_t size, sFont &s, uint8_t interval = 0);
+	void characterToBuffer (uint8_t line , uint8_t position , uint8_t ch, Font &s);
+	void characterToBufferDma (uint8_t line , uint8_t position , uint8_t ch, Font &s);
+	void stringToBuffer (uint8_t line , uint8_t position, const char *str, Font &, uint8_t interval=0);
+	void stringToBufferDma (uint8_t line , uint8_t position, const char *str, Font &, uint8_t interval=0);
+	void stringToBufferDma (uint8_t line , uint8_t position, const char *str, uint8_t size, Font &s, uint8_t interval = 0);
 	void drawBuffer ();
 	void drawBuffer (uint8_t line, uint8_t x1, uint8_t x2);
 	void drawBufferDma ();

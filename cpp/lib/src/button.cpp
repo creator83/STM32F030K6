@@ -1,7 +1,7 @@
 #include "button.h"
 
 Button::Button (Gpio::Port p_, uint8_t pin_)
-:pin (p_, pin_, Gpio::NoPP)
+:pin (p_, pin_, Gpio::PP::NoPP)
 {
 	/*shortFunction = nullptr;
 	longFunction = nullptr;	*/

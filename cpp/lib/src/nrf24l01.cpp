@@ -6,17 +6,17 @@ uint8_t Nrf24l01::remoteAddress[5] = {0xC2, 0xC2, 0xC2, 0xC2, 0xC2};
 
 
 Nrf24l01::Nrf24l01 (Spi &s)
-:cs (nrf24Def::csPort, nrf24Def::csPin, Gpio::PushPull) , ce (nrf24Def::cePort, nrf24Def::cePin, Gpio::PushPull), irq (nrf24Def::irqPort , nrf24Def::irqPin, Intrpt::Falling_edge)
+:cs (nrf24Def::csPort, nrf24Def::csPin, Gpio::Omode::PushPull), ce (nrf24Def::cePort, nrf24Def::cePin, Gpio::Omode::PushPull), irq (nrf24Def::irqPort , nrf24Def::irqPin, Intrpt::sense::Falling_edge)
 {
-  cs.set ();
-  chan = 3;
-  mod = &s;
-	SPI1->CR1 &= ~ SPI_CR1_SPE;
+ cs.set ();
+ chan = 3;
+ mod = &s;
+ mod->stop ();
 	//settings SPI
-	mod->setCpha(Spi::first);
-	mod->setCpol(Spi::neg);
-	mod->setBaudrate(Spi::div32);
-	mod->setFsize(Spi::bit_8);
+	mod->setCpha(Spi::cpha::first);
+	mod->setCpol(Spi::cpol::neg);
+	mod->setBaudrate(Spi::division::div32);
+	mod->setFsize(Spi::fsize::bit_8);
 	SPI1->CR1 |= SPI_CR1_SPE;
 	
 	//checking
@@ -77,14 +77,14 @@ void Nrf24l01::comm (uint8_t com)
 {
 	cs.clear ();
   mod->putData(com);
-	while (mod->flagBsy ());
+  while (mod->flagBsy ())__NOP ();
   cs.set ();
 }
 
 uint8_t Nrf24l01::readRegister (uint8_t reg)
 {
   command (R_REGISTER|reg);
-	while (!mod->flagRxne());
+  while (!mod->flagRxne())__NOP ();
   uint8_t status = mod->getData();
   while (!mod->flagTxe());
   mod->putData (NOP); 
@@ -98,20 +98,20 @@ uint8_t Nrf24l01::readRegister (uint8_t reg)
 uint8_t Nrf24l01::readStatus ()
 {
 	command (NOP);
-	while (!mod->flagRxne());
-  uint8_t status = mod->getData();
-	while (mod->flagBsy ());
-  cs.set ();
+	while (!mod->flagRxne())__NOP ();
+ uint8_t status = mod->getData();
+	while (mod->flagBsy ())__NOP ();
+ cs.set ();
 	return status;
 }
 
 void Nrf24l01::writeRegister (uint8_t reg , uint8_t val)
 {
-  command (W_REGISTER|reg);
-  while (!mod->flagTxe());
-  mod->putData (val); 
-  while (mod->flagBsy ());
-  cs.set ();
+ command (W_REGISTER|reg);
+ while (!mod->flagTxe());
+ mod->putData (val); 
+ while (mod->flagBsy ());
+ cs.set ();
 }
 
 void Nrf24l01::writeRegister (uint8_t reg , uint8_t * val, uint8_t count)
@@ -168,10 +168,10 @@ uint8_t Nrf24l01::receiveByte ()
 {
   command (R_RX_PAYLOAD);
   while (!mod->flagTxe());
-	mod->putData (NOP); 
+  mod->putData (NOP); 
   while (!mod->flagRxne());
   uint8_t value = mod->getData();
-	while (mod->flagBsy ());
+  while (mod->flagBsy ()) __NOP ();
   cs.set ();
   return value;
 }

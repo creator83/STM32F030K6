@@ -10,7 +10,7 @@ Dma::Dma ()
 
 Dma::Dma (dmaChannel ch)
 {
-	channel_ = ch;
+	channel_ = static_cast <uint8_t> (ch);
 	RCC->AHBENR |= RCC_AHBENR_DMAEN;
 	//dma_channel [channel_]->CCR &= ~(DMA_CCR_PSIZE|DMA_CCR_MSIZE|DMA_CCR_DIR);
 	//dma_channel [channel_]->CCR |= (mem << 10|per << 8|m << 4)|DMA_CCR_TCIE;
@@ -18,7 +18,7 @@ Dma::Dma (dmaChannel ch)
 
 void Dma::setChannel (dmaChannel ch)
 {
-	channel_ = ch;	
+	channel_ = static_cast <uint8_t> (ch);
 }
 
 void Dma::setSources (uint32_t  mem, uint32_t  per)
@@ -46,13 +46,13 @@ void Dma::setLength (uint16_t length)
 void Dma::setSize (size m, size p)
 {
 	dma_channel [channel_]->CCR &= ~(DMA_CCR_PSIZE|DMA_CCR_MSIZE);
-	dma_channel [channel_]->CCR |= (m << 10|p << 8);
+	dma_channel [channel_]->CCR |= (static_cast <uint8_t> (m) << 10|static_cast <uint8_t> (p) << 8);
 }
 
 void Dma::setDirection (direction d)
 {
 	dma_channel [channel_]->CCR &= ~DMA_CCR_DIR;
-	dma_channel [channel_]->CCR |= d << 4;
+	dma_channel [channel_]->CCR |= static_cast <uint8_t> (d) << 4;
 }
 
 void Dma::setIncMem (bool state)
@@ -81,7 +81,7 @@ void Dma::setInterrupt (bool state)
 void Dma::setPrioritet (prioritet p)
 {
 	dma_channel [channel_]->CCR &= ~ DMA_CCR_PL;
-	dma_channel [channel_]->CCR |= p << 12;
+	dma_channel [channel_]->CCR |= static_cast <uint8_t> (p) << 12;
 }
 
 
@@ -97,27 +97,27 @@ void Dma::stop ()
 
 bool Dma::flagTcif ()
 {
-	return (DMA1->ISR&(tcif << (((channel_)*4))));
+	return (DMA1->ISR&(2 << (((channel_)*4))));
 }
 
 void Dma::clearTcif ()
 {
-	DMA1->IFCR |= tcif << (((channel_)*4));
+	DMA1->IFCR |= 2 << (((channel_)*4));
 }
 
 void Dma::clearTeif ()
 {
-	DMA1->IFCR |= teif << (((channel_)*4));
+	DMA1->IFCR |= 8 << (((channel_)*4));
 }
 
 void Dma::clearHtif ()
 {
-	DMA1->IFCR |= htif << (((channel_)*4));
+	DMA1->IFCR |= 4 << (((channel_)*4));
 }
 
 void Dma::clearFlags ()
 {
-	DMA1->IFCR |= gif << (((channel_)*4));
+	DMA1->IFCR |= 1 << (((channel_)*4));
 }
 
 

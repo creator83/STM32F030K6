@@ -28,23 +28,23 @@ class Pwm
   //variables
 public:
 
-	enum mode {EdgePwm, CenterPwm1, CenterPwm2, CenterPwm3};
-	enum pulseMode {highPulse, lowPulse};
-	enum inverse {off=6, on};
+	enum class mode {EdgePwm, CenterPwm1, CenterPwm2, CenterPwm3};
+	enum class pulseMode {highPulse, lowPulse};
+	enum class inverse {off=6, on};
 
 private:
 	typedef void(Pwm::*PtrPwm)(Pwm::pulseMode);
 	Pin pwmPin;
 	Gtimer * timer;
 	Atimer * timer1;
-	Gtimer::nChannel pwmChannel;
+	uint8_t pwmChannel;
 	TIM_TypeDef * ptrTimer;
 	static uint8_t ccrPtr [4];
 	static PtrPwm funcMode [3];
 
 public:
-	Pwm (Gtimer &, Gpio::Port, uint8_t pin_, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = off);
-	Pwm (Atimer &, Gpio::Port, uint8_t pin_, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = off);
+	Pwm (Gtimer &, Gpio::Port, uint8_t pin_, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = inverse::off);
+	Pwm (Atimer &, Gpio::Port, uint8_t pin_, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = inverse::off);
 	void setValue (uint16_t);
 	void start ();
 	void stop ();

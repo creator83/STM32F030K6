@@ -15,7 +15,7 @@ private:
   uint8_t pin_;
   //functions
 public:
-  Pin(Port prt, uint8_t p_);
+ Pin(Port prt, uint8_t p_);
 	Pin(Port prt, uint8_t p_, Mode);
 	Pin(Port prt, uint8_t p_, Afmode);
 	Pin(Port prt, uint8_t p_, Omode);
