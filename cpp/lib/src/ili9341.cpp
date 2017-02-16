@@ -15,7 +15,7 @@ Ili9341::Ili9341(Spi &d, Gpio::Port po, uint8_t p, Gpio::Port rstpo, uint8_t rst
 	cs.set ();
 	driver->start();
 	init ();
-	driver->setBaudrate(Spi::division::div2);
+	driver->setBaudrate(Spi::division::div4);
 	//driver->setDivision(Spi::Division::div256);
 }
 
@@ -48,9 +48,15 @@ void Ili9341::fillScreen (uint16_t color)
 
 		command(ili9341Commands::memoryWrite);
 		dc.set();
+		cs.clear ();	
 		for (uint32_t n = 0; n < 76800; n++) {
-			data16 (color);
+			while (!driver->flagTxe());
+			driver->putData(color >> 8);
+			while (!driver->flagTxe());
+			driver->putData(color);
 		}
+		while (driver->flagBsy());
+		cs.set ();	
 }
 
 void Ili9341::setCursor (uint16_t x , uint16_t y)
