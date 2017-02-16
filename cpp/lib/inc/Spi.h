@@ -98,16 +98,16 @@ public:
  static void setFsize (Spi &, fsize f = fsize::bit_8);
 
 
-	void assert_Cs (uint8_t p);
+ void assert_Cs (uint8_t p);
  void disassert_Cs (uint8_t p);
-	uint16_t getData ();
-	void putData (uint16_t data);
+ uint16_t getData ();
+ void putData (uint16_t data);
  void transmit_8 (uint16_t data);
  void transmit_16 (uint16_t data);
-	void transmit (uint16_t data);
-	uint16_t receive_8 ();
-	uint16_t receive_16 ();
-	uint16_t receive ();
+ void transmit (uint16_t data);
+ uint16_t receive_8 ();
+ uint16_t receive_16 ();
+ uint16_t receive ();
 
 	uint16_t exchange_8 (uint16_t data);
 	uint16_t exchange_16 (uint16_t data);
