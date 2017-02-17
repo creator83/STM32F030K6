@@ -41,7 +41,7 @@ public:
 	void setPrioritet (prioritet p);
 	void start ();
 	void stop ();
-		void clearTcif ();
+	void clearTcif ();
 	bool flagTcif ();
 	void clearTeif ();
 	void clearHtif ();

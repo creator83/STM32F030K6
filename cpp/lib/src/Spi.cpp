@@ -25,7 +25,7 @@ miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)*/
 	(this->*(Spi::spi_mode[spi_m]))();
 	
 	 //Turn on Spi1
-   //
+   spiN = 0;
 }
 
 Spi::Spi (role r)
@@ -43,10 +43,11 @@ miso (spiDef::misoPort, spiDef::misoPin, spiDef::misoAf)*/
 	softwareMode ();
 }
 
-Spi::Spi(nSpi, role r)
+Spi::Spi(nSpi n, role r)
 {
   //tact Spi
   RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+  spiN = static_cast <uint8_t> (n);
 }
 
 void Spi::hardwareMode ()
@@ -78,6 +79,7 @@ void Spi::setFsize (fsize f)
 	SPI1->CR2 &= ~ SPI_CR2_DS;
 	SPI1->CR2 |= static_cast <uint8_t> (f) << 8;
 	if (static_cast <uint8_t> (f) <= static_cast <uint8_t> (fsize::bit_8)) SPI1->CR2 |= SPI_CR2_FRXTH;
+	else SPI1->CR2 &= ~SPI_CR2_FRXTH;
 }
 
 void Spi::setBaudrate (division d)
