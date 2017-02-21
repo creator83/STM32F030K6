@@ -12,9 +12,12 @@ Ili9341::Ili9341(Spi &d, Gpio::Port po, uint8_t p, Gpio::Port rstpo, uint8_t rst
 	driver->setBaudrate(Spi::division::div8);
 	driver->setFsize(Spi::fsize::bit_8);
 	cs.set ();
+	SPI1->CR1 |= SPI_CR1_BIDIMODE|SPI_CR1_BIDIOE ;
+	
 	driver->start();
 	init ();
-	driver->setBaudrate(Spi::division::div8);
+	driver->setBaudrate(Spi::division::div2);
+	
 }
 
 void Ili9341::setDma (Dma &d)
@@ -28,7 +31,7 @@ void Ili9341::setDma (Dma &d)
  driver->getSpiPtr()->CR2 |= SPI_CR2_TXDMAEN;
 }
 
-void Ili9341::fillScreen (uint16_t color)
+void Ili9341::fillScreen (const uint16_t color)
 {
 
 	/*command (ili9341Commands::memoryWrite);
@@ -46,19 +49,28 @@ void Ili9341::fillScreen (uint16_t color)
 
 
 		command(ili9341Commands::memoryWrite);
-		driver->setFsize(Spi::fsize::bit_16);
+		//driver->setFsize(Spi::fsize::bit_16);
 		dc.set();
-		cs.clear ();	
+		
+/*
   dma->setIncMem (false);
+	dma->setPtrMem ((uint32_t)&color);
   dma->setLength (0xFFFF);
-  dma->start ();
-		for (uint32_t n = 0; n < 76800; n++) {
+		
+  dma->start ();*/
+	for (uint32_t n = 0; n < 76800; n++) 
+	{
+		cs.clear ();
+			while (!driver->flagTxe());
+			driver->putData(color>>8);
 			while (!driver->flagTxe());
 			driver->putData(color);
-		}
-		while (driver->flagBsy());
+			while (driver->flagBsy());
 		cs.set ();	
-		driver->setFsize(Spi::fsize::bit_8);
+	}
+		
+		
+		//driver->setFsize(Spi::fsize::bit_8);
 }
 
 void Ili9341::setCursor (uint16_t x , uint16_t y)

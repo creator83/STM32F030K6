@@ -51,7 +51,7 @@ public:
 
 	void setDma (Dma &);
 	void pixel (uint16_t x , uint16_t y, const uint16_t color);
-	void fillScreen (uint16_t color);
+	void fillScreen (const uint16_t color);
 
 	void symbol (uint16_t x, uint16_t y, const uint16_t color, const uint16_t fon, const uint8_t ch, sFont & s);
 	//void symbol (uint16_t x, uint16_t y, const uint16_t color, const uint16_t fon, uint8_t ch, sFont & s);
