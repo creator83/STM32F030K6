@@ -44,8 +44,8 @@ void Ili9341::fillScreen (const uint16_t color)
 		i = color >> 8;
 		j = color & 0xFF;*/
 
-		setColoumn(0, 319);
-		setPage (0, 239);
+		setColoumn(100, 150);
+		setPage (100, 150);
 
 
 		command(ili9341Commands::memoryWrite);
@@ -58,7 +58,7 @@ void Ili9341::fillScreen (const uint16_t color)
   dma->setLength (0xFFFF);
 		
   dma->start ();*/
-	for (uint32_t n = 0; n < 76800; n++) 
+	for (uint32_t n = 0; n < 2500; n++) 
 	{
 		cs.clear ();
 			while (!driver->flagTxe());

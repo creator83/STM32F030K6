@@ -7,7 +7,7 @@
 
 const uint16_t color []={0x0000, 0xF800, 0x001F, 0x07E0, 0x07FF, 0xF81F, 0xFFE0, 0xFFFF};
 
-Tact frq ;
+//Tact frq ;
 extern "C"
 {
 	void DMA1_Channel2_3_IRQHandler ();
@@ -35,8 +35,8 @@ int main()
 	spi1.setCpha(Spi::cpha::first);
 	spi1.setBaudrate(Spi::division::div8);
 	spi1.setFsize(Spi::fsize::bit_16);*/
-	Spi spi1 ;
-	Ili9341 lcd (spi1, Gpio::Port::A, 1, Gpio::Port::A, 0);
+	//Spi spi1 ;
+	//Ili9341 lcd (spi1, Gpio::Port::A, 1, Gpio::Port::A, 0);
 
 	
 	/*lcd.setDma (spiDma);
@@ -45,10 +45,10 @@ int main()
 	
 	while (1)
 	{
-		for (uint8_t i=0;i<8;++i)
+		/*for (uint8_t i=0;i<8;++i)
 		{
 			lcd.fillScreen (color[i]);
 			delay_ms (500);
-		}
+		}*/
 	}
 }

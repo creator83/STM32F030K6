@@ -1,6 +1,6 @@
 #include "gpio.h"
 
-GPIO_TypeDef* Gpio::GpioBase [6] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF};
+GPIO_TypeDef* Gpio::GpioBase [6] = {GPIOA, GPIOB, 0, 0, 0, GPIOF};
 
 Gpio::Gpio (Port p)
 {

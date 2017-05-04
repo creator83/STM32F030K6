@@ -8,7 +8,7 @@ Tact::Tact ()
   setHsi ();
   RCC->CFGR &= ~(RCC_CFGR_PLLSRC|RCC_CFGR_PLLXTPRE|RCC_CFGR_PLLMUL);
     
-  RCC->CFGR |= RCC_CFGR_PLLMULL12;
+  RCC->CFGR |= RCC_CFGR_PLLMUL12;
   FLASH->ACR |= FLASH_ACR_PRFTBE;
   FLASH->ACR |= FLASH_ACR_LATENCY;
   
@@ -108,9 +108,9 @@ void Tact::init_pll ()
   if (src)
   { 
     RCC->CFGR |= (src << 16) & RCC_CFGR_PLLSRC_HSE_PREDIV;
-    RCC->CFGR2 |= RCC_CFGR2_PREDIV1_DIV2 ; 
+    RCC->CFGR2 |= RCC_CFGR2_PREDIV_DIV2 ;
   }  
-  RCC->CFGR |= RCC_CFGR_PLLMULL12;
+  RCC->CFGR |= RCC_CFGR_PLLMUL12;
   FLASH->ACR |= FLASH_ACR_PRFTBE;
   FLASH->ACR |= FLASH_ACR_LATENCY;   
     
@@ -130,7 +130,7 @@ void Tact::init_pll (uint8_t i)
   if (src)
   { 
     RCC->CFGR |= (src << 16) & RCC_CFGR_PLLSRC_HSE_PREDIV;
-    RCC->CFGR2 |= RCC_CFGR2_PREDIV1_DIV2 ; 
+    RCC->CFGR2 |= RCC_CFGR2_PREDIV_DIV2 ;
   }
   
   switch (i)
@@ -140,57 +140,57 @@ void Tact::init_pll (uint8_t i)
     FLASH->ACR &= ~FLASH_ACR_LATENCY;      
   break;
   case 8:
-    RCC->CFGR |= RCC_CFGR_PLLMULL2;
+    RCC->CFGR |= RCC_CFGR_PLLMUL2;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR &= ~FLASH_ACR_LATENCY;   
   break;
   case 12:
-    RCC->CFGR |= RCC_CFGR_PLLMULL3;
+    RCC->CFGR |= RCC_CFGR_PLLMUL3;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR &= ~FLASH_ACR_LATENCY;    
   break;   
   case 16:
-    RCC->CFGR |= RCC_CFGR_PLLMULL4;
+    RCC->CFGR |= RCC_CFGR_PLLMUL4;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR &= ~FLASH_ACR_LATENCY;    
   break;  
   case 20:
-    RCC->CFGR |= RCC_CFGR_PLLMULL5;
+    RCC->CFGR |= RCC_CFGR_PLLMUL5;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR &= ~FLASH_ACR_LATENCY;    
   break;   
   case 24:
-    RCC->CFGR |= RCC_CFGR_PLLMULL6;
+    RCC->CFGR |= RCC_CFGR_PLLMUL6;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR &= ~FLASH_ACR_LATENCY;    
   break;     
   case 28:
-    RCC->CFGR |= RCC_CFGR_PLLMULL7;
+    RCC->CFGR |= RCC_CFGR_PLLMUL7;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR |= FLASH_ACR_LATENCY;   
   break;    
   case 32:
-    RCC->CFGR |= RCC_CFGR_PLLMULL8;
+    RCC->CFGR |= RCC_CFGR_PLLMUL8;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR |= FLASH_ACR_LATENCY;   
   break;      
   case 36:
-    RCC->CFGR |= RCC_CFGR_PLLMULL9;
+    RCC->CFGR |= RCC_CFGR_PLLMUL9;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR |= FLASH_ACR_LATENCY;   
   break;      
   case 40:
-    RCC->CFGR |= RCC_CFGR_PLLMULL10;
+    RCC->CFGR |= RCC_CFGR_PLLMUL10;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR |= FLASH_ACR_LATENCY;   
   break;  
   case 44:
-    RCC->CFGR |= RCC_CFGR_PLLMULL11;
+    RCC->CFGR |= RCC_CFGR_PLLMUL11;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR |= FLASH_ACR_LATENCY;   
   break;  
   case 48:
-    RCC->CFGR |= RCC_CFGR_PLLMULL12;
+    RCC->CFGR |= RCC_CFGR_PLLMUL12;
     FLASH->ACR |= FLASH_ACR_PRFTBE;
     FLASH->ACR |= FLASH_ACR_LATENCY;   
   break;  
