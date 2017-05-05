@@ -79,4 +79,12 @@ bool Pin::state ()
 	return ((GpioBase [prt]->IDR)&(1 << pin_));
 }
 
+GPIO_TypeDef * Pin::getPort ()
+{
+	return GpioBase[prt];
+}
 
+uint8_t & Pin::getPin ()
+{
+	return pin_;
+}

@@ -17,7 +17,7 @@ public:
 	
 	
 private:
-	typedef void (Adc::*ModeFptr)();
+	using  ModeFptr = void (Adc::*)();
 	Pin pin;
 	static Gpio::Port adcPort [18];
 	static uint8_t adcPin [18];

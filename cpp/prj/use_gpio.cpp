@@ -1,8 +1,10 @@
-#include "stm32f0xx.h"
+#include "device.h"
 #include "gpio.h"
+#include "pin.h"
 #include "delay.h"
 #include "tact.h"
 #include "systimer.h"
+#include "segled.h"
 
 
 Tact frq;
@@ -35,14 +37,11 @@ void SysTick_Handler ()
 
 int main()
 {
-	Gpio B (Gpio::B);
-	B.settingPin (pin);
 
-
-
-  while (1)
-  {
-		B.ChangePinState (pin);
+	Pin p (Gpio::Port::A, 1, Gpio::Omode::PushPull);
+	while (1)
+	{
+		p.togle();
 		delay_ms (1000);
-  }
+	}
 }

@@ -1,55 +1,82 @@
-#include "stm32f0xx.h"                  // Device header
-#include "Gpio.h"
-#include "Spi.h"
+#include "device.h"                // Device header
+#include "pin.h"
+
 
 #ifndef SEGLED_H
 #define SEGLED_H
 
-#define USE_SPI
+
+namespace segledDef
+{
+  //segment A
+  const Gpio::Port segAport = Gpio::Port::A;
+  const uint8_t segApin = 0;
+  //segment B
+  const Gpio::Port segBport = Gpio::Port::A;
+  const uint8_t segBpin = 1;
+  //segment C
+  const Gpio::Port segCport = Gpio::Port::A;
+  const uint8_t segCpin = 2;
+  //segment D
+  const Gpio::Port segDport = Gpio::Port::A;
+  const uint8_t segDpin = 3;
+  //segment E
+  const Gpio::Port segEport = Gpio::Port::A;
+  const uint8_t segEpin = 4;
+  //segment F
+  const Gpio::Port segFport = Gpio::Port::A;
+  const uint8_t segFpin = 5;
+  //segment G
+  const Gpio::Port segGport = Gpio::Port::A;
+  const uint8_t segGpin = 6;
+  //segment Dp
+  const Gpio::Port segDpport = Gpio::Port::A;
+  const uint8_t segDppin = 7;
+  //digit 1
+  const Gpio::Port digit1port = Gpio::Port::B;
+  const uint8_t digit1pin = 0;
+  //digit 2
+  const Gpio::Port digit2port = Gpio::Port::B;
+  const uint8_t digit2pin = 1;
+  //digit 3
+  const Gpio::Port digit3port = Gpio::Port::B;
+  const uint8_t digit3pin = 3;
+  //digit 4
+  const Gpio::Port digit4port = Gpio::Port::B;
+  const uint8_t digit4pin = 4;
+    
+}
 
 
-
-
-class segled
+class Segled
 {
 //variables
 public:	
-	enum Port {A , B , C , F=5};
-	//enum Segment {a=0, b=1, c=3, d, e, f, g, dp};
-	#ifdef USE_SPI
-	enum Digit {first=0, second=1, third=2};
 	
-	#else
-	enum Segment {a=0, b, c, d, e, f, g};
-	enum Digit {first=10, second, third, fourth=15};
-	
-	#endif
-	char buffer [4];
 private:
-	#ifdef USE_SPI
-	spi spi1;
-	static char pins [3];
-	#else
-	Gpio pin_segment;
-	static char pins [4];
-	#endif
-	Gpio pin_digit;
-	static char number [13];
-	static char numberDp [13];
-	char n;
-//functions
-
+  Pin segA, segB, segC, segD, segE, segF, segG , segDp;
+  Pin dig1, dig2, dig3, dig4;
+  static uint8_t number [13];
+  static uint8_t numberDp [13];
+  Pin * segments [8];
+  Pin * digits [4];
+  uint8_t segPins [8];
+  uint8_t digPins [4];
+  uint8_t N;
 public:	
-	#ifdef USE_SPI
-	segled (Port dig);
-	void segment (uint8_t val);
-	#else
-	segled (Port seg, Port dig);
-	#endif
-	void OFF ();
-	void get_buffer (uint16_t val);
-	void digit ();
-	void frame (uint8_t dig);
+  Segled (uint8_t nDigit);
+	
+  void setSegments (char * val);
+  void clearSegments ();
+        
+  void setDigit (uint8_t d);
+  void clearDigits ();
+        
+  void frame (char * val, uint8_t d);
+  void blink (char * val, uint8_t d, uint16_t period);
+
+  void value (char * val, uint8_t n);
+        
 private:
 	
 	
@@ -57,3 +84,5 @@ private:
 
 
 #endif
+
+

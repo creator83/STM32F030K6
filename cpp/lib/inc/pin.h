@@ -1,4 +1,4 @@
-#include "stm32f0xx.h" 
+#include "device.h"
 #include "gpio.h"
 
 #ifndef PIN_H
@@ -22,12 +22,15 @@ public:
 	Pin(Port prt, uint8_t p_, PP);
 
 	void setInputMode (PP);
-void setOutputMode (Omode = Omode::PushPull);
+	void setOutputMode (Omode = Omode::PushPull);
   
-  void set ();
-  void clear ();
-  void togle ();
-  bool state ();
+	void set ();
+	void clear ();
+	void togle ();
+	bool state ();
+	GPIO_TypeDef * getPort ();
+
+	uint8_t & getPin ();
 };
 
 

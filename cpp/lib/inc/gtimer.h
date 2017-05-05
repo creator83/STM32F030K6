@@ -5,8 +5,7 @@
 #ifndef GTIMER_H
 #define GTIMER_H
 
-class Gtimer;
-typedef void(Gtimer::*PtrTimer)();
+
 
 class Gtimer
 {
@@ -16,10 +15,10 @@ public:
 		enum class nChannel {channel1, channel2, channel3, channel4};
 		
 private:
-		
+		using PtrTimer = void(Gtimer::*)();
 protected:
-		static PtrTimer iniTimer [5];
-		static TIM_TypeDef* timerBase [5];
+		static PtrTimer iniTimer [4];
+		static TIM_TypeDef* timerBase [4];
 		uint8_t n_;
 		nChannel ch_;
 //functions

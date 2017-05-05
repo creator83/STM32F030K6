@@ -1,8 +1,8 @@
 #include "gtimer.h"
 
-PtrTimer Gtimer::iniTimer [5] = {&Gtimer::clockTimer3, &Gtimer::clockTimer14, &Gtimer::clockTimer15, &Gtimer::clockTimer16, &Gtimer::clockTimer17};
+Gtimer::PtrTimer Gtimer::iniTimer [4] = {&Gtimer::clockTimer3, &Gtimer::clockTimer14, &Gtimer::clockTimer16, &Gtimer::clockTimer17};
 
-TIM_TypeDef * Gtimer::timerBase [5] = {TIM3, TIM14, TIM15, TIM16, TIM17};
+TIM_TypeDef * Gtimer::timerBase [4] = {TIM3, TIM14, TIM16, TIM17};
 
 Gtimer::Gtimer (nTimer n, uint16_t divider)
 {
@@ -73,11 +73,6 @@ void Gtimer::clockTimer3 ()
 void Gtimer::clockTimer14 ()
 {
 	RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
-}
-
-void Gtimer::clockTimer15 ()
-{
-	RCC->APB2ENR |= RCC_APB2ENR_TIM15EN;
 }
 	
 void Gtimer::clockTimer16 ()

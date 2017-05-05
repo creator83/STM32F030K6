@@ -1,174 +1,114 @@
 #include "segled.h"
 
-char segled::number [13] = {0x3F ,0x06 , 0x5B , 0x4F , 0x66 , 0x6D , 0x7D, 0x07 , 0x7F , 0x6F ,  0x00, 0x60, 0x6A};
-char segled::numberDp [13] = {0xBF , 0x86 , 0xDB , 0xCF , 0xE6 , 0xED , 0xFD , 0x87 , 0xFF , 0xEF , 0x00, 0x60, 0x6A};
+uint8_t Segled::number [13] = {0x3F ,0x06 , 0x5B , 0x4F , 0x66 , 0x6D , 0x7D, 0x07 , 0x7F , 0x6F ,  0x00, 0x60, 0x6A};
+uint8_t Segled::numberDp [13] = {0xBF , 0x86 , 0xDB , 0xCF , 0xE6 , 0xED , 0xFD , 0x87 , 0xFF , 0xEF , 0x00, 0x60, 0x6A};
 
 
-#ifdef USE_SPI
-
-char segled::pins[3] = {first, second, third};
-
-segled::segled (Port dig)
-:spi1 (spi::A, spi::div128), pin_digit (dig)
+Segled::Segled (uint8_t nDigit)
+:segA (segledDef::segAport, segledDef::segApin), segB (segledDef::segBport, segledDef::segBpin), segC (segledDef::segCport, segledDef::segCpin), segD (segledDef::segDport, segledDef::segDpin), segE (segledDef::segEport, segledDef::segEpin), segF (segledDef::segFport, segledDef::segFpin), segG (segledDef::segGport, segledDef::segGpin), segDp (segledDef::segDpport, segledDef::segDppin),
+dig1 (segledDef::digit1port, segledDef::digit1pin), dig2 (segledDef::digit2port, segledDef::digit2pin), dig3 (segledDef::digit3port, segledDef::digit3pin), dig4 (segledDef::digit4port, segledDef::digit4pin)
 {
-	//===Settings digit pins===//
-	pin_digit.setOutPin (first);
-	pin_digit.setOutPin (second);	
-	pin_digit.setOutPin (third);
+  N = nDigit;
+  //Settings pin
+  
+  segments [0] = &segA;
+  segments [1] = &segB;
+  segments [2] = &segC;
+  segments [3] = &segD;
+  segments [4] = &segE;
+  segments [5] = &segF;
+  segments [6] = &segG;
+  segments [7] = &segDp;
+  
+  digits [0] =  &dig1;
+  digits [1] =  &dig2;
+  digits [2] =  &dig3;
+  digits [3] =  &dig4;
+    
+  segPins [0] = segledDef::segApin;
+  segPins [1] = segledDef::segBpin;
+  segPins [2] = segledDef::segCpin;
+  segPins [3] = segledDef::segDpin;
+  segPins [4] = segledDef::segEpin;
+  segPins [5] = segledDef::segFpin;
+  segPins [6] = segledDef::segGpin;
+  segPins [7] = segledDef::segDppin;
+  
+  digPins [0] = segledDef::digit1pin;
+  digPins [1] = segledDef::digit2pin;
+  digPins [2] = segledDef::digit3pin;
+  digPins [3] = segledDef::digit4pin;
 }
 
-void segled::segment (uint8_t val)
+
+void Segled::setSegments (char * val)
 {
-	spi1.Clear_CS();
-	spi1.put_data (val);
-	while (spi1.flag_bsy());
-	spi1.Set_CS();
+  for (uint8_t i=0; i<8; ++i)  
+  {
+    if (*val& 1<<i) segments [i]->set ();
+    else segments [i]->clear ();
+  }
 }
 
-void segled::OFF ()
+void Segled::clearSegments ()
 {
-	pin_digit.clearPin (first);
-	pin_digit.clearPin (second);	
-	pin_digit.clearPin (third);
-	segment (0);
+  for (uint8_t i=0;i<8;++i) segments [i]->clear ();
 }
 
-void segled::frame (uint8_t dig)
+void Segled::setDigit (uint8_t d)
 {
-	pin_digit.clearPin (first);
-	pin_digit.clearPin (second);
-	pin_digit.clearPin (third);
-	if (dig==1)
+  digits[d]->set ();
+}
+
+void Segled::clearDigits ()
+{
+  for (uint8_t i=0;i<N;++i) digits [i]->clear ();
+}
+
+void Segled::frame (char * val, uint8_t d)
+{
+  clearSegments();
+  clearDigits ();
+  setSegments (val);
+  setDigit (d);
+}
+
+void Segled::blink (char * val, uint8_t d, uint16_t period)
+{
+	static uint16_t counter=0;
+	counter++;
+	static bool flag;
+
+	if (counter>period)
 	{
-		/*
-		spi1.Clear_CS();
-		spi1.transmit (numberDp[buffer[dig]]);
-		spi1.Set_CS();*/
-		segment (numberDp[buffer[dig]]);
+		flag ^= 1;
+		counter = 0;
 	}
-	else
+	if (flag)
 	{
-		spi1.Clear_CS();
-		spi1.transmit (number[buffer[dig]]);
-		spi1.Set_CS();
+		frame (val, d);
+		return ;
 	}
-	pin_digit.setPin (pins[dig]);
+	clearDigits ();
 }
 
-#else
-
-char segled::pins[4] = {first, second, third, fourth};
-
-segled::segled (Port seg, Port dig)
-:pin_segment (seg), pin_digit (dig)
+void Segled::value (char * val, uint8_t n)
 {
-	//===Settings segment pins===//
-	pin_segment.setOutPin (a);
-	pin_segment.setOutPin (b);	
-	pin_segment.setOutPin (c);
-	pin_segment.setOutPin (d);		
-	pin_segment.setOutPin (e);
-	pin_segment.setOutPin (f);	
-	pin_segment.setOutPin (g);
-	//pin_segment.setOutPin (dp);		
-	
-	//===Settings digit pins===//void segled::frame (uint8_t dig)
-{
-	pin_digit.clearPin (first);
-	pin_digit.clearPin (second);
-	pin_digit.clearPin (third);
-	pin_digit.clearPin (fourth);
-	pin_segment.clearPin (a);
-	pin_segment.clearPin (b);
-	pin_segment.clearPin (c);
-	pin_segment.clearPin (d);
-	pin_segment.clearPin (e);
-	pin_segment.clearPin (f);	
-	pin_segment.clearPin (g);
-	pin_digit.setPin (pins[dig]);
-	pin_segment.setValPort (number[buffer[dig]]);
-}
-	pin_digit.setOutPin (first);
-	pin_digit.setOutPin (second);	
-	pin_digit.setOutPin (third);
-	pin_digit.setOutPin (fourth);		
-}
+  clearSegments();
+  clearDigits ();
+  static uint8_t i;
+  if (i<n)
+  {
+	  setSegments (val);
+	  setDigit (i);
+	  ++i;
+  }
+  else
+  {
+	  i=0;
+	  setSegments (val);
+	  setDigit (i);
+	  ++i;
+  }
 
-
-void segled::OFF ()
-{
-	pin_digit.clearPin (first);
-	pin_digit.clearPin (second);	
-	pin_digit.clearPin (third);
-	pin_digit.clearPin (fourth);		
-}
-
-void segled::frame (uint8_t dig)
-{
-	pin_digit.clearPin (first);
-	pin_digit.clearPin (second);
-	pin_digit.clearPin (third);
-	pin_digit.clearPin (fourth);
-	pin_segment.clearPin (a);
-	pin_segment.clearPin (b);
-	pin_segment.clearPin (c);
-	pin_segment.clearPin (d);
-	pin_segment.clearPin (e);
-	pin_segment.clearPin (f);	
-	pin_segment.clearPin (g);
-	pin_digit.setPin (pins[dig]);
-	pin_segment.setValPort (number[buffer[dig]]);
-}
-
-#endif
-
-
-
-void segled::digit ()
-{
-	static uint8_t i=0;
-	if (i>(n-1))i=0;
-	frame (i);
-	++i;
-}
-
-void segled::get_buffer (uint16_t val)
-{
-	char tous, hundr, dec, ones;
-	uint16_t temp = val;
-
-	for (tous=0;temp>=1000;++tous)temp -=1000;
-
-	for (hundr=0;temp>=100;++hundr)temp -=100;
-	
-	for (dec=0;temp>=10;++dec)temp -=10;
-
-	for (ones=0;temp>=1;++ones)temp--;
-
-	if (tous)
-	{	
-		buffer[3] = tous;
-		buffer[2] = hundr;
-		buffer[1] = dec;
-		buffer[0] = ones;
-		n=4;
-	}
-	else if (!(tous || hundr))
-	{
-		buffer[1] = dec;
-		buffer[0] = ones;
-		n=2;
-	}
-	else if (!(tous || hundr||dec))
-	{
-		buffer[0] = ones;
-		n=1;
-	}	
-	else
-	{
-		buffer[2] = hundr;
-		buffer[1] = dec;
-		buffer[0] = ones;
-		n=3;
-	}
 }

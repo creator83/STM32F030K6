@@ -1,6 +1,6 @@
 #include "spi.h"
 
-SPI_TypeDef * Spi::SpiBase [2] = {SPI1, SPI2};
+SPI_TypeDef * Spi::SpiBase [2] = {SPI1};
 
 PotMemFn Spi::ptr_receive[2] = {&Spi::receive_8, &Spi::receive_16};
 
