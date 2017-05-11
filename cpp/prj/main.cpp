@@ -1,4 +1,4 @@
-#include "stm32f0xx.h"
+#include "device.h"
 #include "tact.h"
 #include "spi.h"
 #include "gtimer.h"

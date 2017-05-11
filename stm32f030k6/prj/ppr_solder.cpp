@@ -8,7 +8,7 @@
 #include "systimer.h"
 #include "senc.h"
 #include "button.h"
-
+#include "delay.h"
 
 extern "C"
 {
@@ -49,9 +49,9 @@ struct
 
 Systimer mainloop (Systimer::mode::ms, 1);
 
-
 Buffer buffer (4);
 Pid regulator (p, i, d, setTemp.value);
+
 
 void SysTick_Handler ()
 {
@@ -71,9 +71,6 @@ Adc thermocouple (Adc::mode::hardwareTrg, Adc::channel::SE1, Adc::resolution::bi
 
 
 //Pwm channels
-Pin triac1Pin (Gpio::Port::B, 6, Gpio::mux::Alt2);
-Pin triac2Pin (Gpio::Port::B, 7, Gpio::mux::Alt2);
-Pin beeperPin (Gpio::Port::B, 10, Gpio::mux::Alt2);
 Tpm tpm1 (Tpm::nTpm::TPM_1, Tpm::division::div8);
 Tpm tpm0 (Tpm::nTpm::TPM_0, Tpm::division::div8);
 Pwm triac1 (tpm1, triac1Pin, Tpm::channel::ch0, Pwm::mode::EdgePwm, Pwm::pulseMode::highPulse);
@@ -168,6 +165,7 @@ void initData ();
 */
 int main()
 {
+	Pin test (Gpio::Port::B, 0, Gpio::Omode::PushPull);
 /*	initData();
 	thermocouple.calibrate();
 
@@ -195,11 +193,12 @@ int main()
 	button.setLongLimit(1000);
 	buttonEnc.setLongLimit(1000);
 */
-	uint16_t i;
+
 
 	while (1)
 	{
-		++i;
+		test.togle();
+		delay_ms (1000);
 	}
 }
 /*

@@ -25,8 +25,8 @@ private:
   const char * font;
   static const uint16_t divider [sizeDivider];
 public:
-  Buffer(char n);
-  ~Buffer();
+  Buffer(char *, char n);
+
   void parsDec16 (const uint16_t &);
   void parsDec16 (const uint16_t &, uint8_t n);
   void parsFloat (const uint16_t &);

@@ -1,4 +1,4 @@
-#include "stm32f0xx.h"                  // Device header
+#include "device.h"                  // Device header
 
 #ifndef GPIO_H
 #define GPIO_H

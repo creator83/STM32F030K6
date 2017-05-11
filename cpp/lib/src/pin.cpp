@@ -1,9 +1,12 @@
 #include "pin.h"
 
-Pin::Pin(Gpio::Port prt, uint8_t p)
-:Gpio(prt)
+Pin::Pin(Gpio::Port port, uint8_t p)
+:Gpio(port)
 {
   pin_=p;
+	GpioBase [prt]->MODER &= ~ (0x03 << (2*pin_));
+	GpioBase [prt]->MODER|= (static_cast <uint8_t> (Gpio::Mode::Output) << (2*pin_));
+	GpioBase [prt]->OTYPER &= ~(1 << pin_);
 }
 
 Pin::Pin(Port p_, uint8_t p, Mode m)

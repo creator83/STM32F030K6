@@ -5,8 +5,8 @@ uint8_t Adc::adcPin [18] = {0,1,2,3,4,5,6,7};
 Adc::ModeFptr Adc::modeFunction [6] = {&Adc::scmswMode, &Adc::ccmswMode};
 
 
-Adc::Adc(Gpio::Port p, uint8_t pin_, clockSource s)
-:pin (p, pin_, Gpio::Mode::Analog)
+Adc::Adc(Pin & pin_, clockSource s)
+:pin (&pin_)
 {
 	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
 	setClock (s);

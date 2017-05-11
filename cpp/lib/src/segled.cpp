@@ -99,14 +99,14 @@ void Segled::value (char * val, uint8_t n)
   static uint8_t i;
   if (i<n)
   {
-	  setSegments (val);
+	  setSegments (&val[i]);
 	  setDigit (i);
 	  ++i;
   }
   else
   {
 	  i=0;
-	  setSegments (val);
+	  setSegments (&val[i]);
 	  setDigit (i);
 	  ++i;
   }

@@ -3,10 +3,10 @@
 Pwm::PtrPwm Pwm::funcMode [3] ={&Pwm::setEdgePwm};
 uint8_t Pwm::ccrPtr [4] = {13, 14, 15, 16};
 
-Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
-:pwmPin (p, pin, af)
+Pwm::Pwm (Gtimer &t, Pin &p, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
+:pwmPin (&p), timer(&t)
 {
-	timer = &t;
+	
 	ptrTimer = timer->getPtrTimer();
 	pwmChannel = static_cast <uint8_t>(ch);
 	timer->stop ();
@@ -14,10 +14,9 @@ Pwm::Pwm (Gtimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChanne
 	(this->*(Pwm::funcMode[static_cast <uint8_t>(mode_)]))(m);
 }
 
-Pwm::Pwm (Atimer &t, Gpio::Port p, uint8_t pin, Gpio::Afmode af, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
-:pwmPin (p, pin, af)
+Pwm::Pwm (Atimer &t,  Pin &p, Gpio::Afmode af, Gtimer::nChannel ch, mode mode_, pulseMode m, inverse i)
+:pwmPin (&p), timer1(&t)
 {
-	timer1 = &t;
 	ptrTimer = TIM1;
 	pwmChannel = static_cast <uint8_t>(ch);
 	timer->stop ();

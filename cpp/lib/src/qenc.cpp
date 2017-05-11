@@ -17,9 +17,19 @@ Qenc::Qenc (Gtimer &t, uint16_t range)
 :pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
 phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
 {
-	timer = &t;
+	gtimer = &t;
 	high = range << 2;
-	ptrTimer = timer->getPtrTimer();
+	ptrTimer = gtimer->getPtrTimer();
+	setMode ();
+}
+
+Qenc::Qenc (Atimer &t, uint16_t range)
+:pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
+{
+	atimer = &t;
+	high = range << 2;
+	ptrTimer = TIM1;
 	setMode ();
 }
 

@@ -1,34 +1,94 @@
 #include "device.h" // Device header
+#include "buffer.h"
+#include "button.h"
 #include "tact.h"
 #include "segled.h"
-#include "systimer.h"
+#include "adc.h"
+#include "qenc.h"
+#include "gtimer.h"
+#include "pwm.h"
 
 Tact frq;
-	Segled indicator (4);
+Segled indicator (4);
+Atimer encDriver;
+Qenc encoder (encDriver);
+
+//beeper
+Pin beeperPin (Gpio::Port::B, 1, Gpio::Afmode::AF0);
+Gtimer beepTimer (Gtimer::nTimer::Timer14, 23999);
+Pwm beeper (beepTimer, beeperPin, Gtimer::nChannel::channel1);
+
+//triac1
+Pin triac1Pin (Gpio::Port::B, 4, Gpio::Afmode::AF1);
+Gtimer triacsTimer (Gtimer::nTimer::Timer3, 23999);
+Pwm triac1 (triacsTimer, triac1Pin, Gtimer::nChannel::channel1);
+
+//triac1
+Pin triac2Pin (Gpio::Port::B, 5, Gpio::Afmode::AF1);
+Pwm triac2 (triacsTimer, triac2Pin, Gtimer::nChannel::channel2);
+
+//Buttons & Encoder
+Button buttonEnc (Gpio::Port::A, 10);
+Button button (Gpio::Port::A, 11);
+
+	uint16_t num = 356;
+	char heatState [3] = {0, 0x06, 0x36};
+	char buf[4]= {0, 0, 0, heatState[2]};
+	Buffer buffer (buf, 3);
+	
+/*Pin adcPin (Gpio::Port::B, 11, Gpio::mux::Analog);
+	Adc thermocouple (Adc::channel::SE8, Adc::resolution::bit12, adcPin);*/
 
 extern "C"
 {
 	void SysTick_Handler(void);
+
 }
+/*
+void HardFault_Handler ()
+{
+	
+}
+
+void LPTimer_IRQHandler (void)
+{
+	LPTMR0->CSR |= LPTMR_CSR_TCF_MASK;
+}*/
+
 
 void SysTick_Handler()
 {
-	static uint16_t i=0;
-	indicator.clearDigits();
-	indicator.setDigit(i);
-	++i;
-	if (i>=4)i=0;
+	static struct
+	{
+		uint16_t adc;
+		uint16_t lcd;
+	}counter{0};
+	++counter.adc;
+	++counter.lcd;
+	if (counter.adc>100)
+	{
+		counter.adc = 0;
+		//thermocouple.setADC();
+	}	
+	if (counter.lcd>500)
+	{
+		counter.lcd = 0;
+		buffer.parsDec16(num, 3);
+	}	
+	
+	indicator.value(buf, 4);
+
 }
 
 
-//pid value
+/*//pid value
 
 const double p  = 2.0;
 const double i  = 0.3;
 const double d  = 0.5;
 uint16_t currTemp;
 uint16_t pidVal;
-/*
+
 struct data
 {
   uint16_t value;
@@ -60,23 +120,12 @@ Adc thermocouple (Adc::mode::hardwareTrg, Adc::channel::SE1, Adc::resolution::bi
 Lptmr adcTrigger (Lptmr::division::div8);
 
 //Pwm channels
-Pin triac1Pin (Gpio::Port::B, 6, Gpio::mux::Alt2);
-Pin triac2Pin (Gpio::Port::B, 7, Gpio::mux::Alt2);
-Pin beeperPin (Gpio::Port::B, 10, Gpio::mux::Alt2);
-Tpm tpm1 (Tpm::nTpm::TPM_1, Tpm::division::div8);
-Tpm tpm0 (Tpm::nTpm::TPM_0, Tpm::division::div8);
-Pwm triac1 (tpm1, triac1Pin, Tpm::channel::ch0, Pwm::mode::EdgePwm, Pwm::pulseMode::highPulse);
-Pwm triac2 (tpm1, triac2Pin, Tpm::channel::ch1, Pwm::mode::EdgePwm, Pwm::pulseMode::highPulse);
-Pwm beeper (tpm0, beeperPin, Tpm::channel::ch1, Pwm::mode::EdgePwm, Pwm::pulseMode::highPulse);
 
 
 Pwm * triacs [2] = {&triac1, &triac2};
 
 
-//Buttons & Encoder
-Senc encoder (Gpio::Port::A, 3, Gpio::Port::A, 4);
-Button buttonEnc (Gpio::Port::A, 5);
-Button button (Gpio::Port::A, 6);
+
 
 
 
@@ -161,29 +210,32 @@ void initData ();
 */
 int main()
 {
-	//SysTick_Config(1000);
-	Systimer mainloop (Systimer::mode::ms, 100);
-	//NVIC_EnableIRQ(SysTick_IRQn);
-	char j = 0xFF;
+	beeper.setValue (0);
+	beeper.start ();
+	//char f=0xFF;
+	buffer.setFont(ArraySegChar);
+	/*indicator.setSegments (&f);
+	indicator.setDigit (1);*/
+	//thermocouple.setHwTrg(Adc::hwTriger::lptmr0);
+	//thermocouple.interruptEnable();
+	SysTick_Config(0xbb80);
+	/*thermocouple.setHwAVG(Adc::samples::smpls8);
+	while (!(LPTMR0->CSR & LPTMR_CSR_TCF_MASK));
+	LPTMR0->CSR &= ~LPTMR_CSR_TEN_MASK;
 
-	indicator.setSegments(&j);
+  Set up LPTMR to use 1kHz LPO with no prescaler as its clock source */
+  //LPTMR0->PSR = LPTMR_PSR_PCS(1)|LPTMR_PSR_PBYP_MASK;
 
+  /* Wait for counter to reach compare value */
+  //;
 
-	/*	initData();
-	thermocouple.calibrate();
+  /* Disable counter and Clear Timer Compare Flag */
+  
+		/*	
+initData();
+	
 
-
-	buffer.parsDec16 (1284);
-
-	thermocouple.setHwTrg(Adc::hwTriger::lptmr0);
-	thermocouple.setHwAVG(Adc::samples::smpls32);
-	thermocouple.interruptEnable();
-	thermocouple.setADC();
-
-
-	//10ms
-	adcTrigger.setComp(30000);
-	adcTrigger.start();
+	
 
 	//settings buttons
 	button.setShortLimit(10);
@@ -197,9 +249,10 @@ int main()
 	buttonEnc.setLongLimit(1000);
 */
 
-
+	uint16_t j=0;
 	while (1)
 	{
+		++j;
 	}
 }
 /*

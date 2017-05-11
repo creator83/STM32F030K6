@@ -4,17 +4,13 @@
 
 const uint16_t Buffer::divider [sizeDivider] = {10000, 1000, 100, 10};
 
-Buffer::Buffer(char n_)
+Buffer::Buffer(char *a, char n_)
+:size (n_), arr(a), arrPtr(a)
 {
-	size = n_;
-	arrPtr = arr = new char [size+1];
-	*(arr+size) = 0;
+	
 }
 
-Buffer::~Buffer()
-{
-	delete[] arrPtr;
-}
+
 
 uint8_t Buffer::getArraySize ()
 {
@@ -66,12 +62,14 @@ void Buffer::parsDec16 (const uint16_t & val, uint8_t n)
   uint8_t arrVal[5] = {0};
   uint16_t temp = val;
   uint8_t k = sizeDivider-n;
+	arr = arrPtr;
   for (uint8_t i=0;i<n-1;++i)
   {
     for (arrVal[k+i]=0;temp>=divider[k+i]; ++arrVal[k+i]) temp-= divider[k+i];
-    arr [k+i] = font [arrVal[k+i]];
+    *arr++ = font [arrVal[k+i]];
   }
-  arr [4] = font [temp];
+	
+  *arr = font [temp];
 }
 
 void Buffer::parsFloat (const uint16_t & val)
