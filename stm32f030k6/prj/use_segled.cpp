@@ -7,6 +7,9 @@
 #include "qenc.h"
 #include "gtimer.h"
 #include "pwm.h"
+#include "pid.h"
+#include "dma.h"
+
 
 Tact frq;
 Segled indicator (4);
@@ -27,61 +30,34 @@ Pwm triac1 (triacsTimer, triac1Pin, Gtimer::nChannel::channel1);
 Pin triac2Pin (Gpio::Port::B, 5, Gpio::Afmode::AF1);
 Pwm triac2 (triacsTimer, triac2Pin, Gtimer::nChannel::channel2);
 
+Pwm * triacs [2] = {&triac1, &triac2};
+
 //Buttons & Encoder
 Button buttonEnc (Gpio::Port::A, 10);
 Button button (Gpio::Port::A, 11);
 
+
 	uint16_t num = 356;
-	char heatState [3] = {0, 0x06, 0x36};
+	char heatState [4] = {0, 0x06, 0x36};
 	char buf[4]= {0, 0, 0, heatState[2]};
+ char off [3] = {0x3F, 0x3F, 0x71};
 	Buffer buffer (buf, 3);
+ uint16_t result [8]= {0};
+ 
+ Dma adcTransfer (Dma::dmaChannel::ch1);
 	
-/*Pin adcPin (Gpio::Port::B, 11, Gpio::mux::Analog);
-	Adc thermocouple (Adc::channel::SE8, Adc::resolution::bit12, adcPin);*/
+ Pin adcPin (Gpio::Port::B, 11, Gpio::Afmode::AF1);
+ Adc thermocouple (Adc::channel::ch8, Adc::resolution::bit12, adcPin);
 
 extern "C"
 {
-	void SysTick_Handler(void);
-
-}
-/*
-void HardFault_Handler ()
-{
-	
-}
-
-void LPTimer_IRQHandler (void)
-{
-	LPTMR0->CSR |= LPTMR_CSR_TCF_MASK;
-}*/
-
-
-void SysTick_Handler()
-{
-	static struct
-	{
-		uint16_t adc;
-		uint16_t lcd;
-	}counter{0};
-	++counter.adc;
-	++counter.lcd;
-	if (counter.adc>100)
-	{
-		counter.adc = 0;
-		//thermocouple.setADC();
-	}	
-	if (counter.lcd>500)
-	{
-		counter.lcd = 0;
-		buffer.parsDec16(num, 3);
-	}	
-	
-	indicator.value(buf, 4);
-
+	void SysTick_Handler ();
+ void ADC1_IRQHandler ();
+ void DMA1_Channel1_IRQHandler ();
 }
 
 
-/*//pid value
+//pid value
 
 const double p  = 2.0;
 const double i  = 0.3;
@@ -111,22 +87,101 @@ struct
 }flag{0};
 
 Pid regulator (p, i, d, setTemp.value);
-Buffer buffer (3);
-Systimer mainloop (Systimer::mode::ms, 1);
 
+void ADC1_IRQHandler ()
+{
+ 
+}
 
-Pin adcPin (Gpio::Port::A, 2, Gpio::mux::Analog);
-Adc thermocouple (Adc::mode::hardwareTrg, Adc::channel::SE1, Adc::resolution::bit12, adcPin);
-Lptmr adcTrigger (Lptmr::division::div8);
+void DMA1_Channel1_IRQHandler ()
+{
+ 
+}
 
-//Pwm channels
+void SysTick_Handler()
+{
+	static struct
+	{
+		uint16_t adc;
+		uint16_t lcd;
+  uint16_t beep;
+	}counter{0};
+	++counter.adc;
+	++counter.lcd;
+ //encoder.scan ();
+ 
+	if (flag.setTemp)
+	{
+		encoder.scan();
+		setTemp.value = encoder.getValue();
+		buffer.parsDec16(setTemp.value);
+		indicator.blink(buffer.getContent(), buffer.getCount(), interval.blink);
+		buttonEnc.scanButton();
+		buttonEnc.scanAction();
+	}
+	else if (flag.setBeeper)
+	{
+		encoder.scan();
+		beepVal.value = encoder.getValue();
+		interval.beep = beepVal.value;
+		buffer.parsDec16(beepVal.value);
+		indicator.blink(buffer.getContent(), buffer.getCount(), interval.blink);
+		button.scanButton();
+		button.scanAction();
+	}
+	else if (flag.startBeeper)
+	{
+		counter.beep++;
+		if (counter.beep>100)
+		{
+			counter.beep = 0;
+			interval.beep--;
+		}
+		buffer.parsDec16(interval.beep);
+		indicator.value(buffer.getContent(), buffer.getCount());
+	}
+	else
+	{
+	//indicate current temperature
+	buffer.parsDec16(currTemp);
+	indicator.value(buffer.getContent(), buffer.getCount());
+	button.scanButton();
+	button.scanAction();
+	buttonEnc.scanButton();
+	buttonEnc.scanAction();
+	}
+ 
+	if (counter.adc>100)
+	{
+  uint16_t temp=0;
+		for (uint8_t i=0;i<8;++i)
+  {
+    temp += result [i];
+  }
+  temp >>=3;
+  currTemp = temp/200;
+  uint16_t pidResult = regulator.compute(currTemp);
+  triac1.setValue (pidResult);
+  triac2.setValue (pidResult);
+	}	
+	if (counter.lcd>500)
+	{
+		counter.lcd = 0;
+		buffer.parsDec16(num, 3);
+	}	
+ if (flag.triacs)
+ {
+  
+ }
+	else
+ {
+  
+ }
+	indicator.value(buf, 4);
 
+}
 
-Pwm * triacs [2] = {&triac1, &triac2};
-
-
-
-
+/*
 
 
 
@@ -199,7 +254,7 @@ void SysTick_Handler ()
 	buttonEnc.scanAction();
 	}
 }
-
+*/
 void buttonEncShort ();
 void buttonEncLong ();
 
@@ -207,13 +262,19 @@ void buttonShort ();
 void buttonLong ();
 
 void initData ();
-*/
+
 int main()
 {
 	beeper.setValue (0);
 	beeper.start ();
 	//char f=0xFF;
 	buffer.setFont(ArraySegChar);
+ adcTransfer.setPtrMem ((uint32_t)result);
+ adcTransfer.setPtrPeriph((uint32_t)&ADC1->DR);
+ adcTransfer.setIncMem (true);
+ adcTransfer.setIncPer (false);
+ adcTransfer.setDirection (Dma::direction::periph2mem);
+ adcTransfer.setLength (8);
 	/*indicator.setSegments (&f);
 	indicator.setDigit (1);*/
 	//thermocouple.setHwTrg(Adc::hwTriger::lptmr0);
@@ -236,7 +297,7 @@ initData();
 	
 
 	
-
+*/
 	//settings buttons
 	button.setShortLimit(10);
 	buttonEnc.setShortLimit(10);
@@ -247,7 +308,7 @@ initData();
 
 	button.setLongLimit(1000);
 	buttonEnc.setLongLimit(1000);
-*/
+
 
 	uint16_t j=0;
 	while (1)
@@ -255,7 +316,7 @@ initData();
 		++j;
 	}
 }
-/*
+
 void initData ()
 {
 	setTemp.highLimit = 300;
@@ -271,13 +332,33 @@ void buttonEncShort ()
 	if (flag.triacs>3) {
 		flag.triacs = 0;
 	}
-	for (uint8_t i=0;i<2;++i)
-	{
-		if (!(flag.triacs&(1 << i)))
-		{
-			triacs[i]->setValue(0);
-		}
-	}
+ switch (flag.triacs)
+ {
+  case 0:
+  {
+    triac1.stop();
+    triac2.stop();
+    break;
+  }
+  case 1:
+  {
+    triac1.start();
+    triac2.stop();
+    break;
+  }  
+  case 2:
+  {
+    triac2.start();
+    triac1.stop();
+    break;
+  } 
+   case 3:
+  {
+    triac1.start();
+    triac2.start();
+    break;
+  }
+ }
 }
 
 void buttonEncLong ()
@@ -286,17 +367,22 @@ void buttonEncLong ()
 	{
 		flag.setTemp ^= 1;
 	}
-
+ if (flag.setTemp)
+ {
+  encoder.setValue(setTemp.value);
+ }
+ else
+ {
+   setTemp.value = encoder.getValue();
+ }
 }
 
 void buttonShort ()
 {
-	if (!flag.setTemp)
+	if (!flag.setTemp||!flag.setBeeper)
 	{
 		flag.startBeeper ^= 1;
 	}
-	if (flag.startBeeper) beeper.setValue(0x00FF);
-	else beeper.setValue(0);
 }
 
 void buttonLong ()
@@ -306,4 +392,4 @@ void buttonLong ()
 		flag.setBeeper ^= 1;
 	}
 }
-*/
+

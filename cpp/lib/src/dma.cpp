@@ -2,6 +2,7 @@
 
 DMA_Channel_TypeDef * Dma::dma_channel [5] = {DMA1_Channel1, DMA1_Channel2, DMA1_Channel3, DMA1_Channel4, DMA1_Channel5};
 
+IRQn_Type Dma::intrpt [3] = {DMA1_Channel1_IRQn, DMA1_Channel2_3_IRQn, DMA1_Channel4_5_IRQn};
 
 Dma::Dma ()
 {
@@ -73,9 +74,16 @@ void Dma::setMemToMem (bool state)
 	dma_channel [channel_]->CCR |= state << 14;
 }
 
-void Dma::setInterrupt (bool state)
+void Dma::interruptEnable ()
 {
-	//dma_channel [channel_]->CCR &= ~
+  dma_channel [channel_]->CCR |= DMA_CCR_TCIE;
+  NVIC_EnableIRQ (intrpt[channel_]);
+}
+
+void Dma::interruptDisable ()
+{
+  dma_channel [channel_]->CCR &= ~ DMA_CCR_TCIE;
+  NVIC_DisableIRQ (intrpt[channel_]);
 }
 
 void Dma::setPrioritet (prioritet p)

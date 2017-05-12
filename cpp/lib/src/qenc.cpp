@@ -5,7 +5,7 @@
 
 Qenc::Qenc (uint16_t range)
 :pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
-phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf), low(0)
 {
 	high = range << 2;
 	ptrTimer = TIM1;
@@ -15,7 +15,7 @@ phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
 
 Qenc::Qenc (Gtimer &t, uint16_t range)
 :pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
-phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf), low(0)
 {
 	gtimer = &t;
 	high = range << 2;
@@ -25,7 +25,7 @@ phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
 
 Qenc::Qenc (Atimer &t, uint16_t range)
 :pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
-phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf), low(0)
 {
 	atimer = &t;
 	high = range << 2;
@@ -44,10 +44,27 @@ void Qenc::setMode ()
 	ptrTimer->CR1 |= TIM_CR1_CEN;
 }
 
+void Qenc::scan ()
+{
+ if (value == 0 && ptrTimer->CNT == 0xFFFF)
+ {
+   value = 0;
+   ptrTimer->CNT = 0;
+ }
+ else if (value == high&& ptrTimer->CNT == high+4)
+ {
+   value = high;
+   ptrTimer->CNT = high;
+ }
+ else 
+ {
+  value = ptrTimer->CNT;
+ }
+}
+
 uint16_t Qenc::getValue ()
 {
-	value = ptrTimer->CNT;
-	return value >> 2;
+  return value >> 2;
 }
 
 void Qenc::setValue  (uint16_t val)

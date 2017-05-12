@@ -5,11 +5,13 @@ uint8_t Adc::adcPin [18] = {0,1,2,3,4,5,6,7};
 Adc::ModeFptr Adc::modeFunction [6] = {&Adc::scmswMode, &Adc::ccmswMode};
 
 
-Adc::Adc(Pin & pin_, clockSource s)
+Adc::Adc (channel ch, resolution r, Pin & pin_, clockSource s)
 :pin (&pin_)
 {
 	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
 	setClock (s);
+ setResolution(r);
+ setChannel (ch);
 	calibrate ();
 	enable ();
 }
@@ -50,20 +52,21 @@ void Adc::calibrate ()
 
 void Adc::setClock (clockSource s)
 {
-	if (s == hsi)
+ /*
+	if (s == (static_cast <uint8_t>(clockSource::hsi)))
 	{
 		RCC->CR2 |= RCC_CR2_HSI14ON;
 		while ((RCC->CR2 & RCC_CR2_HSI14RDY) == 0) 
 		{
-    /* For robust implementation, add here time-out management */
+    // For robust implementation, add here time-out management
 		}  
 		ADC1->CFGR2 &= ~ADC_CFGR2_CKMODE;
 	}
 	else
 	{
 		ADC1->CFGR2 &= ~ADC_CFGR2_CKMODE;
-		ADC1->CFGR2 |= s << 30;		
-	}
+		ADC1->CFGR2 |= static_cast <uint8_t>(s) << 30;		
+	}*/
 }
 
 void Adc::enable ()
@@ -101,7 +104,7 @@ void Adc::config (mode m,  resolution r)
 	ADC1->CFGR1 |= ADC_CFGR1_SCANDIR;
 	//Setings resolution
 	ADC1->CFGR1 &= ~ADC_CFGR1_RES;
-	ADC1->CFGR1 |= r << 3;
+	ADC1->CFGR1 |= static_cast <uint8_t>(r) << 3;
   ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (4) */
   ADC->CCR |= ADC_CCR_VREFEN; /* (5) */
 	
@@ -109,12 +112,13 @@ void Adc::config (mode m,  resolution r)
 void Adc::setResolution (resolution r)
 {
 	ADC1->CFGR1 &= ~ADC_CFGR1_RES;
-	ADC1->CFGR1 |= r << 3;
+	ADC1->CFGR1 |= static_cast <uint8_t>(r) << 3;
 }
 
 void Adc::setChannel (channel ch)
 {
-	ADC1->CHSELR |= 1 << ch;
+ adcChannel = 1 << static_cast <uint8_t>(ch);
+	ADC1->CHSELR = adcChannel;
 }
 
 void Adc::scmswMode ()

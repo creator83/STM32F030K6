@@ -44,6 +44,7 @@ public:
 private:
 	Pin pha, phb;
 	uint16_t high;
+ uint16_t low;
 	uint16_t value;
 	TIM_TypeDef * ptrTimer;
 	Gtimer * gtimer;
@@ -53,7 +54,9 @@ public:
 	Qenc (uint16_t range);
 	Qenc (Gtimer &, uint16_t range);
 	Qenc (Atimer &, uint16_t range=100);
+ void scan ();
 	uint16_t getValue ();
+
 	void setValue  (uint16_t);
 	void start ();
 	void stop ();

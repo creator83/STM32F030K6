@@ -17,10 +17,13 @@ public:
 	enum class size {bit8, bit16, bit32};
 	enum class prioritet {Low, Medium, High, VHigh};
 	enum class periph {SPI1_RX, SPI1_TX};
-	size memory_;
-	size periph_;
-	static DMA_Channel_TypeDef * dma_channel [5];
+	
+	
 private:
+ size memory_;
+	size periph_;
+ static DMA_Channel_TypeDef * dma_channel [5];
+ static IRQn_Type intrpt [3];
  uint8_t channel_;
 	//functions
 public:	
@@ -37,7 +40,8 @@ public:
 	void setIncMem (bool state);
 	void setIncPer (bool state);
 	void setMemToMem (bool state);
-	void setInterrupt (bool state);
+	void interruptEnable ();
+ void interruptDisable ();
 	void setPrioritet (prioritet p);
 	void start ();
 	void stop ();
