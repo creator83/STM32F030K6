@@ -39,9 +39,10 @@ public:
 	void setDirection (direction d);
 	void setIncMem (bool state);
 	void setIncPer (bool state);
+	void setCirc (bool state);
 	void setMemToMem (bool state);
 	void interruptEnable ();
- void interruptDisable ();
+	void interruptDisable ();
 	void setPrioritet (prioritet p);
 	void start ();
 	void stop ();

@@ -30,9 +30,11 @@ public:
 		void setPsc (uint16_t);
 		void setArr (uint16_t);
 		void setChannelValue (uint16_t);
+		void setOneShot (bool);
 		void start ();
 		void stop ();
 		void clearFlag();
+
 		uint16_t getCnt ();
 		TIM_TypeDef * getPtrTimer (){return timerBase [n_];}
 	//	uint32_t*  getadressBase (){return timerBase [n_];}

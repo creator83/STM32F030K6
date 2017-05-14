@@ -45,6 +45,12 @@ void Gtimer::setChannelValue (uint16_t val)
 	timerBase [n_]->CCR1 |= val << (static_cast<uint8_t>(ch_)*16);
 }
 
+void Gtimer::setOneShot (bool state)
+{
+	timerBase [n_]->CR1 &= ~TIM_CR1_OPM;
+	timerBase [n_]->CR1 |= state << 3;
+}
+
 uint16_t Gtimer::getCnt ()
 {
 	return timerBase [n_]->CNT;

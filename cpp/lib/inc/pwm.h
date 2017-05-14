@@ -44,9 +44,10 @@ private:
 
 public:
 	
-Pwm (Gtimer &, Pin &, Gtimer::nChannel ch, mode = mode::EdgePwm, pulseMode = pulseMode::highPulse, inverse = inverse::off);
+	Pwm (Gtimer &, Pin &, Gtimer::nChannel ch, mode = mode::EdgePwm, pulseMode = pulseMode::highPulse, inverse = inverse::off);
 	Pwm (Atimer &, Pin &, Gpio::Afmode af, Gtimer::nChannel ch, mode, pulseMode, inverse = inverse::off);
 	void setValue (uint16_t);
+	void setPeriod (uint16_t);
 	void start ();
 	void stop ();
 private:

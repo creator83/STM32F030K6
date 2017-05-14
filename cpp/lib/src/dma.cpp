@@ -68,6 +68,11 @@ void Dma::setIncPer (bool state)
 	dma_channel [channel_]->CCR |= state << 6;
 }
 
+void Dma::setCirc (bool state)
+{
+	dma_channel [channel_]->CCR &= ~ DMA_CCR_CIRC;
+	dma_channel [channel_]->CCR |= state << 5;
+}
 void Dma::setMemToMem (bool state)
 {
 	dma_channel [channel_]->CCR &= ~ DMA_CCR_MEM2MEM;

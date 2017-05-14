@@ -9,11 +9,14 @@ Adc::Adc (channel ch, resolution r, Pin & pin_, clockSource s)
 :pin (&pin_)
 {
 	RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
+	
 	setClock (s);
- setResolution(r);
- setChannel (ch);
+	setResolution(r);
+	setChannel (ch);
 	calibrate ();
 	enable ();
+	ADC1->SMPR |= ADC_SMPR_SMP_0 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_2; /* (3) */
+	ADC->CCR |= ADC_CCR_VREFEN;
 }
 
 uint16_t Adc::getValue ()
@@ -36,7 +39,10 @@ void Adc::start ()
 void Adc::stop ()
 {
 }
-
+void Adc::enableDma ()
+{
+	ADC1->CFGR1 |= ADC_CFGR1_DMAEN| ADC_CFGR1_DMACFG|ADC_CFGR1_CONT; 
+}
 void Adc::calibrate ()
 {
   if ((ADC1->CR & ADC_CR_ADEN) != 0) 
@@ -68,6 +74,8 @@ void Adc::setClock (clockSource s)
 		ADC1->CFGR2 |= static_cast <uint8_t>(s) << 30;		
 	}*/
 }
+
+
 
 void Adc::enable ()
 {

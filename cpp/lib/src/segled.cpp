@@ -86,7 +86,7 @@ void Segled::blink (char * val, uint8_t d, uint16_t period)
 	}
 	if (flag)
 	{
-		frame (val, d);
+		value (val, d);
 		return ;
 	}
 	clearDigits ();

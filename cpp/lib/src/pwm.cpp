@@ -42,6 +42,11 @@ void Pwm::setValue (uint16_t val)
 	*(uint32_t*)((uint32_t*)timer->getPtrTimer()+ccrPtr[pwmChannel])= val; 
 }
 
+void Pwm::setPeriod (uint16_t val)
+{
+	timer->getPtrTimer()->ARR = val;
+}
+
 void Pwm::start ()
 {
 	timer->start();
