@@ -50,6 +50,7 @@ public:
 	void setPeriod (uint16_t);
 	void start ();
 	void stop ();
+ void setPulseMode (pulseMode);
 private:
 	void setMode ();
 	void setEdgePwm (pulseMode m);

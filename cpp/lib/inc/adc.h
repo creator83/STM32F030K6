@@ -37,6 +37,7 @@ public:
 	void start ();
 	void stop ();
 	void enableDma ();
+ void setChannels (uint32_t);
 private:
 	void calibrate ();
 	void setClock (clockSource s);

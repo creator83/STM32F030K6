@@ -51,14 +51,14 @@ void Qenc::scan ()
    value = 0;
    ptrTimer->CNT = 0;
  }
- else if (value == high&& ptrTimer->CNT == high+4)
+ else if (value == high&& ptrTimer->CNT >= high+4)
  {
    value = high;
    ptrTimer->CNT = high;
  }
  else 
  {
-  value = ptrTimer->CNT;
+   value = ptrTimer->CNT;
  }
 }
 

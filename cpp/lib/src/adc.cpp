@@ -43,6 +43,13 @@ void Adc::enableDma ()
 {
 	ADC1->CFGR1 |= ADC_CFGR1_DMAEN| ADC_CFGR1_DMACFG|ADC_CFGR1_CONT; 
 }
+
+
+void Adc::setChannels (uint32_t ch)
+{
+ adcChannel = ch;
+	ADC1->CHSELR = adcChannel;
+}
 void Adc::calibrate ()
 {
   if ((ADC1->CR & ADC_CR_ADEN) != 0) 

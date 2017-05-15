@@ -23,7 +23,7 @@ Qenc encoder (encDriver, 10);
 //beeper
 Pin beeperPin (Gpio::Port::B, 1, Gpio::Afmode::AF0);
 Gtimer beepTimer (Gtimer::nTimer::Timer14, 47999);
-//Pwm beeper (beepTimer, beeperPin, Gtimer::nChannel::channel1, Pwm::mode::EdgePwm, Pwm::pulseMode::lowPulse);
+Pwm beeper (beepTimer, beeperPin, Gtimer::nChannel::channel1, Pwm::mode::EdgePwm, Pwm::pulseMode::lowPulse);
 
 //triac1
 Pin triac1Pin (Gpio::Port::B, 4, Gpio::Afmode::AF1);
@@ -44,11 +44,11 @@ Button button (Gpio::Port::A, 11);
 	uint16_t num = 0;
 	char heatState [4] = {0, 0x06, 0x36};
 	char buf[4]= {0, 0, 0, heatState[2]};
- char off [3] = {0x3F, 0x3F, 0x71};
 	Buffer buffer (buf, 3);
- uint16_t result [8]= {0};
- uint16_t temperature;
- 
+ uint16_t result [16]= {0};
+ uint16_t temperature, tempInt;
+ int32_t tInt;
+ void calcTemp(uint16_t val);
  Dma adcTransfer (Dma::dmaChannel::ch1);
 	
  Pin adcPin (Gpio::Port::B, 0, Gpio::Mode::Analog);
@@ -106,8 +106,25 @@ void DMA1_Channel1_IRQHandler ()
 
 void TIM14_IRQHandler ()
 {
-	TIM14->SR &= ~(TIM_SR_UIF|TIM_SR_CC1IF);
-	beeperPin.clear();
+ if (flag.startBeeper)
+ {
+   TIM14->SR &= ~TIM_SR_CC1IF;
+   flag.startBeeper = 0;
+   beeper.stop();
+   beeper.setPulseMode(Pwm::pulseMode::lowPulse);
+   beeper.setPeriod (1000);
+   beeper.setValue (1000);
+   TIM14->DIER |= TIM_DIER_CC1IE;
+   beeper.start();
+ }
+ if (!flag.startBeeper)
+ {
+   TIM14->SR &= ~TIM_SR_CC1IF;
+   beeper.stop();
+   TIM14->DIER |= TIM_DIER_CC1IE;
+   beeper.setPulseMode(Pwm::pulseMode::highPulse);
+ }	
+
 }
 void SysTick_Handler()
 {
@@ -123,24 +140,42 @@ void SysTick_Handler()
 	button.scanAction();
 	buttonEnc.scanButton();
 	buttonEnc.scanAction();
-	//encoder.scan ();
+
 	if (flag.triacs)
 	{
 		if (counter.lcd>50)
 		{
 			counter.lcd = 0;
 			buffer.parsDec16(num, 3);
+   if (num<100)
+   {
+     buf[0] = 0;
+   }
+   else if (num<10)
+   {
+     buf[0] = 0;
+     buf[1] = 0;
+   }
 		}	
 		if (counter.adc>100)
 		{
 			temperature=0;
-			for (uint8_t i=0;i<8;++i)
+			for (uint8_t i=0;i<16;i+=2)
 			{
 				temperature += result [i];
 			}
 			temperature >>=3;
 			temperature /=11;
-
+   
+   //internal sensor
+			for (uint8_t i=1;i<16;i+=2)
+			{
+				tempInt += result [i];
+			}   
+   tempInt >>=3;
+   calcTemp (tempInt);
+   temperature += tInt;
+   
 			uint16_t pidResult = regulator.compute(currTemp);
 			triac1.setValue (pidResult);
 			triac2.setValue (pidResult);
@@ -149,8 +184,7 @@ void SysTick_Handler()
 
 
 	if (flag.setTemp)
-	{
-		
+	{	
 		encoder.scan();
 		num = encoder.getValue();
 		buffer.parsDec16(num, 3);
@@ -161,11 +195,23 @@ void SysTick_Handler()
 		encoder.scan();
 		num = encoder.getValue();
 		buffer.parsDec16(num, 3);
+   if (num<100)
+   {
+     buf[0] = 0;
+   }
+   else if (num<10)
+   {
+     buf[0] = 0;
+     buf[1] = 0;
+   }
 		indicator.blink(buf, 4, 300);
 	}
 	else if (flag.startBeeper)
 	{
-
+   beeper.setPeriod (beepVal.value*100);
+   beeper.setValue (beepVal.value*100);
+   beeper.start ();
+  
 	}
 	else
 	{
@@ -194,30 +240,26 @@ void buttonLong ();
 void initData ();
 void adcInit ();
 
+
+
 int main()
 {
 	//beepTimer.setOneShot (true);
 	//beeper.setPeriod (2000);
 	//beeper.setValue (1900);
-	//TIM14->DIER |= TIM_DIER_CC1IE|TIM_SR_UIF ;
-	//NVIC_EnableIRQ (TIM14_IRQn);
+	TIM14->DIER |= TIM_DIER_CC1IE;
+	NVIC_EnableIRQ (TIM14_IRQn);
 	//beeper.start ();
 	//char f=0xFF;
 	buffer.setFont(ArraySegChar);
 
 	Adc thermocouple (Adc::channel::ch8, Adc::resolution::bit12, adcPin);
-	/*ADC1->CHSELR = ADC_CHSELR_CHSEL16;
-	ADC->CCR |= ADC_CCR_TSEN|ADC_CCR_VREFEN;
+	ADC1->CHSELR = ADC_CHSELR_CHSEL16;
+	ADC->CCR |= ADC_CCR_TSEN;
 	ADC1->CR |= ADC_CR_ADSTART;
 	while ((ADC1->ISR & ADC_ISR_EOC) == 0);
-	
-	uint16_t dt = ADC1->DR ;
-	uint16_t V = (dt*33)/4095;
-	
-  temperature = ((14-V)*1000)/43;
-	temperature += 30;
-	*/	
-	//RCC->AHBENR |= RCC_AHBENR_DMA1EN; 
+ calcTemp(ADC1->DR);
+  
 	/*ADC1->CFGR1 |= ADC_CFGR1_DMAEN| ADC_CFGR1_DMACFG|ADC_CFGR1_CONT; 
 DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR)); 
 DMA1_Channel1->CMAR = ((uint32_t)result); 
@@ -227,6 +269,7 @@ DMA1_Channel1->CCR |=  DMA_CCR_MINC | DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0
 DMA1_Channel1->CCR |= DMA_CCR_EN; 
 	ADC1->CR |= ADC_CR_ADSTART;*/
 	thermocouple.enableDma();
+ thermocouple.setChannels (1 << 8|1 << 16);
 	adcTransfer.setPtrMem ((uint32_t)result);
 	adcTransfer.setPtrPeriph((uint32_t)&ADC1->DR);
 	adcTransfer.setIncMem (true);
@@ -234,16 +277,9 @@ DMA1_Channel1->CCR |= DMA_CCR_EN;
 	adcTransfer.setCirc (true);
 	adcTransfer.setSize (Dma::size::bit16, Dma::size::bit16);
 	adcTransfer.setDirection (Dma::direction::periph2mem);
-	adcTransfer.setLength (8);
+	adcTransfer.setLength (16);
 	adcTransfer.start ();
 	thermocouple.start ();
-	
-	/*indicator.setSegments (&f);
-	indicator.setDigit (1);*/
-	//thermocouple.setHwTrg(Adc::hwTriger::lptmr0);
-	//thermocouple.interruptEnable();
-	//RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
-	//adcInit ();
 		
 		buf [0]= 0x3F;
 		buf [1]= 0x71;
@@ -251,25 +287,7 @@ DMA1_Channel1->CCR |= DMA_CCR_EN;
 		buf [3]= 0;
 	initData();
 	SysTick_Config(0xbb80);
-	/*thermocouple.setHwAVG(Adc::samples::smpls8);
-	while (!(LPTMR0->CSR & LPTMR_CSR_TCF_MASK));
-	LPTMR0->CSR &= ~LPTMR_CSR_TEN_MASK;
 
-  Set up LPTMR to use 1kHz LPO with no prescaler as its clock source */
-  //LPTMR0->PSR = LPTMR_PSR_PCS(1)|LPTMR_PSR_PBYP_MASK;
-
-  /* Wait for counter to reach compare value */
-  //;
-
-  /* Disable counter and Clear Timer Compare Flag */
-  
-		/*	
-
-	
-
-	
-*/
-	
 	//settings buttons
 	button.setShortLimit(3);
 	buttonEnc.setShortLimit(10);
@@ -288,7 +306,13 @@ DMA1_Channel1->CCR |= DMA_CCR_EN;
 		++j;
 	}
 }
-
+void calcTemp(uint16_t val)
+{
+  tInt = (((int32_t) val * VDD_APPLI / VDD_CALIB)-(int32_t) *TEMP30_CAL_ADDR );
+  tInt = tInt * (int32_t)(110 - 30);
+  tInt = tInt / (int32_t)(*TEMP110_CAL_ADDR- *TEMP30_CAL_ADDR);
+  tInt = tInt + 30;
+}
 void adcInit ()
 {
 
@@ -384,7 +408,7 @@ void buttonShort ()
 {
 	if (!flag.setTemp||!flag.setBeeper)
 	{
-		flag.startBeeper ^= 1;
+		flag.startBeeper = 1;
 	}
 }
 
