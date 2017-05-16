@@ -23,7 +23,7 @@ Qenc encoder (encDriver, 10);
 //beeper
 Pin beeperPin (Gpio::Port::B, 1, Gpio::Afmode::AF0);
 Gtimer beepTimer (Gtimer::nTimer::Timer14, 47999);
-Pwm beeper (beepTimer, beeperPin, Gtimer::nChannel::channel1, Pwm::mode::EdgePwm, Pwm::pulseMode::lowPulse);
+Pwm beeper (beepTimer, beeperPin, Gtimer::nChannel::channel1);
 
 //triac1
 Pin triac1Pin (Gpio::Port::B, 4, Gpio::Afmode::AF1);
@@ -45,7 +45,7 @@ Button button (Gpio::Port::A, 11);
 	char heatState [4] = {0, 0x06, 0x36};
 	char buf[4]= {0, 0, 0, heatState[2]};
 	Buffer buffer (buf, 3);
- uint16_t result [16]= {0};
+ uint16_t result [8]= {0};
  uint16_t temperature, tempInt;
  int32_t tInt;
  void calcTemp(uint16_t val);
@@ -160,21 +160,15 @@ void SysTick_Handler()
 		if (counter.adc>100)
 		{
 			temperature=0;
-			for (uint8_t i=0;i<16;i+=2)
+			for (uint8_t i=0;i<8;++i)
 			{
 				temperature += result [i];
 			}
 			temperature >>=3;
-			temperature /=11;
-   
-   //internal sensor
-			for (uint8_t i=1;i<16;i+=2)
-			{
-				tempInt += result [i];
-			}   
-   tempInt >>=3;
-   calcTemp (tempInt);
-   temperature += tInt;
+			temperature *=11;
+			temperature /=175;
+			temperature +=20;
+
    
 			uint16_t pidResult = regulator.compute(currTemp);
 			triac1.setValue (pidResult);
@@ -254,11 +248,12 @@ int main()
 	buffer.setFont(ArraySegChar);
 
 	Adc thermocouple (Adc::channel::ch8, Adc::resolution::bit12, adcPin);
+	/*ADC->CCR |= ADC_CCR_TSEN;
 	ADC1->CHSELR = ADC_CHSELR_CHSEL16;
-	ADC->CCR |= ADC_CCR_TSEN;
+	
 	ADC1->CR |= ADC_CR_ADSTART;
 	while ((ADC1->ISR & ADC_ISR_EOC) == 0);
- calcTemp(ADC1->DR);
+ calcTemp(ADC1->DR);*/
   
 	/*ADC1->CFGR1 |= ADC_CFGR1_DMAEN| ADC_CFGR1_DMACFG|ADC_CFGR1_CONT; 
 DMA1_Channel1->CPAR = (uint32_t) (&(ADC1->DR)); 
@@ -269,7 +264,7 @@ DMA1_Channel1->CCR |=  DMA_CCR_MINC | DMA_CCR_MSIZE_0 | DMA_CCR_PSIZE_0
 DMA1_Channel1->CCR |= DMA_CCR_EN; 
 	ADC1->CR |= ADC_CR_ADSTART;*/
 	thermocouple.enableDma();
- thermocouple.setChannels (1 << 8|1 << 16);
+ //thermocouple.setChannels (1 << 8|1 << 16);
 	adcTransfer.setPtrMem ((uint32_t)result);
 	adcTransfer.setPtrPeriph((uint32_t)&ADC1->DR);
 	adcTransfer.setIncMem (true);

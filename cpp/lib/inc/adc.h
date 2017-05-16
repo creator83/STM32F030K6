@@ -25,7 +25,7 @@ private:
 	static Gpio::Port adcPort [18];
 	static uint8_t adcPin [18];
 	static ModeFptr modeFunction [6];
-	uint16_t adcChannel;
+	uint32_t adcChannel;
 
 public:	
 	Adc(Pin & pin_, clockSource);
