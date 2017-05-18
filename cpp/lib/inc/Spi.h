@@ -96,7 +96,7 @@ public:
 	static void setCpol (Spi &, cpol c);
  static void setCpha (Spi &, cpha c);
  static void setBaudrate (Spi &, division d);
- static void setFsize (Spi &, fsize f = fsize::bit_8);
+ //static void setFsize (Spi &, fsize f = fsize::bit_8);
 
 
  void assert_Cs (uint8_t p);
