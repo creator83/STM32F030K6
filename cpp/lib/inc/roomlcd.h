@@ -5,10 +5,6 @@
 #ifndef ROOMLCD_H
 #define ROOMLCD_H
 
-namespace roomLcdBits
-{
- //uint16_t 
-}
 class Roomlcd
 {
 //variables
