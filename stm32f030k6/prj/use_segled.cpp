@@ -10,11 +10,6 @@
 #include "pid.h"
 #include "dma.h"
 
-#define TEMP110_CAL_ADDR ((uint16_t*) ((uint32_t) 0x1FFFF7C2))
-#define TEMP30_CAL_ADDR ((uint16_t*) ((uint32_t) 0x1FFFF7B8))
-#define VDD_CALIB ((uint16_t) (330))
-#define VDD_APPLI ((uint16_t) (300))
-
 Tact frq;
 Segled indicator (4);
 Atimer encDriver;
@@ -301,13 +296,7 @@ DMA1_Channel1->CCR |= DMA_CCR_EN;
 		++j;
 	}
 }
-void calcTemp(uint16_t val)
-{
-  tInt = (((int32_t) val * VDD_APPLI / VDD_CALIB)-(int32_t) *TEMP30_CAL_ADDR );
-  tInt = tInt * (int32_t)(110 - 30);
-  tInt = tInt / (int32_t)(*TEMP110_CAL_ADDR- *TEMP30_CAL_ADDR);
-  tInt = tInt + 30;
-}
+
 void adcInit ()
 {
 

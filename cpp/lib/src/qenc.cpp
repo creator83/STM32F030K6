@@ -1,36 +1,48 @@
 #include "qenc.h"
 
 
+Qenc::data::data (uint16_t h, uint16_t l, uint16_t v, data * n)
+:high(h), low(l), value (v), next(n)
+{
+ 
+}
 
 
 Qenc::Qenc (uint16_t range)
 :pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
-phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf), low(0)
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf), count(0)
 {
-	high = range << 2;
+ 
+	//high = range << 2;
 	ptrTimer = TIM1;
 	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 	setMode ();
+ first = last = nullptr;
+ current = first;
 }
 
 Qenc::Qenc (Gtimer &t, uint16_t range)
 :pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
-phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf), low(0)
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
 {
 	gtimer = &t;
-	high = range << 2;
+	//high = range << 2;
 	ptrTimer = gtimer->getPtrTimer();
 	setMode ();
+ first = last = nullptr;
+ current = first;
 }
 
 Qenc::Qenc (Atimer &t, uint16_t range)
 :pha (QdDef::PhaPort, QdDef::PhaPin, QdDef::PhaAf),
-phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf), low(0)
+phb (QdDef::PhbPort, QdDef::PhbPin, QdDef::PhbAf)
 {
 	atimer = &t;
-	high = range << 2;
+	//high = range << 2;
 	ptrTimer = TIM1;
 	setMode ();
+  first = last = nullptr;
+ current = first;
 }
 
 void Qenc::setMode ()
@@ -46,31 +58,54 @@ void Qenc::setMode ()
 
 void Qenc::scan ()
 {
- if (value == 0 && ptrTimer->CNT == 0xFFFF)
+ if (current->value == 0 && ptrTimer->CNT == 0xFFFF)
  {
-   value = 0;
+   current->value = 0;
    ptrTimer->CNT = 0;
  }
- else if (value == high&& ptrTimer->CNT >= high+4)
+ else if (current->value == current->high&& ptrTimer->CNT >= current->high+4)
  {
-   value = high;
-   ptrTimer->CNT = high;
+   current->value = current->high;
+   ptrTimer->CNT = current->high;
  }
  else 
  {
-   value = ptrTimer->CNT;
+   current->value = ptrTimer->CNT;
  }
 }
 
 uint16_t Qenc::getValue ()
 {
-  return value >> 2;
+  return current->value >> 2;
+}
+
+void Qenc::addDataSet (uint16_t h, uint16_t l)
+{
+  data * nData = new data (h, l);
+  if (last == nullptr)
+  {
+   first = nData;
+  }
+  else
+  {
+   last->next = nData;
+  }
+  last = nData;
+  ++count;
+}
+
+void Qenc::nextSet ()
+{
+ if (current->next==nullptr)
+  current = first;
+ else
+  current = current->next;
 }
 
 void Qenc::setValue  (uint16_t val)
 {
-	value = val << 2;
-	ptrTimer->CNT = value;
+	current->value = val << 2;
+	ptrTimer->CNT = current->value;
 }
 
 void Qenc::start ()

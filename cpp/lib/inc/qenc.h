@@ -38,14 +38,20 @@ const uint8_t PhbPin = 9;
 
 class Qenc
 {
-  //variables
-public:
-
-private:
+ struct data
+ {
+   uint16_t high;
+   uint16_t low;
+   uint16_t value;
+   data * next;
+  public:
+   data (uint16_t h, uint16_t l, uint16_t v=0, data * n=nullptr);
+ };
 	Pin pha, phb;
-	uint16_t high;
- uint16_t low;
-	uint16_t value;
+	data * first;
+ data * last;
+ data * current;
+ uint8_t count;
 	TIM_TypeDef * ptrTimer;
 	Gtimer * gtimer;
 	Atimer * atimer;
@@ -56,7 +62,8 @@ public:
 	Qenc (Atimer &, uint16_t range=100);
  void scan ();
 	uint16_t getValue ();
-
+ void addDataSet (uint16_t h, uint16_t l);
+ void nextSet ();
 	void setValue  (uint16_t);
 	void start ();
 	void stop ();
