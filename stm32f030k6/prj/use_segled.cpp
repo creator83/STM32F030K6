@@ -9,11 +9,13 @@
 #include "pwm.h"
 #include "pid.h"
 #include "dma.h"
+#include "list.h"
 
 Tact frq;
 Segled indicator (4);
 Atimer encDriver;
 Qenc encoder (encDriver, 10);
+enum screens {temp, setTemp, setHeater, setInterval};
 
 //beeper
 Pin beeperPin (Gpio::Port::B, 1, Gpio::Afmode::AF0);
