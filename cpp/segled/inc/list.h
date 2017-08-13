@@ -10,10 +10,9 @@ class List {
 struct Item
 {
 	uint8_t * array;
- uint8_t * first;
 	Item * next;
  uint8_t index;
-	Item (uint8_t i, Item * n = nullptr);
+	Item (uint8_t * a, Item * n = nullptr);
 };
 
 	Item * first;
@@ -24,12 +23,12 @@ struct Item
  uint8_t size;
 public:
 	//List();
- List (uint8_t s);
+ List ();
 	~List();
  uint8_t * head () const {return first->array;}
 	uint8_t * tail () const {return last->array;}
-	void addFirst ();
-	void addLast ();
+	void addFirst (uint8_t * arr);
+	void addLast (uint8_t * arr);
  void showNo0de (uint8_t index);
  void showCurrent ();
  void setDataNode (uint8_t * data, uint16_t index);

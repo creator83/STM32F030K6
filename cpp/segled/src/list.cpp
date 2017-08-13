@@ -1,13 +1,8 @@
 #include "list.h"
 
-List::Item::Item (uint8_t i, Item * n)
-:next (n), index (i)
+List::Item::Item (uint8_t * a, Item * n)
+:next (n), array(a)
 {
-  first = array = new uint8_t [4];
-  for (uint8_t i=0;i<4;++i)
-  {
-    *array++ = 0;
-  }
 }
 
 
@@ -16,8 +11,8 @@ List::Item::Item (uint8_t i, Item * n)
 {
 }*/
 
-List::List (uint8_t s)
-:size(s), count (0), first (nullptr), last (nullptr), current (nullptr)
+List::List ()
+:count (0), first (nullptr), last (nullptr), current (nullptr)
 {
  
 }
@@ -38,9 +33,9 @@ List::~List()
 
 
 
-void List::addFirst ()
+void List::addFirst (uint8_t * arr)
 {
-	Item * newItem = new Item (count, first);
+	Item * newItem = new Item (arr, first);
 	if (first == nullptr)
 	{
 		last = newItem;
@@ -50,9 +45,9 @@ void List::addFirst ()
  ++count;
 }
 
-void List::addLast ()
+void List::addLast (uint8_t * arr)
 {
-	Item * newItem = new Item (count);
+	Item * newItem = new Item (arr);
 	if (last == nullptr)
 	{
 		first = newItem;
